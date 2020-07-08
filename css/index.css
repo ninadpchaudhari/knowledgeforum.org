@@ -1,0 +1,127 @@
+body {
+  background-image: url("/assets/world_map.png");
+  height: 100vh;
+}
+
+.main {
+  height: inherit;
+}
+
+.row {
+  height: inherit;
+}
+
+.col-md-6 {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.loginRow {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.login {
+  background-color: rgba(107, 166, 214, 0.5);
+}
+
+.loginFormWrapper {
+  margin-top: 15%;
+  background-color: white;
+  border: 1px solid #48535c;
+  border-radius: 3px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 5%;
+  max-width: inherit;
+}
+
+ @media (max-width: 768px){
+   .loginFormWrapper {
+     margin-top: 0;
+     border: none;
+     border-radius: 0px;
+   }
+}
+
+.loginFormWrapper > h1 {
+  font-size: 2.25rem;
+  font-weight: 500;
+}
+
+.inputWrapper {
+  border: 1px solid black;
+  border-radius: 4px;
+  padding-left: 2%;
+  margin-top: 5%;
+  margin-bottom: 5%;
+  padding-top:7px;
+  padding-bottom: 7px;
+}
+
+.inputWrapper > input {
+  border: none;
+  width: 80%;
+}
+
+.inputWrapper > input:focus {
+  outline-width: 0;
+}
+
+.button {
+  width: 100%;
+  background-color: #6ba6d6;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.button:hover {
+  cursor: pointer;
+  border: 2px solid black;
+  padding: 6px;
+}
+
+.about {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.aboutWrapper {
+  padding-top: 5%;
+}
+
+.aboutWrapper > h1 {
+  padding-top: 20px;
+  padding-bottom: 5px;
+  margin-left: 5%;
+  letter-spacing: 2px;
+  border-bottom: 2px solid #6ba6d6;
+  display: inline-block;
+}
+
+.aboutWrapper > p {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 5%;
+  margin-top: 3%;
+}
+
+@media (max-width: 768px){
+  .aboutWrapper > h1 {
+    font-size: 1.75rem;
+  }
+
+  .aboutWrapper > p {
+    font-size: 1.25rem;
+  }
+}
+
+.carouselWrapper {
+  max-width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 20px;
+}
