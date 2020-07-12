@@ -38,10 +38,12 @@ function createLoginPromiseForURL(uname, pwd, url){
 function executePromises(uname, pwd){
   const promises = [];
 
+  // create promise for each server
   for(i in SERVERS){
     promises.push(createLoginPromiseForURL(uname, pwd, SERVERS[i].url));
   }
 
+  // execute all promises 
   Promise.all(promises).then(function(responses) {
     return Promise.all(responses.map(function (response) {
       return response;
@@ -55,6 +57,8 @@ function executePromises(uname, pwd){
 
 
 // Handles each servers response to the users credentials
+// If no succesful logins then displays error message to user
+// Otherwise redirects to next page
 function responseHandler(data){
   var successfulLogin = false;
   var errorMessage = "";

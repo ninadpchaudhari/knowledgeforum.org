@@ -1,0 +1,75 @@
+body {
+  background-image: url("/assets/world_map.png");
+  height: 100vh;
+}
+
+.main {
+  padding: 0;
+}
+
+/*------------*/
+/* SIDEBAR CSS FROM https://github.com/StartBootstrap/startbootstrap-simple-sidebar/blob/master/css/simple-sidebar.css */
+#wrapper {
+    overflow-x: hidden;
+ }
+
+#sidebar-wrapper {
+  min-height: 100vh;
+  margin-left: -15rem;
+  -webkit-transition: margin .25s ease-out;
+  -moz-transition: margin .25s ease-out;
+  -o-transition: margin .25s ease-out;
+  transition: margin .25s ease-out;
+}
+
+#sidebar-wrapper .sidebar-heading {
+  padding: 0.875rem 1.25rem;
+  font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+  width: 15rem;
+}
+
+#page-content-wrapper {
+  min-width: 100vw;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  margin-left: 0;
+}
+
+@media (min-width: 768px) {
+  #sidebar-wrapper {
+    margin-left: 0;
+  }
+
+  #page-content-wrapper {
+    min-width: 0;
+    width: 100%;
+  }
+
+  #wrapper.toggled #sidebar-wrapper {
+    margin-left: -15rem;
+  }
+}
+/*------------*/
+
+.navbar {
+  background-color: white;
+}
+
+#page-content-wrapper {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.sidebar-custom {
+  background-color: rgba(107, 166, 214, 0.5);
+}
+
+.sidebar-heading {
+  font-size: 1.5rem !important;
+  font-weight: 500 !important;
+  color: white;
+  letter-spacing: 2px;
+}
