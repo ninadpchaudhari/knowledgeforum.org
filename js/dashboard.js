@@ -1,5 +1,6 @@
 $(document).ready(function() {
 
+  // event to toggle sidebar on select server button click
   document.getElementById('menu-toggle').onclick = function() {
     var div = document.getElementById('wrapper');
     if(div.className == "d-flex"){
