@@ -19,7 +19,8 @@
     <div class="sidebar-custom" id="sidebar-wrapper">
       <h1 class="sidebar-heading">Your Servers: </h1>
       <div class="list-group list-group-flush">
-
+        <ul class = "server-list" id = "server-list">
+        </ul>
       </div>
     </div>
     <!-- /#sidebar-wrapper -->
@@ -37,7 +38,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
             <li class="nav-item">
-              <a class="nav-link" href="#">Log Out</a>
+              <a class="nav-link" href="#" id="logout">Logout</a>
             </li>
           </ul>
         </div>
@@ -47,10 +48,26 @@
 
         <div class = "row">
 
-          <div class = "col-md-6">
+          <div class = "col-md-6 mainContentCol">
+            <h1>Join Community</h1>
+            <form class="col-lg-8 col-md-10 col-sm-12 joinCommunityForm" id = "joinCommunityForm">
+
+              <label for="server">Community:</label><br>
+              <select value="getCommunity" class="communityChoiceDropdown" id="communityChoiceDropdown" required>
+              </select><br>
+
+              <label for="communityKey">Community Registration Key:</label><br>
+              <input type="text" id="communityKey" name="communityKey" required><br>
+
+              <input class = "joinButton" type="button" value="Join">
+
+            </form>
           </div>
 
-          <div class = "col-md-6">
+          <div class = "col-md-6 mainContentCol">
+            <h1>My Knowledge Building Communities</h1>
+            <ul class="userCommunities" id = "userCommunities">
+            </ul>
           </div>
 
         </div>

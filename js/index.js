@@ -43,13 +43,13 @@ function executePromises(uname, pwd){
     promises.push(createLoginPromiseForURL(uname, pwd, SERVERS[i].url));
   }
 
-  // execute all promises 
+  // execute all promises
   Promise.all(promises).then(function(responses) {
     return Promise.all(responses.map(function (response) {
       return response;
     }));
   }).then(function(data) {
-    responseHandler(data);
+    responseHandler(uname, data);
   }).catch(function(error) {
     console.log(error);
   });
@@ -59,14 +59,17 @@ function executePromises(uname, pwd){
 // Handles each servers response to the users credentials
 // If no succesful logins then displays error message to user
 // Otherwise redirects to next page
-function responseHandler(data){
+function responseHandler(uname, data){
   var successfulLogin = false;
   var errorMessage = "";
+  var registeredServers = [];
 
   for(i in data){
     if(data[i][0].token != undefined){
       successfulLogin = true;
-      localStorage.setItem(data[i][1], data[i][0].token);
+      var url = data[i][1];
+      var token = data[i][0].token;
+      registeredServers.push([url, token]);
     } else if(errorMessage == "") {
       errorMessage = data[i][0].message;
     } else if(errorMessage == "This userName is not registered." && data[i][0].message == "This password is not correct."){
@@ -78,7 +81,9 @@ function responseHandler(data){
     var errorMessageDiv = document.getElementById("errorMessage");
     errorMessageDiv.innerHTML = errorMessage;
     errorMessageDiv.style.display = "visible";
+  } else {
+    localStorage.setItem(uname, JSON.stringify(registeredServers));
+    window.location.href = "/html/dashboard.html";
   }
 
-  console.log(localStorage);
 }
