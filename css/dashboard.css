@@ -1,5 +1,5 @@
 body {
-  background-image: url("/assets/world_map.png");
+  background-image: url("../assets/world_map.png");
   height: 100vh;
 }
 

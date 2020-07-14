@@ -83,7 +83,7 @@ function responseHandler(uname, data){
     errorMessageDiv.style.display = "visible";
   } else {
     localStorage.setItem(uname, JSON.stringify(registeredServers));
-    window.location.href = "/html/dashboard.html";
+    window.location.href = "../html/dashboard.html";
   }
 
 }

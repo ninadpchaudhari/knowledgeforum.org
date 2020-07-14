@@ -13,7 +13,7 @@ $(document).ready(function() {
   // event to add functionality to logout button
   document.getElementById('logout').onclick = function() {
     localStorage.clear();
-    window.location.href = "http://127.0.0.1:3000/index.html";
+    window.location.href = "../index.html";
   };
 
   appendUserServers();
@@ -46,7 +46,7 @@ function appendUserServers(){
 // replaces the "join community" and "my knowledge building communities" sections
 // with the relevant information for the specified server
 function loadServer(url){
-  
+
   var serverCommunitiesData = getCommunities(url);
   serverCommunitiesData.then(function(result) {
     appendCommunities(result);
