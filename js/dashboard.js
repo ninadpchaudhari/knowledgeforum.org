@@ -57,6 +57,13 @@ function loadServer(url){
     appendUserCommunities(result);
   });
 
+  var userInfo = getUserInfo(url);
+  userInfo.then(function(result) {
+    var firstName = result.firstName;
+    var lastName = result.lastName;
+    $('#welcome').replaceWith('<div class="welcome" id="welcome">Welcome, ' + firstName + ' ' + lastName + '</div>');
+  });
+
 }
 
 
@@ -76,20 +83,24 @@ function extractTokenFromStorage(url) {
 // retrieves the users information for the specified server
 function getUserInfo(url) {
   var token = extractTokenFromStorage(url);
-  var request = new XMLHttpRequest();
 
-  request.open('GET', url + 'api/users/me');
-  request.setRequestHeader('Authorization', 'Bearer ' + token);
-
-  request.onreadystatechange = function() {
-    if (this.readyState === 4) {
-      console.log('Status:', this.status);
-      console.log('Headers:', this.getAllResponseHeaders());
-      console.log('Body:', this.responseText);
-    }
-  };
-
-  request.send();
+  return fetch(url + 'api/users/me', {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+  }).then(function(response) {
+      if(response.status == 401){
+        tokenErrorHandler();
+      } else {
+        return response.json();
+      }
+  }).then(function(body) {
+      return (body);
+  }).catch(function(error) {
+      return ("Error:", error);
+  });
 }
 
 
@@ -104,7 +115,11 @@ function getCommunities(url) {
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+    if(response.status == 401){
+      tokenErrorHandler();
+    } else {
       return response.json();
+    }
   }).then(function(body) {
       return (body);
   }).catch(function(error) {
@@ -135,7 +150,11 @@ function getUserCommunities(url) {
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+    if(response.status == 401){
+      tokenErrorHandler();
+    } else {
       return response.json();
+    }
   }).then(function(body) {
       return (body);
   }).catch(function(error) {
@@ -155,4 +174,12 @@ function appendUserCommunities(data) {
     $('#userCommunities').append('<li><p>' + title + '</p><button class="enterButton" type="button" onclick="joinCommunity(\'' + id + '\')">Enter Community</button></li>');
   }
 
+}
+
+// function to handle an expired/invalid user token
+// called if response status is 401 (might be errors other than invalid token)
+function tokenErrorHandler(){
+  alert("User authorization token expired");
+  localStorage.clear();
+  window.location.href = "../index.html";
 }
