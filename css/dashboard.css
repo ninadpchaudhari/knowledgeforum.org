@@ -76,18 +76,12 @@ body {
   color: #203c66 !important;
 }
 
-.welcome {
+.currentInfo {
   margin-left: 10px;
   font-weight: 500;
   font-size: 1rem;
   color: #203c66 !important;
 }
-
-/* @media (max-width: 768px){
-  .welcome {
-    font-size: 0.9rem;
-  }
-} */
 
 #page-content-wrapper {
   background-color: rgba(255, 255, 255, 0.95);

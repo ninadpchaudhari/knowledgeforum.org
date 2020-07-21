@@ -45,7 +45,8 @@ function loadServer(url){
   userInfo.then(function(result) {
     var firstName = result.firstName;
     var lastName = result.lastName;
-    $('#welcome').replaceWith('<div class="welcome" id="welcome">Welcome, ' + firstName + ' ' + lastName + '</div>');
+    var server = getServerName(url);
+    $('#currentInfo').replaceWith('<div class="currentInfo" id="currentInfo">' + firstName + ' ' + lastName + '<div></div>' + server + '</div>');
   });
 
 }
@@ -53,7 +54,7 @@ function loadServer(url){
 
 // returns the users token for the specified server
 function extractTokenFromStorage(url) {
-  var uname = localStorage.key(0);
+  var uname = localStorage.getItem("Username");
   var data = JSON.parse(localStorage.getItem(uname));
 
   for (i in data) {

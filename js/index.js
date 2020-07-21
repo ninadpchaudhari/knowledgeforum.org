@@ -4,6 +4,11 @@ $(document).ready(function(){
   $(function () {
     $('[data-toggle="tooltip"]').tooltip()
     $('[data-toggle="popover"]').popover()
+
+    if($(window).width <= 768) {
+      document.getElementById("popover").setAttribute("data-trigger", "click");
+    }
+
   })
 
   $('#loginForm').on("submit", function(e){
@@ -19,7 +24,7 @@ $(document).ready(function(){
 });
 
 
-// Creates an individual login promise for a server
+// Creates a login promise for a server
 function createLoginPromiseForURL(uname, pwd, url){
   var body = {
     'userName': uname,
