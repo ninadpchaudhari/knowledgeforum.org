@@ -68,6 +68,24 @@ body {
   outline-width: 0;
 }
 
+.checkBoxWrapper {
+  margin-top: 3%;
+  margin-bottom: 3%;
+}
+
+.checkBoxWrapper > input[type=checkbox]:checked {
+  background-color: #6ba6d6;
+}
+
+.checkBoxWrapper > a {
+  color: black;
+  padding: 2px;
+}
+
+.checkBoxWrapper > input[type=checkbox]:hover, .checkBoxWrapper > a:hover {
+  cursor: pointer;
+}
+
 .button {
   width: 100%;
   background-color: #6ba6d6;

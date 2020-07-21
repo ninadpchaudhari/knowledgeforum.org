@@ -1,21 +1,5 @@
 $(document).ready(function() {
 
-  // event to toggle sidebar on select server button click
-  document.getElementById('menu-toggle').onclick = function() {
-    var div = document.getElementById('wrapper');
-    if (div.className == "d-flex") {
-      div.className = "d-flex toggled";
-    } else {
-      div.className = "d-flex";
-    }
-  };
-
-  // event to add functionality to logout button
-  document.getElementById('logout').onclick = function() {
-    localStorage.clear();
-    window.location.href = "../index.html";
-  };
-
   appendUserServers();
 
 });
@@ -180,6 +164,29 @@ function appendUserCommunities(data) {
 // called if response status is 401 (might be errors other than invalid token)
 function tokenErrorHandler(){
   alert("User authorization token expired");
-  localStorage.clear();
+  logout();
+}
+
+// clears local storage of the username and the server token pairs and redircts to the login page
+function logout(){
+  var uname = localStorage.getItem("Username");
+  var userinfo = JSON.parse(localStorage.getItem(uname));
+
+  for(i in userinfo){
+    userinfo[i][1] = "";
+  }
+
+  localStorage.setItem(uname, JSON.stringify(userinfo));
+  localStorage.removeItem("Username");
   window.location.href = "../index.html";
+}
+
+// function to add to buttons to toggle the side bar
+function toggleSidebar(){
+  var div = document.getElementById('wrapper');
+  if (div.className == "d-flex") {
+    div.className = "d-flex toggled";
+  } else {
+    div.className = "d-flex";
+  }
 }

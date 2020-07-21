@@ -1,5 +1,11 @@
 $(document).ready(function(){
 
+  // enables the popover for refreshing servers on login tool tip
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-toggle="popover"]').popover()
+  })
+
   $('#loginForm').on("submit", function(e){
     e.preventDefault();
     var uname = document.getElementById("uname").value;
@@ -13,7 +19,7 @@ $(document).ready(function(){
 });
 
 
-// Creates an individual login promise for each server
+// Creates an individual login promise for a server
 function createLoginPromiseForURL(uname, pwd, url){
   var body = {
     'userName': uname,
@@ -37,10 +43,21 @@ function createLoginPromiseForURL(uname, pwd, url){
 // Executes all promises at once using promise.all()
 function executePromises(uname, pwd){
   const promises = [];
+  var userStorage = JSON.parse(localStorage.getItem(uname));
+  var refreshServers = document.getElementById("refreshCheckbox").checked;
 
-  // create promise for each server
-  for(i in SERVERS){
-    promises.push(createLoginPromiseForURL(uname, pwd, SERVERS[i].url));
+  // If it is the first time logging in we test all servers
+  // else we only call the servers stored in users local storage list
+  if(userStorage == null || refreshServers){
+    for(i in SERVERS){
+      console.log(i);
+      promises.push(createLoginPromiseForURL(uname, pwd, SERVERS[i].url));
+    }
+  } else {
+    for(i in userStorage){
+      console.log(i);
+      promises.push(createLoginPromiseForURL(uname, pwd, userStorage[i][0]));
+    }
   }
 
   // execute all promises
@@ -62,17 +79,17 @@ function executePromises(uname, pwd){
 function responseHandler(uname, data){
   var successfulLogin = false;
   var errorMessage = "";
-  var registeredServers = [];
+  var serverTokenPair = [];
 
   for(i in data){
-    if(data[i][0].token != undefined){
+    if(data[i][0].token != undefined) {
       successfulLogin = true;
       var url = data[i][1];
       var token = data[i][0].token;
-      registeredServers.push([url, token]);
+      serverTokenPair.push([url, token]);
     } else if(errorMessage == "") {
       errorMessage = data[i][0].message;
-    } else if(errorMessage == "This userName is not registered." && data[i][0].message == "This password is not correct."){
+    } else if(errorMessage == "This userName is not registered." && data[i][0].message == "This password is not correct.") {
       errorMessage = data[i][0].message;
     }
   }
@@ -82,7 +99,8 @@ function responseHandler(uname, data){
     errorMessageDiv.innerHTML = errorMessage;
     errorMessageDiv.style.display = "visible";
   } else {
-    localStorage.setItem(uname, JSON.stringify(registeredServers));
+    localStorage.setItem("Username", uname);
+    localStorage.setItem(uname, JSON.stringify(serverTokenPair));
     window.location.href = "../html/dashboard.html";
   }
 

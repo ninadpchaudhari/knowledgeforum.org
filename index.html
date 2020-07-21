@@ -34,11 +34,18 @@
                 <input type="password" id="pwd" name="pwd" placeholder="Password" required>
               </div>
 
+              <div class = "checkBoxWrapper">
+                <input type="checkbox" id="refreshCheckbox">
+                <label for="refreshCheckbox">Refresh my servers on login?</label>
+                <a tabindex="0" role="button" data-toggle="popover"
+                  data-trigger="focus" data-content="Check this box if you have registered to any new knowledge forums servers since your last login."><i class="far fa-question-circle"></i></a>
+              </div>
+
               <div>
                 <p style="display:hidden;color:red;" id = "errorMessage"></p>
               </div>
 
-              <input class = "button" type="submit" value="Log In">
+              <input class = "button" type="submit" value="Login">
             </form>
           </div>
         </div>
@@ -87,6 +94,7 @@
   </div>
 
   <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   <script src="../js/globalVars.js"></script>
   <script src="../js/index.js"></script>
