@@ -8,7 +8,6 @@ $(document).ready(function(){
     if($(window).width <= 768) {
       document.getElementById("popover").setAttribute("data-trigger", "click");
     }
-
   })
 
   $('#loginForm').on("submit", function(e){
@@ -48,19 +47,21 @@ function createLoginPromiseForURL(uname, pwd, url){
 // Executes all promises at once using promise.all()
 function executePromises(uname, pwd){
   const promises = [];
-  var userStorage = JSON.parse(localStorage.getItem(uname));
-  var refreshServers = document.getElementById("refreshCheckbox").checked;
 
-  // If it is the first time logging in we test all servers
+  // if the checkbox on login page is checked clear the local storage
+  var firstLogin = document.getElementById("refreshCheckbox").checked;
+  if(firstLogin){ localStorage.clear(); }
+
+  var userStorage = JSON.parse(localStorage.getItem(uname));
+
+  // If it is the first time logging in we test all servers (userStorage == null)
   // else we only call the servers stored in users local storage list
-  if(userStorage == null || refreshServers){
+  if(userStorage == null){
     for(i in SERVERS){
-      console.log(i);
       promises.push(createLoginPromiseForURL(uname, pwd, SERVERS[i].url));
     }
   } else {
     for(i in userStorage){
-      console.log(i);
       promises.push(createLoginPromiseForURL(uname, pwd, userStorage[i][0]));
     }
   }
@@ -86,12 +87,32 @@ function responseHandler(uname, data){
   var errorMessage = "";
   var serverTokenPair = [];
 
+  // retrieve users server information from local storage in order to find last active server
+  // value will be null if its first login
+  var userStorage = JSON.parse(localStorage.getItem(uname));
+
   for(i in data){
     if(data[i][0].token != undefined) {
       successfulLogin = true;
       var url = data[i][1];
       var token = data[i][0].token;
-      serverTokenPair.push([url, token]);
+
+      // if its the first login we set first server as the default active server
+      // and all other servers as inactive
+      if(userStorage == null && i == 0){
+        serverTokenPair.push([url, token, "active"]);
+      } else if(userStorage == null && i != 0){
+        serverTokenPair.push([url, token, "inactive"]);
+      }
+
+      // if it is not the first login then we retrieve last active server from localStorage
+      // and set the rest to inactive
+      else if(userStorage[i][2] == "active"){
+        serverTokenPair.push([url, token, "active"]);
+      } else {
+        serverTokenPair.push([url, token, "inactive"]);
+      }
+
     } else if(errorMessage == "") {
       errorMessage = data[i][0].message;
     } else if(errorMessage == "This userName is not registered." && data[i][0].message == "This password is not correct.") {

@@ -16,3 +16,12 @@ function getServerName(url){
 
   return "Error: server does not exist";
 }
+
+// Helper function to retrieve a servers URL from its name
+function getServerURL(name){
+  for(i in SERVERS){
+    if(SERVERS[i].name == name){ return SERVERS[i].url; }
+  }
+
+  return "Error: server does not exist";
+}

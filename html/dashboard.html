@@ -17,7 +17,7 @@
 
     <!-- Sidebar -->
     <div class="sidebar-custom" id="sidebar-wrapper">
-      <h1 class="sidebar-heading">Your Servers: </h1>
+      <h1 class="sidebar-heading">Your Servers:</h1>
       <div class="list-group list-group-flush">
         <ul class = "server-list" id = "server-list">
         </ul>
@@ -29,7 +29,8 @@
     <div id="page-content-wrapper">
 
       <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-        <button class="btn btn-primary select-server" id="menu-toggle" onclick="toggleSidebar()">Select Server</button>
+        <button class="d-none d-md-block btn btn-primary select-server" id="menu-toggle" onclick="toggleSidebar()">Select Server</button>
+        <button class="d-md-none btn btn-primary select-server" id="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-server"></i></button>
         <div class="currentInfo" id="currentInfo"></div>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

@@ -137,6 +137,13 @@ body {
   color: #203c66 !important;
 }
 
+@media (max-width: 768px){
+  .mainContentCol > h1 {
+    font-size: 1.25rem;
+    letter-spacing: normal;
+  }
+}
+
 .joinCommunityForm {
   padding-left: 0;
   padding-right: 0;
@@ -150,6 +157,12 @@ body {
   color: #203c66 !important;
   font-weight: 500;
   font-size: 1.25rem;
+}
+
+@media (max-width: 768px){
+  .joinCommunityForm > label {
+    font-size: 1rem;
+  }
 }
 
 .joinButton, .enterButton {
@@ -174,6 +187,12 @@ body {
   font-weight: 500;
   display: inline-block;
   color: #203c66;
+}
+
+@media (max-width: 768px){
+  .userCommunities > li > p {
+    font-size: 1rem;
+  }
 }
 
 .enterButton {

@@ -12,7 +12,9 @@ function appendUserServers(){
 
   for(i in data){
     var serverName = getServerName(data[i][0]);
-    if(i == 0){
+
+    // set the last active server as the default
+    if(data[i][2] == "active"){
       $("#server-list").append("<li onclick='loadServer(\"" + data[i][0] + "\")' class = 'active'>" + serverName + "</li>");
       loadServer(data[i][0]);
     } else {
@@ -22,7 +24,22 @@ function appendUserServers(){
 
   // event to juggle active tag to most recently clicked server
   $('#server-list').on('click','li', function(){
+
+    // handles active tag in html
    $(this).addClass('active').siblings().removeClass('active');
+
+   // handles the active tag in local storage
+   var activeServerURL = getServerURL(this.innerText);
+   var serverTokenPair = [];
+   for(i in data){
+     var url = data[i][0];
+     var token = data[i][1];
+     var status = (url == activeServerURL) ? "active" : "inactive";
+     serverTokenPair.push([url, token, status]);
+   }
+
+   var uname = localStorage.getItem("Username");
+   localStorage.setItem(uname, JSON.stringify(serverTokenPair));
   });
 
 }
@@ -156,7 +173,7 @@ function appendUserCommunities(data) {
   for(var i = 0; i < data.length; i++){
     var title = data[0]._community.title;
     var id = data[0].communityId;
-    $('#userCommunities').append('<li><p>' + title + '</p><button class="enterButton" type="button" onclick="joinCommunity(\'' + id + '\')">Enter Community</button></li>');
+    $('#userCommunities').append('<li><p>' + title + '</p><button class="enterButton" type="button" onclick="joinCommunity(\'' + id + '\')"><i class="far fa-arrow-alt-circle-right"></i></button></li>');
   }
 
 }
@@ -168,18 +185,23 @@ function tokenErrorHandler(){
   logout();
 }
 
-// clears local storage of the username and the server token pairs and redircts to the login page
+// clears local storage of the username and their user tokens and redircts to the login page
 function logout(){
   var uname = localStorage.getItem("Username");
   var userinfo = JSON.parse(localStorage.getItem(uname));
 
-  for(i in userinfo){
-    userinfo[i][1] = "";
+  if(uname == null || userinfo == null){
+    localStorage.clear();
+    window.location.href = "../index.html";
+  } else {
+    for(i in userinfo){
+      userinfo[i][1] = "";
+    }
+    localStorage.setItem(uname, JSON.stringify(userinfo));
+    localStorage.removeItem("Username");
+    window.location.href = "../index.html";
   }
 
-  localStorage.setItem(uname, JSON.stringify(userinfo));
-  localStorage.removeItem("Username");
-  window.location.href = "../index.html";
 }
 
 // function to add to buttons to toggle the side bar
