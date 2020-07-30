@@ -44,7 +44,7 @@ function createLoginPromiseForURL(uname, pwd, url){
 }
 
 
-// Executes all promises at once using promise.all()
+// Executes all promises for the servers at once
 function executePromises(uname, pwd){
   const promises = [];
 

@@ -1,5 +1,6 @@
 $(document).ready(function() {
 
+  // loads users servers to the sidebar and sets the active server 
   appendUserServers();
 
 });
@@ -178,6 +179,62 @@ function appendUserCommunities(data) {
 
 }
 
+// redirects the user to the specified community
+function joinCommunity(id){
+  var serverName = document.getElementsByClassName("active")[0].innerText;
+  var url = getServerURL(serverName);
+  var token = extractTokenFromStorage(url);
+
+  // retrieve the communities views here
+  var communityViews = fetch(url + 'api/communities/' + id + '/views', {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+  }).then(function(response) {
+    if(response.status == 401){
+      tokenErrorHandler();
+    } else {
+      return response.json();
+    }
+  }).then(function(body) {
+      return (body);
+  }).catch(function(error) {
+      return ("Error:", error);
+  });
+
+  // retrieve the welcome view's ID from the data
+  var welcomeViewID = "";
+  communityViews.then(function(result){
+    welcomeViewID = result[0]._id;
+  })
+
+  // set the redirect URL to the welcome view of the community
+  var body = {
+    'redirectUrl': url + 'view/' + welcomeViewID
+  };
+
+  // post the request
+  return fetch(url + 'auth/jwt', {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+      'Authorization': 'Bearer ' + token
+    },
+  }).then(function(response) {
+    if(response.status == 401){
+      tokenErrorHandler();
+    } else {
+      return response.json();
+    }
+  }).then(function(body) {
+      return (body);
+  }).catch(function(error) {
+      return ("Error:", error);
+  });
+}
+
 // function to handle an expired/invalid user token
 // called if response status is 401 (might be errors other than invalid token)
 function tokenErrorHandler(){
@@ -192,15 +249,15 @@ function logout(){
 
   if(uname == null || userinfo == null){
     localStorage.clear();
-    window.location.href = "../index.html";
   } else {
     for(i in userinfo){
       userinfo[i][1] = "";
     }
     localStorage.setItem(uname, JSON.stringify(userinfo));
     localStorage.removeItem("Username");
-    window.location.href = "../index.html";
   }
+
+  window.location.href = "../index.html";
 
 }
 
