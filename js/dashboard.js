@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-  // loads users servers to the sidebar and sets the active server 
+  // loads users servers to the sidebar and sets the active server
   appendUserServers();
 
 });
@@ -204,35 +204,35 @@ function joinCommunity(id){
       return ("Error:", error);
   });
 
-  // retrieve the welcome view's ID from the data
-  var welcomeViewID = "";
+  // retrieve the welcome view's ID from the data and post the request
   communityViews.then(function(result){
-    welcomeViewID = result[0]._id;
+    var welcomeViewID = result[0]._id;
+
+    var body = {
+      'redirectUrl': url + 'view/' + welcomeViewID
+    };
+
+    // post the request
+    return fetch(url + 'auth/jwt', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify(body)
+    }).then(function(response) {
+      if(response.status == 401){
+        tokenErrorHandler();
+      } else {
+        return response.json();
+      }
+    }).then(function(body) {
+        return (body);
+    }).catch(function(error) {
+        return ("Error:", error);
+    });
   })
 
-  // set the redirect URL to the welcome view of the community
-  var body = {
-    'redirectUrl': url + 'view/' + welcomeViewID
-  };
-
-  // post the request
-  return fetch(url + 'auth/jwt', {
-    method: "POST",
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-      'Authorization': 'Bearer ' + token
-    },
-  }).then(function(response) {
-    if(response.status == 401){
-      tokenErrorHandler();
-    } else {
-      return response.json();
-    }
-  }).then(function(body) {
-      return (body);
-  }).catch(function(error) {
-      return ("Error:", error);
-  });
 }
 
 // function to handle an expired/invalid user token
