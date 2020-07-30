@@ -56,7 +56,7 @@ function loadServer(url){
 
   var userCommunitiesData = getUserCommunities(url);
   userCommunitiesData.then(function(result) {
-    appendUserCommunities(result);
+    appendUserCommunities(result, url);
   });
 
   var userInfo = getUserInfo(url);
@@ -168,30 +168,30 @@ function getUserCommunities(url) {
 
 
 // appends all the users servers communities to their list of knowledge building communities
-function appendUserCommunities(data) {
+function appendUserCommunities(data, url) {
   $('#userCommunities').replaceWith("<ul class='userCommunities' id = 'userCommunities'></ul>");
 
   for(var i = 0; i < data.length; i++){
     var title = data[0]._community.title;
     var id = data[0].communityId;
-    $('#userCommunities').append('<li><p>' + title + '</p><button class="enterButton" type="button" onclick="joinCommunity(\'' + id + '\')"><i class="far fa-arrow-alt-circle-right"></i></button></li>');
+    $('#userCommunities').append('<li><p>' + title + '</p><button class="enterButton" type="button" onclick="enterCommunity(\'' + id + '\', \'' + url + '\')"><i class="far fa-arrow-alt-circle-right"></i></button></li>');
   }
 
 }
 
-// redirects the user to the specified community
-function joinCommunity(id){
-  var serverName = document.getElementsByClassName("active")[0].innerText;
-  var url = getServerURL(serverName);
+
+// retrieves the views from the specified community
+function getCommunityViews(communityId, url){
   var token = extractTokenFromStorage(url);
 
   // retrieve the communities views here
-  var communityViews = fetch(url + 'api/communities/' + id + '/views', {
+  return fetch(url + 'api/communities/' + communityId + '/views', {
     method: "GET",
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + token
     },
+    redirect: "follow"
   }).then(function(response) {
     if(response.status == 401){
       tokenErrorHandler();
@@ -203,36 +203,37 @@ function joinCommunity(id){
   }).catch(function(error) {
       return ("Error:", error);
   });
+}
 
-  // retrieve the welcome view's ID from the data and post the request
+
+// redirects the user to enter the specified community
+function enterCommunity(communityId, url){
+  var token = extractTokenFromStorage(url);
+  var communityViews = getCommunityViews(communityId, url);
+
   communityViews.then(function(result){
     var welcomeViewID = result[0]._id;
 
-    var body = {
-      'redirectUrl': url + 'view/' + welcomeViewID
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+    myHeaders.append("Authorization", "Bearer " + token);
+
+    var urlencoded = new URLSearchParams();
+    urlencoded.append("redirectUrl", url + 'view/' + welcomeViewID);
+
+    var requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: urlencoded,
+      redirect: "follow"
     };
 
-    // post the request
-    return fetch(url + 'auth/jwt', {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify(body)
-    }).then(function(response) {
-      if(response.status == 401){
-        tokenErrorHandler();
-      } else {
-        return response.json();
-      }
-    }).then(function(body) {
-        return (body);
-    }).catch(function(error) {
-        return ("Error:", error);
-    });
-  })
+    fetch(url + "auth/jwt", requestOptions)
+      .then(response => response.text())
+      .then(result => window.open(url + "view/" + welcomeViewID, "_blank"))
+      .catch(error => console.log('error', error));
 
+  })
 }
 
 // function to handle an expired/invalid user token
