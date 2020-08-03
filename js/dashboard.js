@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-  // loads users servers to the sidebar and sets the active server
+  // loads users servers to the sidebar and set the active server
   appendUserServers();
 
 });
@@ -230,7 +230,7 @@ function enterCommunity(communityId, url){
 
     fetch(url + "auth/jwt", requestOptions)
       .then(response => response.text())
-      .then(result => window.open(url + "view/" + welcomeViewID, "_blank"))
+      .then(result => console.log(result))
       .catch(error => console.log('error', error));
 
   })
