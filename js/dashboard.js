@@ -51,7 +51,7 @@ function loadServer(url){
 
   var serverCommunitiesData = getCommunities(url);
   serverCommunitiesData.then(function(result) {
-    appendCommunities(result);
+    appendCommunities(result, url);
   });
 
   var userCommunitiesData = getUserCommunities(url);
@@ -63,8 +63,10 @@ function loadServer(url){
   userInfo.then(function(result) {
     var firstName = result.firstName;
     var lastName = result.lastName;
+    var userId = result._id;
     var server = getServerName(url);
     $('#currentInfo').replaceWith('<div class="currentInfo" id="currentInfo">' + firstName + ' ' + lastName + '<div></div>' + server + '</div>');
+    $('#joinCommunityButton').replaceWith('<input class = "joinButton" type="button" value="Join" onclick="joinCommunity(\'' + userId + '\',\'' + url + '\')" id="joinCommunityButton">')
   });
 
 }
@@ -132,12 +134,13 @@ function getCommunities(url) {
 
 
 // appends all the servers communities to the community choice dropdown
-function appendCommunities(data) {
+function appendCommunities(data, url) {
   $('#communityChoiceDropdown').replaceWith('<select value="getCommunity" class="communityChoiceDropdown" id="communityChoiceDropdown" required></select>');
 
   for(var i = 0; i < data.length; i++){
     var title = data[i].title;
-    $('#communityChoiceDropdown').append('<option>' + title + '</option>');
+    var communityId = data[i]._id;
+    $('#communityChoiceDropdown').append('<option value=\'' + communityId + '\'>' + title + '</option>');
   }
 }
 
@@ -172,8 +175,8 @@ function appendUserCommunities(data, url) {
   $('#userCommunities').replaceWith("<ul class='userCommunities' id = 'userCommunities'></ul>");
 
   for(var i = 0; i < data.length; i++){
-    var title = data[0]._community.title;
-    var id = data[0].communityId;
+    var title = data[i]._community.title;
+    var id = data[i].communityId;
     $('#userCommunities').append('<li><p>' + title + '</p><button class="enterButton" type="button" onclick="enterCommunity(\'' + id + '\', \'' + url + '\')"><i class="far fa-arrow-alt-circle-right"></i></button></li>');
   }
 
@@ -191,7 +194,6 @@ function getCommunityViews(communityId, url){
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + token
     },
-    redirect: "follow"
   }).then(function(response) {
     if(response.status == 401){
       tokenErrorHandler();
@@ -236,12 +238,48 @@ function enterCommunity(communityId, url){
   })
 }
 
+
+// registers the user for a community
+function joinCommunity(userId, url){
+  var selectCommunityDropdown = document.getElementById("communityChoiceDropdown");
+  var communityId = selectCommunityDropdown.options[selectCommunityDropdown.selectedIndex].value;
+  var registrationKey = document.getElementById("communityKey").value;
+  var token = extractTokenFromStorage(url);
+
+  var body = {
+    'communityId': communityId,
+    'registrationKey': registrationKey,
+    'userId': userId
+  };
+
+  var promise = fetch(url + 'api/authors', {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify(body),
+  }).then(function(response) {
+      return response.json();
+  }).then(function(body) {
+      return ("Success:", [body, url]);
+  }).catch(function(error) {
+      return ("Error:", error);
+  });
+
+  promise.then(function(result) {
+    location.reload();
+  });
+}
+
+
 // function to handle an expired/invalid user token
 // called if response status is 401 (might be errors other than invalid token)
 function tokenErrorHandler(){
   alert("User authorization token expired");
   logout();
 }
+
 
 // clears local storage of the username and their user tokens and redircts to the login page
 function logout(){
@@ -261,6 +299,7 @@ function logout(){
   window.location.href = "../index.html";
 
 }
+
 
 // function to add to buttons to toggle the side bar
 function toggleSidebar(){
