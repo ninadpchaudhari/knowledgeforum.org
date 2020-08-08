@@ -216,21 +216,34 @@ function enterCommunity(communityId, url){
   communityViews.then(function(result){
     var welcomeViewID = result[0]._id;
 
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
-    myHeaders.append("Authorization", "Bearer " + token);
 
-    var urlencoded = new URLSearchParams();
-    urlencoded.append("redirectUrl", url + 'view/' + welcomeViewID);
+    // POST IMPLEMENTATION OF /AUTH/JWT
+    // var myHeaders = new Headers();
+    // myHeaders.append("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+    // myHeaders.append("Authorization", "Bearer " + token);
+    //
+    // var urlencoded = new URLSearchParams();
+    // urlencoded.append("redirectUrl", url + 'view/' + welcomeViewID);
+    //
+    // var requestOptions = {
+    //   method: "POST",
+    //   headers: myHeaders,
+    //   body: urlencoded,
+    //   redirect: "follow",
+    // };
+    //
+    // fetch(url + "auth/jwt", requestOptions)
+    //   .then(response => response.text())
+    //   .then(result => console.log(result))
+    //   .catch(error => console.log('error', error));
 
+    // GET IMPLEMENTATION OF /AUTH/JWT
     var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: urlencoded,
+      method: "GET",
       redirect: "follow"
     };
 
-    fetch(url + "auth/jwt", requestOptions)
+    fetch(url + "auth/jwt?token=" + token + "&redirectUrl=/view/" + welcomeViewID, requestOptions)
       .then(response => response.text())
       .then(result => console.log(result))
       .catch(error => console.log('error', error));
