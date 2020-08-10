@@ -174,6 +174,10 @@ body {
   margin-top: 15px;
 }
 
+.enterButton {
+  margin-top: 0px;
+}
+
 .userCommunities {
   padding-left: 10px;
 }

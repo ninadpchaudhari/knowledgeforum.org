@@ -173,12 +173,37 @@ function getUserCommunities(url) {
 // appends all the users servers communities to their list of knowledge building communities
 function appendUserCommunities(data, url) {
   $('#userCommunities').replaceWith("<ul class='userCommunities' id = 'userCommunities'></ul>");
+  var token = extractTokenFromStorage(url);
+  var promises = [];
 
+  // for loop to create promises to get welcome view IDs for each community
   for(var i = 0; i < data.length; i++){
-    var title = data[i]._community.title;
     var id = data[i].communityId;
-    $('#userCommunities').append('<li><p>' + title + '</p><button class="enterButton" type="button" onclick="enterCommunity(\'' + id + '\', \'' + url + '\')"><i class="far fa-arrow-alt-circle-right"></i></button></li>');
+    const p = new Promise((resolve, reject) => {
+      var welcomeViewID = getCommunityViews(id, url).then(function(result) { return result[0]._id; })
+      resolve(welcomeViewID);
+    })
+
+    promises.push(p);
   }
+
+  // execute all promises
+  Promise.all(promises).then(function(responses) {
+    return Promise.all(responses.map(function (response) {
+      return response;
+    }));
+  }).then(function(body) {
+    // here we use the welcome view id, title, and communityId to create each list entry
+    // body and data should be same length
+    for(var i = 0; i < body.length; i++){
+      var title = data[i]._community.title;
+      var id = data[i].communityId;
+      var welcomeViewID = body[i];
+      $('#userCommunities').append('<li><p>' + title + '</p><a href="' + url + 'auth/jwt?token=' + token + '&redirectUrl=/view/' + welcomeViewID + '" target="_blank"><button class="enterButton" type="button"><i class="far fa-arrow-alt-circle-right"></i></button></a></li>');
+    }
+  }).catch(function(error) {
+    console.log(error);
+  });
 
 }
 
@@ -205,50 +230,6 @@ function getCommunityViews(communityId, url){
   }).catch(function(error) {
       return ("Error:", error);
   });
-}
-
-
-// redirects the user to enter the specified community
-function enterCommunity(communityId, url){
-  var token = extractTokenFromStorage(url);
-  var communityViews = getCommunityViews(communityId, url);
-
-  communityViews.then(function(result){
-    var welcomeViewID = result[0]._id;
-
-
-    // POST IMPLEMENTATION OF /AUTH/JWT
-    // var myHeaders = new Headers();
-    // myHeaders.append("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
-    // myHeaders.append("Authorization", "Bearer " + token);
-    //
-    // var urlencoded = new URLSearchParams();
-    // urlencoded.append("redirectUrl", url + 'view/' + welcomeViewID);
-    //
-    // var requestOptions = {
-    //   method: "POST",
-    //   headers: myHeaders,
-    //   body: urlencoded,
-    //   redirect: "follow",
-    // };
-    //
-    // fetch(url + "auth/jwt", requestOptions)
-    //   .then(response => response.text())
-    //   .then(result => console.log(result))
-    //   .catch(error => console.log('error', error));
-
-    // GET IMPLEMENTATION OF /AUTH/JWT
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow"
-    };
-
-    fetch(url + "auth/jwt?token=" + token + "&redirectUrl=/view/" + welcomeViewID, requestOptions)
-      .then(response => response.text())
-      .then(result => console.log(result))
-      .catch(error => console.log('error', error));
-
-  })
 }
 
 
