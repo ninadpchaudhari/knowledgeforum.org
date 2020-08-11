@@ -143,3 +143,22 @@ body {
   margin-right: auto;
   padding-bottom: 20px;
 }
+
+.demo {
+  width: auto;
+  margin-left: 5%;
+}
+
+.modal-dialog {
+  max-width: 90%;
+  margin: 5vh auto;
+}
+
+.modal-body {
+  height: 75vh;
+}
+
+iframe {
+  width: 100%;
+  height: 100%;
+}

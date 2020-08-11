@@ -13,10 +13,12 @@
 </head>
 
 <body>
+  <!-- Main Content -->
   <div class="container-fluid main">
 
     <div class = "row">
 
+      <!-- Left Login Column -->
       <div class = "col-md-6 login" id = "login">
 
         <div class = "row loginRow">
@@ -52,7 +54,9 @@
         </div>
 
       </div>
+      <!-- End left Login Column -->
 
+      <!-- Right about column -->
       <div class = "col-md-6 about">
 
         <div class = "aboutWrapper">
@@ -62,6 +66,7 @@
               IntegratingKF unites all of these installations and hence the stakeholders to help confluence knowledge building research,
               widen the reach of the tool & provide a central location for all global stakeholders.</p>
 
+              <!-- Carousel -->
               <div class = "carouselWrapper">
                   <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
                     <ol class="carousel-indicators">
@@ -86,13 +91,39 @@
                   </a>
                 </div>
             </div>
-        </div>
+            <!-- End Carousel -->
 
+            <!-- Button trigger modal -->
+            <button type="button" class="button demo" data-toggle="modal" data-target="#exampleModal">Demo</button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Knowledge Forum Demo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <iframe id="iframeDemo" src="" title="Knowledge Forum Demo"></iframe>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+
+        </div>
       </div>
+      <!-- End right about column -->
 
     </div>
-
   </div>
+  <!-- End main content -->
 
   <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>

@@ -20,7 +20,26 @@ $(document).ready(function(){
     return false;
   })
 
+  getiFrameSrc();
+
 });
+
+// function to get the demo users token and create the url for the iframe and set it
+function getiFrameSrc(){
+  const USERNAME = "demo";
+  const PASSWORD = "demo";
+  const SERVER = "https://kf6-stage.ikit.org/";
+  const WELCOMEVIEWID = "558abcb01f3b621e75d9bc0a";
+
+  var promise = createLoginPromiseForURL(USERNAME, PASSWORD, SERVER);
+  promise.then(function(result){
+    var token = result[0].token;
+    var url = SERVER + "auth/jwt?token=" + token + "&redirectUrl=/view/" + WELCOMEVIEWID;
+    var iframe = document.getElementById("iframeDemo");
+    iframe.setAttribute("src", url);
+  })
+
+}
 
 
 // Creates a login promise for a server

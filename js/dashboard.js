@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-  // loads users servers to the sidebar and set the active server
+  // loads the users servers and append all information to the page
   appendUserServers();
 
 });
@@ -194,7 +194,7 @@ function appendUserCommunities(data, url) {
     }));
   }).then(function(body) {
     // here we use the welcome view id, title, and communityId to create each list entry
-    // body and data should be same length
+    // body and data are same length
     for(var i = 0; i < body.length; i++){
       var title = data[i]._community.title;
       var id = data[i].communityId;
