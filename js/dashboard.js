@@ -254,14 +254,24 @@ function joinCommunity(userId, url){
     },
     body: JSON.stringify(body),
   }).then(function(response) {
-      return response.json();
+      if(response.status == 400){
+        var errorMessageDiv = document.getElementById("errorMessage");
+        errorMessageDiv.innerHTML = "Registration key does not match.";
+        errorMessageDiv.style.display = "visible";
+      } else {
+        return response.json();
+      }
   }).then(function(body) {
       return ("Success:", [body, url]);
   }).catch(function(error) {
       return ("Error:", error);
   });
 
-  promise.then(function(result) {
+  promise.then(result => new Promise(resolve => {
+    setTimeout(function(){
+      resolve();
+    }, 2000);
+  })).then(() => {
     location.reload();
   });
 }

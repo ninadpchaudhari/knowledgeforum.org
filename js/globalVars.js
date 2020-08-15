@@ -3,8 +3,10 @@
 * {name:"SERVER NAME", url:"SERVER URL"}
 */
 const SERVERS = [
-  {name:"Test", url:"https://kf6-stage.ikit.org/"},
-  {name:"Albany/RIT", url:"https://kf6-stage.rit.albany.edu/"},
+  {name:"IKIT Stage", url:"https://kf6-stage.ikit.org/"},
+  {name:"Albany Stage", url:"https://kf6-stage.rit.albany.edu/"},
+  {name:"IKIT", url:"https://kf6.ikit.org/"},
+  {name:"Albany", url:"https://kf6.rit.albany.edu/"},
   {name:"Singapore", url:"https://kf.rdc.nie.edu.sg/"}
 ];
 

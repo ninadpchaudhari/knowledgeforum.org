@@ -145,8 +145,10 @@ body {
 }
 
 .demo {
-  width: auto;
+  width: -webkit-fill-available;
   margin-left: 5%;
+  margin-right: 5%;
+  margin-bottom: 20px;
 }
 
 .modal-dialog {
