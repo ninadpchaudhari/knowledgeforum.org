@@ -13,9 +13,10 @@
 </head>
 
 <body>
+  <!-- PAGE BEGIN -->
   <div class="d-flex" id="wrapper">
 
-    <!-- Sidebar -->
+    <!-- SIDEBAR -->
     <div class="sidebar-custom" id="sidebar-wrapper">
       <h1 class="sidebar-heading">Your Servers:</h1>
       <div class="list-group list-group-flush">
@@ -23,11 +24,12 @@
         </ul>
       </div>
     </div>
-    <!-- /#sidebar-wrapper -->
+    <!-- END SIDEBAR -->
 
-    <!-- Page Content -->
+    <!-- MAIN CONTENT -->
     <div id="page-content-wrapper">
 
+      <!-- NAVBAR -->
       <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
         <button class="d-none d-md-block btn btn-primary select-server" id="menu-toggle" onclick="toggleSidebar()">Select Server</button>
         <button class="d-md-none btn btn-primary select-server" id="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-server"></i></button>
@@ -45,16 +47,21 @@
           </ul>
         </div>
       </nav>
+      <!-- END NAVBAR -->
 
+      <!-- COMMUNITIES ROW -->
       <div class="container-fluid">
         <div class = "row">
 
+          <!-- ENTER COMMUNITY COL -->
           <div class = "col-md-6 mainContentCol">
             <h1>My Knowledge Building Communities</h1>
             <ul class="userCommunities" id = "userCommunities">
             </ul>
           </div>
+          <!-- END ENTER COMMUNITY COL -->
 
+          <!-- JOIN COMMUNITY COL -->
           <div class = "col-md-6 mainContentCol">
             <h1>Join Community</h1>
             <form class="col-lg-8 col-md-10 col-sm-12 joinCommunityForm" id = "joinCommunityForm">
@@ -74,19 +81,21 @@
 
             </form>
           </div>
+          <!-- END JOIN COMMUNITY COL --> 
 
         </div>
 
       </div>
+      <!-- END COMMUNITIES ROW -->
     </div>
-    <!-- /#page-content-wrapper -->
-
+    <!-- END MAIN CONTENT -->
 
 
   </div>
+  <!-- PAGE END -->
 
   <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  <script src="../js/globalVars.js"></script>
+  <script src="../js/config.js"></script>
   <script src="../js/dashboard.js"></script>
 </body>

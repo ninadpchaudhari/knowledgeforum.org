@@ -10,14 +10,24 @@ const SERVERS = [
   {name:"Singapore", url:"https://kf.rdc.nie.edu.sg/"}
 ];
 
+/*
+* EDIT VALUES FOR iFRAME SAMPLE VIEW HERE
+*/
+const USERNAME = "demo";
+const PASSWORD = "demo";
+const SERVER = getServerURL("IKIT Stage");
+const WELCOMEVIEWID = "558abcb01f3b621e75d9bc0a";
+
+
 // Helper function to retrieve a servers name from its URL
 function getServerName(url){
   for(i in SERVERS){
     if(SERVERS[i].url == url){ return SERVERS[i].name; }
   }
 
-  return "Error: server does not exist";
+  return "Error: server " + url + " does not exist";
 }
+
 
 // Helper function to retrieve a servers URL from its name
 function getServerURL(name){
@@ -25,5 +35,5 @@ function getServerURL(name){
     if(SERVERS[i].name == name){ return SERVERS[i].url; }
   }
 
-  return "Error: server does not exist";
+  return "Error: server " + name + " does not exist";
 }

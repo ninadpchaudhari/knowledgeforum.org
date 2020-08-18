@@ -25,12 +25,9 @@ $(document).ready(function(){
 });
 
 // function to get the demo users token and create the url for the iframe and set it
+// username, password, server, and welcomeviewid are from config.js
 function getiFrameSrc(){
-  const USERNAME = "demo";
-  const PASSWORD = "demo";
-  const SERVER = "https://kf6-stage.ikit.org/";
-  const WELCOMEVIEWID = "558abcb01f3b621e75d9bc0a";
-
+  
   var promise = createLoginPromiseForURL(USERNAME, PASSWORD, SERVER);
   promise.then(function(result){
     var token = result[0].token;
