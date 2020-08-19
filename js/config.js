@@ -13,8 +13,8 @@ const SERVERS = [
 /*
 * EDIT VALUES FOR iFRAME SAMPLE VIEW HERE
 */
-const USERNAME = "demo";
-const PASSWORD = "demo";
+const USERNAME = "demo1";
+const PASSWORD = "demo1";
 const SERVER = getServerURL("IKIT Stage");
 const WELCOMEVIEWID = "558abcb01f3b621e75d9bc0a";
 

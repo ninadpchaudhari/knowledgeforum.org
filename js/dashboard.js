@@ -7,11 +7,12 @@ $(document).ready(function() {
 
 // adds the users servers to the side bar
 function appendUserServers(){
-  var uname = localStorage.key(0);
+  var uname = localStorage.getItem("Username");
   var data = JSON.parse(localStorage.getItem(uname));
   var serverList = document.getElementById("server-list");
 
-  for(i in data){
+  console.log(data.length);
+  for(var i = 0; i < data.length; i++){
     var serverName = getServerName(data[i][0]);
 
     // set the last active server as the default
