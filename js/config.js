@@ -16,7 +16,7 @@ const SERVERS = [
 const USERNAME = "demo1";
 const PASSWORD = "demo1";
 const SERVER = getServerURL("IKIT Stage");
-const WELCOMEVIEWID = "558abcb01f3b621e75d9bc0a";
+const WELCOMEVIEWID = "558abcb01f3b621e75d9bc0a"; // PKU SUMMER SCHOOL COMMUNITY 
 
 
 // Helper function to retrieve a servers name from its URL
