@@ -25,11 +25,8 @@ $(document).ready(function(){
 });
 
 // function to get the demo users token and create the url for the iframe and set it
+// username, password, server, and welcomeviewid are from config.js
 function getiFrameSrc(){
-  const USERNAME = "demo";
-  const PASSWORD = "demo";
-  const SERVER = "https://kf6-stage.ikit.org/";
-  const WELCOMEVIEWID = "558abcb01f3b621e75d9bc0a";
 
   var promise = createLoginPromiseForURL(USERNAME, PASSWORD, SERVER);
   promise.then(function(result){
@@ -146,7 +143,7 @@ function responseHandler(uname, data){
   } else {
     localStorage.setItem("Username", uname);
     localStorage.setItem(uname, JSON.stringify(serverTokenPair));
-    window.location.href = "../html/dashboard.html";
+    window.location.href = "html/dashboard.html";
   }
 
 }

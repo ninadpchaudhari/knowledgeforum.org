@@ -7,11 +7,12 @@ $(document).ready(function() {
 
 // adds the users servers to the side bar
 function appendUserServers(){
-  var uname = localStorage.key(0);
+  var uname = localStorage.getItem("Username");
   var data = JSON.parse(localStorage.getItem(uname));
   var serverList = document.getElementById("server-list");
 
-  for(i in data){
+  console.log(data.length);
+  for(var i = 0; i < data.length; i++){
     var serverName = getServerName(data[i][0]);
 
     // set the last active server as the default
@@ -120,11 +121,7 @@ function getCommunities(url) {
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
-    if(response.status == 401){
-      tokenErrorHandler();
-    } else {
       return response.json();
-    }
   }).then(function(body) {
       return (body);
   }).catch(function(error) {
@@ -156,11 +153,7 @@ function getUserCommunities(url) {
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
-    if(response.status == 401){
-      tokenErrorHandler();
-    } else {
-      return response.json();
-    }
+    return response.json();
   }).then(function(body) {
       return (body);
   }).catch(function(error) {
@@ -220,11 +213,7 @@ function getCommunityViews(communityId, url){
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
-    if(response.status == 401){
-      tokenErrorHandler();
-    } else {
-      return response.json();
-    }
+    return response.json();
   }).then(function(body) {
       return (body);
   }).catch(function(error) {
@@ -256,7 +245,7 @@ function joinCommunity(userId, url){
   }).then(function(response) {
       if(response.status == 400){
         var errorMessageDiv = document.getElementById("errorMessage");
-        errorMessageDiv.innerHTML = "Registration key does not match.";
+        errorMessageDiv.innerHTML = "Registration key does not match or you are already registered.";
         errorMessageDiv.style.display = "visible";
       } else {
         return response.json();
