@@ -173,11 +173,18 @@ function appendUserCommunities(data, url) {
     var id = data[i].communityId;
     const p = new Promise((resolve, reject) => {
       var welcomeViewID = getCommunityViews(id, url).then(function(result) {
+        if(result[0]){
         if(result[0]._id){
           return result[0]._id;
         } else {
           console.log(result[0]);
         }
+        }
+        else{
+        console.log(id);
+          console.log(result);
+        }
+        
       })
       resolve(welcomeViewID);
     })
