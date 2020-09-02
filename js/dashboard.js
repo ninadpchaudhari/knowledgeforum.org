@@ -11,7 +11,6 @@ function appendUserServers(){
   var data = JSON.parse(localStorage.getItem(uname));
   var serverList = document.getElementById("server-list");
 
-  console.log(data.length);
   for(var i = 0; i < data.length; i++){
     var serverName = getServerName(data[i][0]);
 
@@ -173,7 +172,13 @@ function appendUserCommunities(data, url) {
   for(var i = 0; i < data.length; i++){
     var id = data[i].communityId;
     const p = new Promise((resolve, reject) => {
-      var welcomeViewID = getCommunityViews(id, url).then(function(result) { return result[0]._id; })
+      var welcomeViewID = getCommunityViews(id, url).then(function(result) {
+        if(result[0]._id){
+          return result[0]._id;
+        } else {
+          console.log(result[0]);
+        }
+      })
       resolve(welcomeViewID);
     })
 
