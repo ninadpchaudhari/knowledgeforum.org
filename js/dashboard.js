@@ -176,7 +176,7 @@ function appendUserCommunities(data, url) {
         if(result[0]._id){
           return result[0]._id;
         } else {
-          console.log(result[0]._id);
+          console.log(result[0]);
         }
       })
       resolve(welcomeViewID);
