@@ -4,11 +4,11 @@ $(document).ready(function(){
   $(function () {
     $('[data-toggle="tooltip"]').tooltip()
     $('[data-toggle="popover"]').popover()
-
-    if($(window).width <= 768) {
-      document.getElementById("popover").setAttribute("data-trigger", "click");
-    }
   })
+
+  if($(window).width() <= 768) {
+    document.getElementById("popover").setAttribute("data-trigger", "focus");
+  }
 
   $('#loginForm').on("submit", function(e){
     e.preventDefault();
