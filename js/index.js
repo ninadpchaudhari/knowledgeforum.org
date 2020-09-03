@@ -20,7 +20,7 @@ $(document).ready(function(){
     return false;
   })
 
-  getiFrameSrc();
+  //getiFrameSrc();
 
 });
 
