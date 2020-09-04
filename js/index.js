@@ -5,8 +5,8 @@ $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip()
     $('[data-toggle="popover"]').popover()
 
-    if($(window).width <= 768) {
-      document.getElementById("popover").setAttribute("data-trigger", "click");
+    if($(window).width() <= 768) {
+      document.getElementById("popover").setAttribute("data-trigger", "focus");
     }
   })
 
@@ -109,15 +109,14 @@ function responseHandler(uname, data){
 
   for(i in data){
     if(data[i][0].token != undefined) {
-      successfulLogin = true;
       var url = data[i][1];
       var token = data[i][0].token;
 
       // if its the first login we set first server as the default active server
       // and all other servers as inactive
-      if(userStorage == null && i == 0){
+      if(userStorage == null && successfulLogin == false){
         serverTokenPair.push([url, token, "active"]);
-      } else if(userStorage == null && i != 0){
+      } else if(userStorage == null){
         serverTokenPair.push([url, token, "inactive"]);
       }
 
@@ -134,6 +133,8 @@ function responseHandler(uname, data){
     } else if(errorMessage == "This userName is not registered." && data[i][0].message == "This password is not correct.") {
       errorMessage = data[i][0].message;
     }
+
+    successfulLogin = true;
   }
 
   if(!successfulLogin){

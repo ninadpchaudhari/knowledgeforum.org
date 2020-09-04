@@ -37,48 +37,50 @@ $(document).ready(function() {
 
 
   // get demo user token
-  var promise = createDemoUserTokenPromise();
-  promise.then(function(result) {
+  var getTokenPromise = createDemoUserTokenPromise();
+  getTokenPromise.then(function(result) {
     var token = result[0].token;
 
     // use token to get all the notes from the welcome view
-    var promise2 = getApiLinksFromViewId(token, SERVER, WELCOMEVIEWID);
-    promise2.then(function(result) {
-
-      // sort out the relevant notes and add them to the graph
-      for (var i = 0; i < result.length; i++) {
-        if (result[i]._to.type === "Note" && result[i]._to.title !== "" && result[i]._to.status === "active") {
-          cy.add({
-            data: {
-              id: result[i]._id,
-              name: result[i]._to.title
-            },
-            position: {
-              x: result[i].data.x,
-              y: result[i].data.y
-            }
-          });
-        }
-      }
-    });
-
+    var promise = getApiLinksFromViewId(token, SERVER, WELCOMEVIEWID);
     // use token to get all the edges for the welcome view
-    var promise3 = postApiLinksCommunityIdSearch(token, SERVER, COMMUNITYID, {type: "buildson"});
-    promise3.then(function(result) {
+    var promise1 = postApiLinksCommunityIdSearch(token, SERVER, COMMUNITYID, {type: "buildson"});
 
-      // sort out relevant edges and add them to the graph
-      for(var i = 0; i < result.length; i++){
-        var obj = result[i];
-        if(obj._to.type === "Note" && obj._to.status === "active" && obj._from.type === "Note" && obj._from.status === "active"){
+
+    Promise.all([promise, promise1]).then((result) => {
+      console.log(result);
+
+      // first add the notes to the graph
+      for(var i = 0; i < result[0].length; i++){
+        if(result[0][i]._to.type === "Note" && result[0][i]._to.title !== "" && result[0][i]._to.status === "active"){
+          console.log(result[0][i].to);
           cy.add({
-            data: {
-              id: obj._id,
-              source: obj.from,
-              target: obj.to
-            }
+              data: {
+                id: result[0][i].to,
+                name: result[0][i]._to.title
+              },
+              position: {
+                x: result[0][i].data.x,
+                y: result[0][i].data.y
+              }
           });
         }
       }
+
+      // second add the edges to the graph
+      for(var i = 0; i < result[1].length; i++){
+        var obj = result[1][i];
+        if(obj._to.type === "Note" && obj._to.status === "active" && obj._to.title != "" && obj._from.type === "Note" && obj._from.status === "active" && obj._from.title != ""){
+            cy.add({
+              data: {
+                id: obj._id,
+                source: obj.from,
+                target: obj.to
+              }
+            });
+        }
+      }
+
     });
 
   });

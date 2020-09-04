@@ -18,7 +18,7 @@ const USERNAME = "admin";
 const PASSWORD = "build";
 const SERVER = getServerURL("Local");
 const WELCOMEVIEWID = "5f5009ec1beff90212b92dd6"; // TEST COMMUNITY WELCOME VIEW ID
-const COMMUNITYID = "5f5009eb1beff90212b92dd4" // TEST COMMUNITY ID
+const COMMUNITYID = "5f5009eb1beff90212b92dd3" // TEST COMMUNITY ID
 
 // Helper function to retrieve a servers name from its URL
 function getServerName(url){
