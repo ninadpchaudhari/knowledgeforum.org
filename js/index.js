@@ -128,13 +128,13 @@ function responseHandler(uname, data){
         serverTokenPair.push([url, token, "inactive"]);
       }
 
+      successfulLogin = true;
+
     } else if(errorMessage == "") {
       errorMessage = data[i][0].message;
     } else if(errorMessage == "This userName is not registered." && data[i][0].message == "This password is not correct.") {
       errorMessage = data[i][0].message;
     }
-
-    successfulLogin = true;
   }
 
   if(!successfulLogin){
