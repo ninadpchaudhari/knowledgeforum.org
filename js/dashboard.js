@@ -54,6 +54,8 @@ function loadServer(url){
     appendCommunities(result, url);
   });
 
+  // reset loading gif for user communities
+  $('#userCommunities').replaceWith('<ul class="userCommunities" id = "userCommunities"><div class = "loader"></div></ul>');
   var userCommunitiesData = getUserCommunities(url);
   userCommunitiesData.then(function(result) {
     appendUserCommunities(result, url);
