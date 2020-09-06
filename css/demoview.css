@@ -9,3 +9,7 @@
   height: 100vh;
   display: block;
 }
+
+.cytoscape-label{
+  font-size: 1vh;
+}
