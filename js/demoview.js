@@ -1,9 +1,5 @@
 $(document).ready(function() {
 
-  var cytoscape = require('cytoscape');
-  var nodeHtmlLabel = require('cytoscape-node-html-label');
-  nodeHtmlLabel( cytoscape ); // register extension
-
   // initialize the graph
   var cy = cytoscape({
     container: document.getElementById('cy'), // container to render in
@@ -44,7 +40,7 @@ $(document).ready(function() {
     maxZoom: 2,
   });
 
-  // set nodeHtmlLabel for your Cy instance
+  //set nodeHtmlLabel for your Cy instance
   cy.nodeHtmlLabel([
     {
       query: 'node',
@@ -72,18 +68,35 @@ $(document).ready(function() {
 
     Promise.all([promise, promise1, promise2, promise3]).then((result) => {
 
+      var notes = new Map();
+
       // first add the notes to the graph
       for(var i = 0; i < result[0].length; i++){
         if(result[0][i]._to.type === "Note" && result[0][i]._to.title !== "" && result[0][i]._to.status === "active"){
           var authorName = matchAuthorId(result[0][i]._to.authors[0], result[3]);
           var date = parseDate(result[0][i].created);
           var className = result[2].includes(result[0][i].to) ? 'readNode' : 'node';
+
+          // create the notes unique id
+          // example id would be "5a0497f1ad39ced746109d6e-1"
+          // the number fixed on the end is the count of that id on this view
+          // we keep a map with (key, value) of (noteId, count)
+          var id = "";
+          if(notes.has(result[0][i].to)){
+            notes.set(result[0][i].to, notes.get(result[0][i].to) + 1);
+            id = result[0][i].to + '-' + notes.get(result[0][i].to);
+          } else {
+            notes.set(result[0][i].to, 1);
+            id = result[0][i].to + '-1';
+          }
+
           cy.add({
               data: {
-                id: result[0][i].to,
+                id: id,
                 name: result[0][i]._to.title,
                 author: authorName,
                 date: date,
+                noteId: result[0][i].to
               },
               classes: className,
               position: {
@@ -94,17 +107,30 @@ $(document).ready(function() {
         }
       }
 
+      console.log(notes);
+      console.log(cy.elements());
+
       // second add the edges
       for(var i = 0; i < result[1].length; i++){
         var obj = result[1][i];
         if(obj._to.type === "Note" && obj._to.status === "active" && obj._to.title != "" && obj._from.type === "Note" && obj._from.status === "active" && obj._from.title != ""){
-            cy.add({
-              data: {
-                id: obj._id,
-                source: obj.from,
-                target: obj.to
+            var fromCount = notes.get(obj.from);
+            var toCount = notes.get(obj.to);
+            for(var i = 1; i < fromCount; i++){
+              for(var j = 1; j < toCount; j++){
+                console.log(obj.from + '-' + parseInt(i) + " TO " + obj.to + '-' + parseInt(j));
+                console.log(obj._id + '-' + parseInt(i) + parseInt(j));
+
+
+                // cy.add({
+                //   data: {
+                //     id: obj._id + '-' + (parseInt(i) + 1) + (parseInt(j) + 1),
+                //     source: obj.from + '-' + (parseInt(i) + 1),
+                //     target: obj.to + '-' + (parseInt(j) + 1)
+                //   }
+                // });
               }
-            });
+            }
         }
       }
 
@@ -254,6 +280,7 @@ function matchAuthorId(authorId, authorsInfo){
     }
     return "Author not found";
 }
+
 
 // helper function to return formatted creation date of a note
 function parseDate(date){
