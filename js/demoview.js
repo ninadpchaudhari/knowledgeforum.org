@@ -9,7 +9,9 @@ $(document).ready(function() {
         selector: 'node',
         style: {
           'background-color': '#6ba6d6',
-          'label': "data(name)"
+          'label': "data(name)",
+          'text-valign': 'center',
+          'text-halign': 'right'
         }
       },
 
@@ -107,29 +109,27 @@ $(document).ready(function() {
         }
       }
 
-      console.log(notes);
-      console.log(cy.elements());
-
       // second add the edges
       for(var i = 0; i < result[1].length; i++){
         var obj = result[1][i];
+
         if(obj._to.type === "Note" && obj._to.status === "active" && obj._to.title != "" && obj._from.type === "Note" && obj._from.status === "active" && obj._from.title != ""){
             var fromCount = notes.get(obj.from);
             var toCount = notes.get(obj.to);
-            for(var i = 1; i < fromCount; i++){
-              for(var j = 1; j < toCount; j++){
-                console.log(obj.from + '-' + parseInt(i) + " TO " + obj.to + '-' + parseInt(j));
-                console.log(obj._id + '-' + parseInt(i) + parseInt(j));
-
-
-                // cy.add({
-                //   data: {
-                //     id: obj._id + '-' + (parseInt(i) + 1) + (parseInt(j) + 1),
-                //     source: obj.from + '-' + (parseInt(i) + 1),
-                //     target: obj.to + '-' + (parseInt(j) + 1)
-                //   }
-                // });
+            if( fromCount !== 'undefined' && toCount !== 'undefined'){
+              for(var j = 0; j < fromCount; j++){
+                for(var k = 0; k < toCount; k++){
+                  cy.add({
+                    data: {
+                      id: obj._id + '-' + (parseInt(j) + 1) + (parseInt(k) + 1),
+                      source: obj.from + '-' + (parseInt(j) + 1),
+                      target: obj.to + '-' + (parseInt(k) + 1)
+                    }
+                  });
+                }
               }
+            } else {
+              console.log(obj.from + " fromCount: " + fromCount + "\n" + obj.to + " toCount: " + toCount);
             }
         }
       }
