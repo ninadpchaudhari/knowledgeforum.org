@@ -10,8 +10,8 @@ $(document).ready(function() {
         style: {
           'background-color': '#6ba6d6',
           'label': "data(name)",
-          'text-valign': 'center',
-          'text-halign': 'right'
+          // 'text-valign': 'center',
+          // 'text-halign': 'right'
         }
       },
 
@@ -57,6 +57,11 @@ $(document).ready(function() {
     }
   ]);
 
+  // on single click of node log its note id
+  cy.on('tap', 'node', function(event){
+    console.log('tapped note id: ' + this.data('noteId'));
+  });
+
 
   // get demo user token and build graph
   var getTokenPromise = createDemoUserTokenPromise();
@@ -70,69 +75,11 @@ $(document).ready(function() {
 
     Promise.all([promise, promise1, promise2, promise3]).then((result) => {
 
-      var notes = new Map();
-
-      // first add the notes to the graph
-      for(var i = 0; i < result[0].length; i++){
-        if(result[0][i]._to.type === "Note" && result[0][i]._to.title !== "" && result[0][i]._to.status === "active"){
-          var authorName = matchAuthorId(result[0][i]._to.authors[0], result[3]);
-          var date = parseDate(result[0][i].created);
-          var className = result[2].includes(result[0][i].to) ? 'readNode' : 'node';
-
-          // create the notes unique id
-          // example id would be "5a0497f1ad39ced746109d6e-1"
-          // the number fixed on the end is the count of that id on this view
-          // we keep a map with (key, value) of (noteId, count)
-          var id = "";
-          if(notes.has(result[0][i].to)){
-            notes.set(result[0][i].to, notes.get(result[0][i].to) + 1);
-            id = result[0][i].to + '-' + notes.get(result[0][i].to);
-          } else {
-            notes.set(result[0][i].to, 1);
-            id = result[0][i].to + '-1';
-          }
-
-          cy.add({
-              data: {
-                id: id,
-                name: result[0][i]._to.title,
-                author: authorName,
-                date: date,
-                noteId: result[0][i].to
-              },
-              classes: className,
-              position: {
-                x: result[0][i].data.x,
-                y: result[0][i].data.y
-              }
-          });
-        }
-      }
-
-      // second add the edges
-      for(var i = 0; i < result[1].length; i++){
-        var obj = result[1][i];
-
-        if(obj._to.type === "Note" && obj._to.status === "active" && obj._to.title != "" && obj._from.type === "Note" && obj._from.status === "active" && obj._from.title != ""){
-            var fromCount = notes.get(obj.from);
-            var toCount = notes.get(obj.to);
-            if( fromCount !== 'undefined' && toCount !== 'undefined'){
-              for(var j = 0; j < fromCount; j++){
-                for(var k = 0; k < toCount; k++){
-                  cy.add({
-                    data: {
-                      id: obj._id + '-' + (parseInt(j) + 1) + (parseInt(k) + 1),
-                      source: obj.from + '-' + (parseInt(j) + 1),
-                      target: obj.to + '-' + (parseInt(k) + 1)
-                    }
-                  });
-                }
-              }
-            } else {
-              console.log(obj.from + " fromCount: " + fromCount + "\n" + obj.to + " toCount: " + toCount);
-            }
-        }
-      }
+      // we keep a map with (key, value) of (noteId, count) in order to create duplicate notes with unique ids
+      // simply append the count to the end of their note id
+      var nodes = new Map();
+      addNodesToGraph(cy, nodes, result[0], result[2], result[3]);
+      addEdgesToGraph(cy, nodes, result[1]);
 
     });
 
@@ -253,6 +200,7 @@ function postApiLinksCommunityIdSearch(token, server, communityId, query) {
 }
 
 
+// uses serverurl/api/communities/communityId/authors endpoint
 function getCommunityAuthors(token, server, communityId) {
 
   return fetch(server + 'api/communities/' + communityId + '/authors', {
@@ -268,6 +216,75 @@ function getCommunityAuthors(token, server, communityId) {
   }).catch(function(error) {
     return ("Error:", error);
   });
+}
+
+
+// adds the notes to the cytoscape graph
+// parameters are cytoscape instance, notes map, getApiLinksFromViewId, getApiLinksReadStatus, and getCommunityAuthors results
+function addNodesToGraph(cy, nodes, nodeData, readData, authorData){
+  for(var i = 0; i < nodeData.length; i++){
+    if(nodeData[i]._to.type === "Note" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
+      var authorName = matchAuthorId(nodeData[i]._to.authors[0], authorData);
+      var date = parseDate(nodeData[i].created);
+      var className = readData.includes(nodeData[i].to) ? 'readNode' : 'node';
+
+      // create the notes unique id
+      // example id would be "5a0497f1ad39ced746109d6e-1"
+      // the number fixed on the end is the count of that id on this view
+      var id = "";
+      if(nodes.has(nodeData[i].to)){
+        nodes.set(nodeData[i].to, nodes.get(nodeData[i].to) + 1);
+        id = nodeData[i].to + '-' + nodes.get(nodeData[i].to);
+      } else {
+        nodes.set(nodeData[i].to, 1);
+        id = nodeData[i].to + '-1';
+      }
+
+      cy.add({
+          data: {
+            id: id,
+            name: nodeData[i]._to.title,
+            author: authorName,
+            date: date,
+            noteId: nodeData[i].to
+          },
+          classes: className,
+          position: {
+            x: nodeData[i].data.x,
+            y: nodeData[i].data.y
+          }
+      });
+    }
+  }
+}
+
+
+// adds the edges to the cytoscape graph
+// parameters are cytoscape instance, notes map, and postApiLinksCommunityIdSearch results
+function addEdgesToGraph(cy, nodes, edgeData){
+  for(var i = 0; i < edgeData.length; i++){
+    var obj = edgeData[i];
+
+    if(obj._to.type === "Note" && obj._to.status === "active" && obj._to.title != "" && obj._from.type === "Note" && obj._from.status === "active" && obj._from.title != ""){
+        var fromCount = nodes.get(obj.from);
+        var toCount = nodes.get(obj.to);
+        if(fromCount !== 'undefined' && toCount !== 'undefined'){
+          for(var j = 0; j < fromCount; j++){
+            for(var k = 0; k < toCount; k++){
+              cy.add({
+                data: {
+                  id: obj._id + '-' + (parseInt(j) + 1) + (parseInt(k) + 1),
+                  source: obj.from + '-' + (parseInt(j) + 1),
+                  target: obj.to + '-' + (parseInt(k) + 1)
+                }
+              });
+            }
+          }
+        } else {
+          console.log(obj.from + " fromCount: " + fromCount + "\n" + obj.to + " toCount: " + toCount);
+        }
+    }
+  }
 }
 
 
