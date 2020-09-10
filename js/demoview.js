@@ -8,17 +8,19 @@ $(document).ready(function() {
       {
         selector: 'node',
         style: {
-          'background-color': '#6ba6d6',
           'label': "data(name)",
-          // 'text-valign': 'center',
-          // 'text-halign': 'right'
+          'background-opacity': '0',
+          'background-image': ["../assets/icon_note_blue.png"],
+          'background-clip': 'none',
+          'background-width': '25px',
+          'background-height': '25px'
         }
       },
 
       {
         selector: '.readNode',
         style: {
-          'background-color': '#E87259',
+          'background-image': ["../assets/icon_note_red.png"],
         }
       },
 
@@ -35,7 +37,8 @@ $(document).ready(function() {
     ],
 
     layout: {
-      name: 'grid'
+      name: 'grid',
+      animate: 'true'
     },
 
     minZoom: 0.75,
@@ -54,7 +57,7 @@ $(document).ready(function() {
       tpl: function(data){
         return '<div class = "cytoscape-label">' + data.author + '<br>' + data.date + '</div>';
       }
-    }
+    },
   ]);
 
   // on single click of node log its note id
@@ -84,6 +87,16 @@ $(document).ready(function() {
     });
 
   });
+
+
+  // add event listeners to the layout dropdown options
+  // need to do it this way to have access to cytoscape instance
+  var options = document.getElementsByClassName("layout-option");
+  for(let i = 0; i < options.length; i++){
+    options[i].addEventListener('click', function(event){
+      cy.layout({name: this.getAttribute("value")}).run();
+    });
+  }
 
 });
 
@@ -241,6 +254,7 @@ function addNodesToGraph(cy, nodes, nodeData, readData, authorData){
       }
 
       cy.add({
+          group: 'nodes',
           data: {
             id: id,
             name: nodeData[i]._to.title,
@@ -272,6 +286,7 @@ function addEdgesToGraph(cy, nodes, edgeData){
           for(var j = 0; j < fromCount; j++){
             for(var k = 0; k < toCount; k++){
               cy.add({
+                group: 'edges',
                 data: {
                   id: obj._id + '-' + (parseInt(j) + 1) + (parseInt(k) + 1),
                   source: obj.from + '-' + (parseInt(j) + 1),
