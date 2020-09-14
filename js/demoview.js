@@ -10,19 +10,17 @@ $(document).ready(function() {
         style: {
           'label': "data(name)",
           'background-opacity': '0',
-          'background-image': ["../assets/icon_note_blue.png"],
           'background-clip': 'none',
           'background-width': '25px',
           'background-height': '25px'
         }
       },
 
-      {
-        selector: '.readNode',
-        style: {
-          'background-image': ["../assets/icon_note_red.png"],
-        }
-      },
+      {selector: '.unread-note', style: {'background-image': ["../assets/icon_note_blue.png"]}},
+      {selector: '.read-note', style: {'background-image': ["../assets/icon_note_red.png"]}},
+      {selector: '.unread-riseabove', style: {'background-image': ["../assets/icon_riseabove_blue.png"]}},
+      {selector: '.read-riseabove', style: {'background-image': ["../assets/icon_riseabove_red.png"]}},
+      {selector: '.attachment', style: {'background-image': ["../assets/icon_attachment.gif"]}},
 
       {
         selector: 'edge',
@@ -60,12 +58,6 @@ $(document).ready(function() {
     },
   ]);
 
-  // on single click of node log its note id
-  cy.on('tap', 'node', function(event){
-    console.log('tapped note id: ' + this.data('noteId'));
-  });
-
-
   // get demo user token and build graph
   var getTokenPromise = createDemoUserTokenPromise();
   getTokenPromise.then(function(result) {
@@ -78,19 +70,44 @@ $(document).ready(function() {
 
     Promise.all([promise, promise1, promise2, promise3]).then((result) => {
 
-      // we keep a map with (key, value) of (noteId, count) in order to create duplicate notes with unique ids
+      // we keep a map with (key, value) of (kf, count) in order to create duplicate notes with unique ids
       // simply append the count to the end of their note id
       var nodes = new Map();
-      addNodesToGraph(cy, nodes, result[0], result[2], result[3]);
+      addNodesToGraph(token, cy, nodes, result[0], result[2], result[3]);
       addEdgesToGraph(cy, nodes, result[1]);
 
+    });
+
+
+    // on single click of node log its kf id and mark it as read
+    cy.on('tap', 'node', function(event){
+      var kfId = this.data('kfId');
+      var type = this.data('type');
+      console.log('tapped note id: ' + kfId);
+
+      // if the node is unread mark it as read and change class to read
+      // all nodes have a class specified as read-TYPE or unread-TYPE
+      var classes = this.classes()[0].split('-');
+      if(classes[0] == 'unread' && (type == 'note' || type == 'riseabove')){
+
+        this.removeClass(classes[0] + '-' + classes[1]);
+        this.addClass('read-' + classes[1]);
+        postReadStatus(token, SERVER, COMMUNITYID, kfId);
+
+      } else if(type == "Attachment"){
+        var atag = document.createElement('a');
+        atag.setAttribute('href', this.data('download'));
+        atag.setAttribute('download', this.data('name'));
+        atag.click();
+        console.log(atag);
+      };
     });
 
   });
 
 
   // add event listeners to the layout dropdown options
-  // need to do it this way to have access to cytoscape instance
+  // need to do it here to have access to cytoscape instance
   var options = document.getElementsByClassName("layout-option");
   for(let i = 0; i < options.length; i++){
     options[i].addEventListener('click', function(event){
@@ -170,6 +187,26 @@ function getApiLinksReadStatus(token, server, communityId, welcomeViewId){
 }
 
 
+// used to mark an object as read
+function postReadStatus(token, server, communityId, contributionId){
+
+  return fetch(server + 'api/records/read/' + communityId + '/' + contributionId, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+  }).then(function(response) {
+    return response.json();
+  }).then(function(body) {
+    return body
+  }).catch(function(error) {
+    return ("Error:", error);
+  });
+
+}
+
+
 // uses serverurl/api/objects/objectId endpoint
 function getApiObjectsObjectId(token, server, objectId) {
 
@@ -232,43 +269,39 @@ function getCommunityAuthors(token, server, communityId) {
 }
 
 
+// uses serverurl/attachments/communityId/viewId/1/attachmentTitle
+function getAttachment(token, server, communityId, objectId, attachment){
+
+  return fetch(server + 'attachments/' + communityId + '/' + objectId + '/1/' + attachment, {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+  }).then(function(response) {
+    return response.json();
+  }).then(function(body) {
+    console.log(body);
+    return (body);
+  }).catch(function(error) {
+    return ("Error:", error);
+  });
+}
+
+
 // adds the notes to the cytoscape graph
-// parameters are cytoscape instance, notes map, getApiLinksFromViewId, getApiLinksReadStatus, and getCommunityAuthors results
-function addNodesToGraph(cy, nodes, nodeData, readData, authorData){
+// parameters are token, cytoscape instance, notes map, getApiLinksFromViewId, getApiLinksReadStatus, and getCommunityAuthors results
+function addNodesToGraph(token, cy, nodes, nodeData, readData, authorData){
   for(var i = 0; i < nodeData.length; i++){
+    
+    var id = createCytoscapeId(nodes, nodeData[i].to);
+
     if(nodeData[i]._to.type === "Note" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
-      var authorName = matchAuthorId(nodeData[i]._to.authors[0], authorData);
-      var date = parseDate(nodeData[i].created);
-      var className = readData.includes(nodeData[i].to) ? 'readNode' : 'node';
-
-      // create the notes unique id
-      // example id would be "5a0497f1ad39ced746109d6e-1"
-      // the number fixed on the end is the count of that id on this view
-      var id = "";
-      if(nodes.has(nodeData[i].to)){
-        nodes.set(nodeData[i].to, nodes.get(nodeData[i].to) + 1);
-        id = nodeData[i].to + '-' + nodes.get(nodeData[i].to);
-      } else {
-        nodes.set(nodeData[i].to, 1);
-        id = nodeData[i].to + '-1';
-      }
-
-      cy.add({
-          group: 'nodes',
-          data: {
-            id: id,
-            name: nodeData[i]._to.title,
-            author: authorName,
-            date: date,
-            noteId: nodeData[i].to
-          },
-          classes: className,
-          position: {
-            x: nodeData[i].data.x,
-            y: nodeData[i].data.y
-          }
-      });
+      handleNote(cy, id, nodeData[i], readData, authorData);
+    } else if(nodeData[i]._to.type === "Attachment" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
+      handleAttachment(token, cy, nodes, nodeData[i], authorData);
     }
+
   }
 }
 
@@ -303,6 +336,72 @@ function addEdgesToGraph(cy, nodes, edgeData){
 }
 
 
+// handles adding notes to the cytoscape instance
+function handleNote(cy, id, nodeData, readData, authorData){
+  var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
+  var date = parseDate(nodeData.created);
+  var readStatus, type;
+
+  // handles whether it is a note or a riseabove
+  if(nodeData._to.data == undefined){
+    readStatus = readData.includes(nodeData.to) ? 'read-note' : 'unread-note';
+    type = "note";
+  } else {
+    readStatus = readData.includes(nodeData.to) ? 'read-riseabove' : 'unread-riseabove';
+    type = "riseabove";
+  }
+
+  cy.add({
+      group: 'nodes',
+      data: {
+        id: id,
+        name: nodeData._to.title,
+        author: authorName,
+        date: date,
+        kfId: nodeData.to,
+        type: type
+      },
+      classes: readStatus,
+      position: {
+        x: nodeData.data.x,
+        y: nodeData.data.y
+      }
+  });
+
+}
+
+
+// handles adding attachments to the cytoscape instance
+function handleAttachment(token, cy, nodes, nodeData, authorData){
+  var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
+  var date = parseDate(nodeData.created);
+  var fileType = nodeData._to.title.split('.').pop();
+
+  if(fileType == "png" || fileType == "jpg"){
+    console.log("image");
+  } else {
+    var documentInfo = getApiObjectsObjectId(token, SERVER, nodeData.to);
+    documentInfo.then(function(result){
+      var id = createCytoscapeId(nodes, result._id);
+      cy.add({
+        group: 'nodes',
+        data: {
+          id: id,
+          name: result.title,
+          author: authorName,
+          date: date,
+          kfId: result._id,
+          type: result.type,
+          download: SERVER + result.data.url.substring(1,)
+        },
+        classes: "attachment",
+      });
+    });
+
+  }
+}
+
+
 // helper function to find an authors name from their author id using the getCommunityAuthors data
 function matchAuthorId(authorId, authorsInfo){
     for(var i = 0; i < authorsInfo.length; i++){
@@ -326,5 +425,20 @@ function parseDate(date){
     return(month + "/" + day + "/" + year + ", " + hour + ":" + minute + ":" + second + " AM");
   } else {
     return(month + "/" + day + "/" + year + ", " + (hour - 12) + ":" + minute + ":" + second + " PM");
+  }
+}
+
+
+// returns a unique cytoscape id corresponding to the given kf id
+function createCytoscapeId(nodes, kfId){
+  // create the notes unique id
+  // example id would be "5a0497f1ad39ced746109d6e-1"
+  // the number fixed on the end is the count of that id on this view
+  if(nodes.has(kfId)){
+    nodes.set(kfId, nodes.get(kfId) + 1);
+    return kfId + '-' + nodes.get(kfId);
+  } else {
+    nodes.set(kfId, 1);
+    return kfId + '-1';
   }
 }
