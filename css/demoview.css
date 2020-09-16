@@ -3,14 +3,14 @@
 }
 
 .topBar{
-  height: 10vh;
+
 }
 
 #cy {
   padding: 0;
   margin: 0;
   width: 100%;
-  height: 90vh;
+  height: 100vh;
   display: block;
 }
 

@@ -20,6 +20,14 @@ const SERVER = getServerURL("Local");
 const WELCOMEVIEWID = "5f5009ec1beff90212b92dd6"; // TEST COMMUNITY WELCOME VIEW ID
 const COMMUNITYID = "5f5009eb1beff90212b92dd3" // TEST COMMUNITY ID
 
+
+// KF How To - KB RESOURCES
+// const USERNAME = "demo1";
+// const PASSWORD = "demo1";
+// const SERVER = getServerURL("IKIT Stage");
+// const WELCOMEVIEWID = "5ea995a7cbdc04a6f53a1b5f"; // TEST COMMUNITY WELCOME VIEW ID
+// const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c" // TEST COMMUNITY ID
+
 // Helper function to retrieve a servers name from its URL
 function getServerName(url){
   for(i in SERVERS){

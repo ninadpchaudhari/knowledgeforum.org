@@ -1,6 +1,16 @@
 $(document).ready(function() {
+  var cytoscape = require('cytoscape');
+  var nodeHtmlLabel = require('cytoscape-node-html-label');
+  var supportimages = require('cytoscape-supportimages');
+  var panzoom = require('cytoscape-panzoom');
+  nodeHtmlLabel( cytoscape );
+  supportimages( cytoscape );
+  panzoom( cytoscape );
 
-  // initialize the graph
+  const MINZOOM = 0.75;
+  const MAXZOOM = 2;
+
+  // CYTOSCAPE
   var cy = cytoscape({
     container: document.getElementById('cy'), // container to render in
     elements: [],
@@ -15,13 +25,6 @@ $(document).ready(function() {
           'background-height': '25px'
         }
       },
-
-      {selector: '.unread-note', style: {'background-image': ["../assets/icon_note_blue.png"]}},
-      {selector: '.read-note', style: {'background-image': ["../assets/icon_note_red.png"]}},
-      {selector: '.unread-riseabove', style: {'background-image': ["../assets/icon_riseabove_blue.png"]}},
-      {selector: '.read-riseabove', style: {'background-image': ["../assets/icon_riseabove_red.png"]}},
-      {selector: '.attachment', style: {'background-image': ["../assets/icon_attachment.gif"]}},
-
       {
         selector: 'edge',
         style: {
@@ -31,6 +34,19 @@ $(document).ready(function() {
           'target-arrow-shape': 'triangle',
           'curve-style': 'bezier'
         }
+      },
+
+      {selector: '.unread-note', style: {'background-image': ["../assets/icon_note_blue.png"]}},
+      {selector: '.read-note', style: {'background-image': ["../assets/icon_note_red.png"]}},
+      {selector: '.unread-riseabove', style: {'background-image': ["../assets/icon_riseabove_blue.png"]}},
+      {selector: '.read-riseabove', style: {'background-image': ["../assets/icon_riseabove_red.png"]}},
+      {selector: '.attachment', style: {'background-image': ["../assets/icon_attachment.gif"]}},
+      {
+        selector: '.image',
+        style: {
+          'background-opacity': '0',
+          'label': ''
+        }
       }
     ],
 
@@ -39,11 +55,12 @@ $(document).ready(function() {
       animate: 'true'
     },
 
-    minZoom: 0.75,
-    maxZoom: 2,
+    minZoom: MINZOOM,
+    maxZoom: MAXZOOM,
+    wheelSensitivity: 0.15
   });
 
-  //set nodeHtmlLabel for your Cy instance
+  // CYTOSCAPE-NODE-HTML-LABEL EXTENSION
   cy.nodeHtmlLabel([
     {
       query: 'node',
@@ -53,10 +70,56 @@ $(document).ready(function() {
       valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
       cssClass: '', // any classes will be as attribute of <div> container for every title
       tpl: function(data){
+        // we do not want author and date listed for images
+        if(data.type == "Attachment" && data.isImage == true){
+          return '';
+        };
         return '<div class = "cytoscape-label">' + data.author + '<br>' + data.date + '</div>';
       }
     },
   ]);
+
+  // CYTOSCAPE-SUPPORTIMAGES EXTENSION
+  // var si = cy.supportimages();
+  // si.addSupportImage({
+  //   url: "http://localhost:9000/attachments/5f5009eb1beff90212b92dd3/5f57fc12d6d0de00d4d7b271/1/82423903_113435220202457_6526867001489489920_o.jpg",
+  //   name: "test"
+  // });
+  //
+  // var imgs = si.images();
+
+  // CYTOSCAPE-PANZOOM EXTENSION
+  // the default values of each option are outlined below:
+  var defaults = {
+    zoomFactor: 0.05, // zoom factor per zoom tick
+    zoomDelay: 45, // how many ms between zoom ticks
+    minZoom: MINZOOM, // min zoom level
+    maxZoom: MAXZOOM, // max zoom level
+    fitPadding: 50, // padding when fitting
+    panSpeed: 10, // how many ms in between pan ticks
+    panDistance: 10, // max pan distance per tick
+    panDragAreaSize: 75, // the length of the pan drag box in which the vector for panning is calculated (bigger = finer control of pan speed and direction)
+    panMinPercentSpeed: 0.25, // the slowest speed we can pan by (as a percent of panSpeed)
+    panInactiveArea: 8, // radius of inactive area in pan drag box
+    panIndicatorMinOpacity: 0.5, // min opacity of pan indicator (the draggable nib); scales from this to 1.0
+    zoomOnly: false, // a minimal version of the ui only with zooming (useful on systems with bad mousewheel resolution)
+    fitSelector: undefined, // selector of elements to fit
+    animateOnFit: function(){ // whether to animate on fit
+      return false;
+    },
+    fitAnimationDuration: 1000, // duration of animation on fit
+
+    // icon class names
+    sliderHandleIcon: 'fa fa-minus',
+    zoomInIcon: 'fa fa-plus',
+    zoomOutIcon: 'fa fa-minus',
+    resetIcon: 'fa fa-expand'
+  };
+
+  // add the panzoom control
+  cy.panzoom( defaults );
+
+
 
   // get demo user token and build graph
   var getTokenPromise = createDemoUserTokenPromise();
@@ -70,7 +133,7 @@ $(document).ready(function() {
 
     Promise.all([promise, promise1, promise2, promise3]).then((result) => {
 
-      // we keep a map with (key, value) of (kf, count) in order to create duplicate notes with unique ids
+      // we keep a map with (key, value) of (kfId, count) in order to create duplicate notes with unique ids
       // simply append the count to the end of their note id
       var nodes = new Map();
       addNodesToGraph(token, cy, nodes, result[0], result[2], result[3]);
@@ -85,22 +148,21 @@ $(document).ready(function() {
       var type = this.data('type');
       console.log('tapped note id: ' + kfId);
 
-      // if the node is unread mark it as read and change class to read
-      // all nodes have a class specified as read-TYPE or unread-TYPE
-      var classes = this.classes()[0].split('-');
-      if(classes[0] == 'unread' && (type == 'note' || type == 'riseabove')){
+      if(this.hasClass("image")){
+        console.log("image");
+      } else if(this.hasClass("attachment")){
+        window.open(this.data('download'));
+      } else {
+        if(type == "riseabove"){
+          this.removeClass("unread-riseabove");
+          this.addClass("read-riseabove");
+        } else if(type == "note"){
+          this.removeClass("unread-note");
+          this.addClass("read-note");
+        }
 
-        this.removeClass(classes[0] + '-' + classes[1]);
-        this.addClass('read-' + classes[1]);
         postReadStatus(token, SERVER, COMMUNITYID, kfId);
-
-      } else if(type == "Attachment"){
-        var atag = document.createElement('a');
-        atag.setAttribute('href', this.data('download'));
-        atag.setAttribute('download', this.data('name'));
-        atag.click();
-        console.log(atag);
-      };
+      }
     });
 
   });
@@ -269,31 +331,11 @@ function getCommunityAuthors(token, server, communityId) {
 }
 
 
-// uses serverurl/attachments/communityId/viewId/1/attachmentTitle
-function getAttachment(token, server, communityId, objectId, attachment){
-
-  return fetch(server + 'attachments/' + communityId + '/' + objectId + '/1/' + attachment, {
-    method: "GET",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-  }).then(function(response) {
-    return response.json();
-  }).then(function(body) {
-    console.log(body);
-    return (body);
-  }).catch(function(error) {
-    return ("Error:", error);
-  });
-}
-
-
 // adds the notes to the cytoscape graph
 // parameters are token, cytoscape instance, notes map, getApiLinksFromViewId, getApiLinksReadStatus, and getCommunityAuthors results
 function addNodesToGraph(token, cy, nodes, nodeData, readData, authorData){
   for(var i = 0; i < nodeData.length; i++){
-    
+
     var id = createCytoscapeId(nodes, nodeData[i].to);
 
     if(nodeData[i]._to.type === "Note" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
@@ -373,32 +415,60 @@ function handleNote(cy, id, nodeData, readData, authorData){
 
 // handles adding attachments to the cytoscape instance
 function handleAttachment(token, cy, nodes, nodeData, authorData){
+
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var date = parseDate(nodeData.created);
-  var fileType = nodeData._to.title.split('.').pop();
+  var id = createCytoscapeId(nodes, nodeData.to);
 
-  if(fileType == "png" || fileType == "jpg"){
-    console.log("image");
-  } else {
-    var documentInfo = getApiObjectsObjectId(token, SERVER, nodeData.to);
-    documentInfo.then(function(result){
-      var id = createCytoscapeId(nodes, result._id);
+  var documentInfo = getApiObjectsObjectId(token, SERVER, nodeData.to);
+  documentInfo.then(function(result){
+    var isImage = String(result.data.type).substring(0,5) === "image" ? true : false;
+    if(isImage){
+      cy.add({
+        data: {
+          id: id,
+          name: nodeData._to.title,
+          author: authorName,
+          date: date,
+          kfId: nodeData.to,
+          type: nodeData._to.type,
+          isImage: true,
+        },
+        style: {
+          'background-image': (SERVER + String(result.data.url).substring(1,)).replace(/\s/g,"%20"),
+          'height': nodeData.data.height,
+          'width': nodeData.data.width,
+          'background-height': nodeData.data.height,
+          'background-width': nodeData.data.width,
+        },
+        classes: "image",
+        position: {
+          x: nodeData.data.x,
+          y: nodeData.data.y
+        }
+      });
+
+    } else {
       cy.add({
         group: 'nodes',
         data: {
           id: id,
-          name: result.title,
+          name: nodeData._to.title,
           author: authorName,
           date: date,
-          kfId: result._id,
-          type: result.type,
+          kfId: nodeData.to,
+          type: nodeData._to.type,
+          isImage: false,
           download: SERVER + result.data.url.substring(1,)
         },
         classes: "attachment",
+        position: {
+          x: nodeData.data.x,
+          y: nodeData.data.y
+        }
       });
-    });
-
-  }
+    }
+  });
 }
 
 

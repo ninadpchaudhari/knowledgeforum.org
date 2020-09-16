@@ -1,0 +1,28 @@
+{
+  "name": "knowledgeforum.org",
+  "version": "1.0.0",
+  "description": "Integrating KF is a single sign on site created for the knowledge forum system.",
+  "main": "demoview.js",
+  "dependencies": {
+    "cytoscape": "^3.2.11",
+    "cytoscape-node-html-label": "^1.2.0",
+    "cytoscape-panzoom": "^2.5.3",
+    "cytoscape-supportimages": "^1.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "watchify ./js/demoview.js -o ./js/bundle.js",
+    "build": "browserify ./js/demoview.js -o ./js/bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SERG-UAlbany/knowledgeforum.org.git"
+  },
+  "author": "Harrison Miller",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SERG-UAlbany/knowledgeforum.org/issues"
+  },
+  "homepage": "https://github.com/SERG-UAlbany/knowledgeforum.org#readme"
+}
