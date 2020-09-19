@@ -20,47 +20,10 @@ $(document).ready(function(){
     return false;
   })
 
-  //getiFrameSrc();
-
 });
 
-// function to get the demo users token and create the url for the iframe and set it
-// username, password, server, and welcomeviewid are from config.js
-function getiFrameSrc(){
 
-  var promise = createLoginPromiseForURL(USERNAME, PASSWORD, SERVER);
-  promise.then(function(result){
-    var token = result[0].token;
-    var url = SERVER + "auth/jwt?token=" + token + "&redirectUrl=/view/" + WELCOMEVIEWID;
-    var iframe = document.getElementById("iframeDemo");
-    iframe.setAttribute("src", url);
-  })
-
-}
-
-
-// Creates a login promise for a server
-function createLoginPromiseForURL(uname, pwd, url){
-  var body = {
-    'userName': uname,
-    'password': pwd
-  };
-
-  return fetch(url + 'auth/local', {
-    method: "POST",
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(body),
-  }).then(function(response) {
-      return response.json();
-  }).then(function(body) {
-      return ("Success:", [body, url]);
-  }).catch(function(error) {
-      return ("Error:", error);
-  });
-}
-
-
-// Executes all promises for the servers at once
+// Executes all promises to get user token for each server at once
 function executePromises(uname, pwd){
   const promises = [];
 
@@ -74,22 +37,18 @@ function executePromises(uname, pwd){
   // else we only call the servers stored in users local storage list
   if(userStorage == null){
     for(i in SERVERS){
-      promises.push(createLoginPromiseForURL(uname, pwd, SERVERS[i].url));
+      promises.push(getUserTokenServerPair(uname, pwd, SERVERS[i].url));
     }
   } else {
     for(i in userStorage){
-      promises.push(createLoginPromiseForURL(uname, pwd, userStorage[i][0]));
+      promises.push(getUserTokenServerPair(uname, pwd, userStorage[i][0]));
     }
   }
 
-  // execute all promises
-  Promise.all(promises).then(function(responses) {
-    return Promise.all(responses.map(function (response) {
-      return response;
-    }));
-  }).then(function(data) {
+  // execute all the login promises
+  Promise.all(promises).then(function(data){
     responseHandler(uname, data);
-  }).catch(function(error) {
+  }).catch(function(error){
     console.log(error);
   });
 }
@@ -98,6 +57,7 @@ function executePromises(uname, pwd){
 // Handles each servers response to the users credentials
 // If no succesful logins then displays error message to user
 // Otherwise redirects to next page
+// each item in data is [response body, server]
 function responseHandler(uname, data){
   var successfulLogin = false;
   var errorMessage = "";
@@ -109,23 +69,23 @@ function responseHandler(uname, data){
 
   for(i in data){
     if(data[i][0].token != undefined) {
-      var url = data[i][1];
       var token = data[i][0].token;
+      var server = data[i][1];
 
       // if its the first login we set first server as the default active server
       // and all other servers as inactive
       if(userStorage == null && successfulLogin == false){
-        serverTokenPair.push([url, token, "active"]);
+        serverTokenPair.push([server, token, "active"]);
       } else if(userStorage == null){
-        serverTokenPair.push([url, token, "inactive"]);
+        serverTokenPair.push([server, token, "inactive"]);
       }
 
       // if it is not the first login then we retrieve last active server from localStorage
       // and set the rest to inactive
       else if(userStorage[i][2] == "active"){
-        serverTokenPair.push([url, token, "active"]);
+        serverTokenPair.push([server, token, "active"]);
       } else {
-        serverTokenPair.push([url, token, "inactive"]);
+        serverTokenPair.push([server, token, "inactive"]);
       }
 
       successfulLogin = true;

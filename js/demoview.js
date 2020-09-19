@@ -1,10 +1,27 @@
+/*
+* EDIT VALUES FOR iFRAME SAMPLE VIEW HERE
+*/
+// const USERNAME = "admin";
+// const PASSWORD = "build";
+// const SERVER = getServerURL("Local");
+// const viewId = "5f5009ec1beff90212b92dd6"; // TEST COMMUNITY WELCOME VIEW ID
+// const COMMUNITYID = "5f5009eb1beff90212b92dd3" // TEST COMMUNITY ID
+
+// KF How To - KB RESOURCES
+const USERNAME = "demo1";
+const PASSWORD = "demo1";
+const SERVER = getServerURL("IKIT Stage");
+const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c"
+var viewId = sessionStorage.getItem("viewId") === null ? "5ea995a7cbdc04a6f53a1b5f" : sessionStorage.getItem("viewId");
+
+
 $(document).ready(function() {
   var cytoscape = require('cytoscape');
   var nodeHtmlLabel = require('cytoscape-node-html-label');
-  var supportimages = require('cytoscape-supportimages');
+  //var supportimages = require('cytoscape-supportimages');
   var panzoom = require('cytoscape-panzoom');
   nodeHtmlLabel( cytoscape );
-  supportimages( cytoscape );
+  //supportimages( cytoscape );
   panzoom( cytoscape );
 
   const MINZOOM = 0.75;
@@ -41,8 +58,16 @@ $(document).ready(function() {
       {selector: '.unread-riseabove', style: {'background-image': ["../assets/icon_riseabove_blue.png"]}},
       {selector: '.read-riseabove', style: {'background-image': ["../assets/icon_riseabove_red.png"]}},
       {selector: '.attachment', style: {'background-image': ["../assets/icon_attachment.gif"]}},
+      {selector: '.view', style: {'background-image': ["../assets/icon_view.png"]}},
       {
         selector: '.image',
+        style: {
+          'background-opacity': '0',
+          'label': ''
+        }
+      },
+      {
+        selector: '.drawing',
         style: {
           'background-opacity': '0',
           'label': ''
@@ -70,11 +95,23 @@ $(document).ready(function() {
       valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
       cssClass: '', // any classes will be as attribute of <div> container for every title
       tpl: function(data){
-        // we do not want author and date listed for images
-        if(data.type == "Attachment" && data.isImage == true){
+        // we only want author and creation date listed for notes
+        if(data.type === 'note'){
+          return '<div class = "cytoscape-label">' + data.author + '<br>' + data.date + '</div>';
+        } else {
           return '';
-        };
-        return '<div class = "cytoscape-label">' + data.author + '<br>' + data.date + '</div>';
+        }
+      }
+    },
+    {
+      query: '.drawing',
+      halign: 'center', // title vertical position. Can be 'left',''center, 'right'
+      valign: 'center', // title vertical position. Can be 'top',''center, 'bottom'
+      halignBox: 'center', // title vertical position. Can be 'left',''center, 'right'
+      valignBox: 'center', // title relative box vertical position. Can be 'top',''center, 'bottom'
+      cssClass: '', // any classes will be as attribute of <div> container for every title
+      tpl: function(data){
+        return data.svg;
       }
     },
   ]);
@@ -120,16 +157,15 @@ $(document).ready(function() {
   cy.panzoom( defaults );
 
 
-
   // get demo user token and build graph
-  var getTokenPromise = createDemoUserTokenPromise();
+  var getTokenPromise = getUserToken(USERNAME, PASSWORD, SERVER);
   getTokenPromise.then(function(result) {
-    var token = result[0].token;
+    var token = result.token;
 
-    var promise = getApiLinksFromViewId(token, SERVER, WELCOMEVIEWID);
+    var promise = getApiLinksFromViewId(token, SERVER, viewId);
     var promise1 = postApiLinksCommunityIdSearch(token, SERVER, COMMUNITYID, {type: "buildson"});
-    var promise2 = getApiLinksReadStatus(token, SERVER, COMMUNITYID, WELCOMEVIEWID);
-    var promise3 = getCommunityAuthors(token, SERVER, COMMUNITYID);
+    var promise2 = getApiLinksReadStatus(token, SERVER, COMMUNITYID, viewId);
+    var promise3 = getCommunityAuthors(token, COMMUNITYID, SERVER);
 
     Promise.all([promise, promise1, promise2, promise3]).then((result) => {
 
@@ -146,12 +182,22 @@ $(document).ready(function() {
     cy.on('tap', 'node', function(event){
       var kfId = this.data('kfId');
       var type = this.data('type');
-      console.log('tapped note id: ' + kfId);
+      console.log('tapped id: ' + kfId);
 
+      // CURRENT IMAGE IMPLEMENTATION IS A WORK AROUND
+      // FIGURE OUT CYTOSCAPE-SUPPORTIMAGES?
       if(this.hasClass("image")){
         console.log("image");
+
+      // WORD DOCUMENTS ARE STILL UNREADABLE ON OPEN AFTER DOWNLOAD
       } else if(this.hasClass("attachment")){
         window.open(this.data('download'));
+
+      // THE WAY VIEWID IS HANDLED NEEDS TO BE FIXED HERE
+      // REFACTOR PROJECT?
+      } else if(this.hasClass("view")){
+        sessionStorage.setItem("viewId", kfId);
+        location.reload();
       } else {
         if(type == "riseabove"){
           this.removeClass("unread-riseabove");
@@ -180,157 +226,6 @@ $(document).ready(function() {
 });
 
 
-// creates a promise for the demo users token
-function createDemoUserTokenPromise() {
-  var body = {
-    'userName': USERNAME,
-    'password': PASSWORD
-  };
-
-  return fetch(SERVER + 'auth/local', {
-    method: "POST",
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body),
-  }).then(function(response) {
-    return response.json();
-  }).then(function(body) {
-    return ("Success:", [body, SERVER]);
-  }).catch(function(error) {
-    return ("Error:", error);
-  });
-}
-
-
-// uses serverurl/api/links/from/viewId endpoint to get all
-// links from the welcome view id
-function getApiLinksFromViewId(token, server, welcomeViewId) {
-
-  return fetch(server + 'api/links/from/' + welcomeViewId, {
-    method: "GET",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-  }).then(function(response) {
-    return response.json();
-  }).then(function(body) {
-    return (body);
-  }).catch(function(error) {
-    return ("Error:", error);
-  });
-
-}
-
-
-// gets the data for read status of the notes
-// RETURNS ARRAY OF THE READ NOTE IDS ONLY
-function getApiLinksReadStatus(token, server, communityId, welcomeViewId){
-
-  return fetch(server + 'api/records/myreadstatusview/' + communityId + '/' + welcomeViewId, {
-    method: "GET",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-  }).then(function(response) {
-    return response.json();
-  }).then(function(body) {
-    var results = [];
-    for(var i in body){
-      if(body[i].type == "read"){ results.push(body[i].to); }
-    }
-    return (results);
-  }).catch(function(error) {
-    return ("Error:", error);
-  });
-
-}
-
-
-// used to mark an object as read
-function postReadStatus(token, server, communityId, contributionId){
-
-  return fetch(server + 'api/records/read/' + communityId + '/' + contributionId, {
-    method: "POST",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-  }).then(function(response) {
-    return response.json();
-  }).then(function(body) {
-    return body
-  }).catch(function(error) {
-    return ("Error:", error);
-  });
-
-}
-
-
-// uses serverurl/api/objects/objectId endpoint
-function getApiObjectsObjectId(token, server, objectId) {
-
-  return fetch(server + 'api/objects/' + objectId, {
-    method: "GET",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-  }).then(function(response) {
-    return response.json();
-  }).then(function(body) {
-    return (body);
-  }).catch(function(error) {
-    return ("Error:", error);
-  });
-}
-
-
-// uses serverurl/api/links/communityID/search
-function postApiLinksCommunityIdSearch(token, server, communityId, query) {
-  var body = {
-    'query': query
-  };
-
-  return fetch(server + 'api/links/' + communityId + '/search', {
-    method: "POST",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-    body: JSON.stringify(body),
-  }).then(function(response) {
-    return response.json();
-  }).then(function(body) {
-    return (body);
-  }).catch(function(error) {
-    return ("Error:", error);
-  });
-
-}
-
-
-// uses serverurl/api/communities/communityId/authors endpoint
-function getCommunityAuthors(token, server, communityId) {
-
-  return fetch(server + 'api/communities/' + communityId + '/authors', {
-    method: "GET",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-  }).then(function(response) {
-    return response.json();
-  }).then(function(body) {
-    return (body);
-  }).catch(function(error) {
-    return ("Error:", error);
-  });
-}
-
-
 // adds the notes to the cytoscape graph
 // parameters are token, cytoscape instance, notes map, getApiLinksFromViewId, getApiLinksReadStatus, and getCommunityAuthors results
 function addNodesToGraph(token, cy, nodes, nodeData, readData, authorData){
@@ -342,6 +237,10 @@ function addNodesToGraph(token, cy, nodes, nodeData, readData, authorData){
       handleNote(cy, id, nodeData[i], readData, authorData);
     } else if(nodeData[i]._to.type === "Attachment" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
       handleAttachment(token, cy, nodes, nodeData[i], authorData);
+    } else if(nodeData[i]._to.type === "Drawing" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
+      handleDrawing(token, cy, nodes, nodeData[i], authorData);
+    } else if(nodeData[i]._to.type === "View" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
+      handleView(cy, nodes, nodeData[i]);
     }
 
   }
@@ -467,6 +366,60 @@ function handleAttachment(token, cy, nodes, nodeData, authorData){
           y: nodeData.data.y
         }
       });
+    }
+  });
+}
+
+
+// handles adding drawings to the cytoscape instance
+function handleDrawing(token, cy, nodes, nodeData, authorData){
+
+  var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
+  var date = parseDate(nodeData.created);
+  var id = createCytoscapeId(nodes, nodeData.to);
+
+  var documentInfo = getApiObjectsObjectId(token, SERVER, nodeData.to);
+  documentInfo.then(function(result){
+    cy.add({
+      data: {
+        id: id,
+        name: nodeData._to.title,
+        author: authorName,
+        date: date,
+        kfId: nodeData.to,
+        type: nodeData._to.type,
+        svg: result.data.svg
+      },
+      style: {
+        'height': nodeData.data.height,
+        'width': nodeData.data.width,
+      },
+      classes: "drawing",
+      position: {
+        x: nodeData.data.x,
+        y: nodeData.data.y
+      }
+    });
+  });
+
+}
+
+
+// handles adding a link to another view
+function handleView(cy, nodes, nodeData){
+  var id = createCytoscapeId(nodes, nodeData.to);
+  cy.add({
+    data: {
+      id: id,
+      name: nodeData._to.title,
+      kfId: nodeData.to,
+      type: nodeData._to.type,
+      communityId: nodeData.communityId,
+    },
+    classes: "view",
+    position: {
+      x: nodeData.data.x,
+      y: nodeData.data.y
     }
   });
 }
