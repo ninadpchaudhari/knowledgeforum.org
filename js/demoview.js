@@ -8,9 +8,9 @@
 // const COMMUNITYID = "5f5009eb1beff90212b92dd3" // TEST COMMUNITY ID
 
 // KF How To - KB RESOURCES
-const USERNAME = "demo1";
-const PASSWORD = "demo1";
-const SERVER = getServerURL("IKIT Stage");
+const USERNAME = "cytoscape";
+const PASSWORD = "cytoscape";
+const SERVER = getServerURL("Albany Stage");
 const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c"
 var viewId = sessionStorage.getItem("viewId") === null ? "5ea995a7cbdc04a6f53a1b5f" : sessionStorage.getItem("viewId");
 
@@ -18,10 +18,10 @@ var viewId = sessionStorage.getItem("viewId") === null ? "5ea995a7cbdc04a6f53a1b
 $(document).ready(function() {
   var cytoscape = require('cytoscape');
   var nodeHtmlLabel = require('cytoscape-node-html-label');
-  //var supportimages = require('cytoscape-supportimages');
+  var supportimages = require('cytoscape-supportimages');
   var panzoom = require('cytoscape-panzoom');
   nodeHtmlLabel( cytoscape );
-  //supportimages( cytoscape );
+  supportimages( cytoscape );
   panzoom( cytoscape );
 
   const MINZOOM = 0.75;
@@ -62,14 +62,12 @@ $(document).ready(function() {
       {
         selector: '.image',
         style: {
-          'background-opacity': '0',
           'label': ''
         }
       },
       {
         selector: '.drawing',
         style: {
-          'background-opacity': '0',
           'label': ''
         }
       }
@@ -77,7 +75,6 @@ $(document).ready(function() {
 
     layout: {
       name: 'grid',
-      animate: 'true'
     },
 
     minZoom: MINZOOM,
@@ -87,43 +84,23 @@ $(document).ready(function() {
 
   // CYTOSCAPE-NODE-HTML-LABEL EXTENSION
   cy.nodeHtmlLabel([
-    {
-      query: 'node',
-      halign: 'center', // title vertical position. Can be 'left',''center, 'right'
-      valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-      halignBox: 'center', // title vertical position. Can be 'left',''center, 'right'
-      valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-      cssClass: '', // any classes will be as attribute of <div> container for every title
-      tpl: function(data){
-        // we only want author and creation date listed for notes
-        if(data.type === 'note'){
-          return '<div class = "cytoscape-label">' + data.author + '<br>' + data.date + '</div>';
-        } else {
-          return '';
-        }
-      }
-    },
-    {
-      query: '.drawing',
-      halign: 'center', // title vertical position. Can be 'left',''center, 'right'
-      valign: 'center', // title vertical position. Can be 'top',''center, 'bottom'
-      halignBox: 'center', // title vertical position. Can be 'left',''center, 'right'
-      valignBox: 'center', // title relative box vertical position. Can be 'top',''center, 'bottom'
-      cssClass: '', // any classes will be as attribute of <div> container for every title
-      tpl: function(data){
-        return data.svg;
-      }
-    },
+    // {
+    //   query: 'node',
+    //   halign: 'center', // title vertical position. Can be 'left',''center, 'right'
+    //   valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+    //   halignBox: 'center', // title vertical position. Can be 'left',''center, 'right'
+    //   valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+    //   cssClass: '', // any classes will be as attribute of <div> container for every title
+    //   tpl: function(data){
+    //     // we only want author and creation date listed for notes
+    //     if(data.type === 'note'){
+    //       return '<div class = "cytoscape-label">' + data.author + '<br>' + data.date + '</div>';
+    //     } else {
+    //       return '';
+    //     }
+    //   }
+    // },
   ]);
-
-  // CYTOSCAPE-SUPPORTIMAGES EXTENSION
-  // var si = cy.supportimages();
-  // si.addSupportImage({
-  //   url: "http://localhost:9000/attachments/5f5009eb1beff90212b92dd3/5f57fc12d6d0de00d4d7b271/1/82423903_113435220202457_6526867001489489920_o.jpg",
-  //   name: "test"
-  // });
-  //
-  // var imgs = si.images();
 
   // CYTOSCAPE-PANZOOM EXTENSION
   // the default values of each option are outlined below:
@@ -172,8 +149,12 @@ $(document).ready(function() {
       // we keep a map with (key, value) of (kfId, count) in order to create duplicate notes with unique ids
       // simply append the count to the end of their note id
       var nodes = new Map();
-      addNodesToGraph(token, cy, nodes, result[0], result[2], result[3]);
+      var si = cy.supportimages();
+
+      addNodesToGraph(token, cy, si, nodes, result[0], result[2], result[3]);
       addEdgesToGraph(cy, nodes, result[1]);
+
+      var imgs = si.images();
 
     });
 
@@ -182,19 +163,15 @@ $(document).ready(function() {
     cy.on('tap', 'node', function(event){
       var kfId = this.data('kfId');
       var type = this.data('type');
-      console.log('tapped id: ' + kfId);
+      console.log(this);
 
-      // CURRENT IMAGE IMPLEMENTATION IS A WORK AROUND
-      // FIGURE OUT CYTOSCAPE-SUPPORTIMAGES?
       if(this.hasClass("image")){
         console.log("image");
-
+        console.log(this);
       // WORD DOCUMENTS ARE STILL UNREADABLE ON OPEN AFTER DOWNLOAD
       } else if(this.hasClass("attachment")){
         window.open(this.data('download'));
 
-      // THE WAY VIEWID IS HANDLED NEEDS TO BE FIXED HERE
-      // REFACTOR PROJECT?
       } else if(this.hasClass("view")){
         sessionStorage.setItem("viewId", kfId);
         location.reload();
@@ -213,7 +190,6 @@ $(document).ready(function() {
 
   });
 
-
   // add event listeners to the layout dropdown options
   // need to do it here to have access to cytoscape instance
   var options = document.getElementsByClassName("layout-option");
@@ -227,8 +203,8 @@ $(document).ready(function() {
 
 
 // adds the notes to the cytoscape graph
-// parameters are token, cytoscape instance, notes map, getApiLinksFromViewId, getApiLinksReadStatus, and getCommunityAuthors results
-function addNodesToGraph(token, cy, nodes, nodeData, readData, authorData){
+// parameters are token, cytoscape instance, cytoscape-supportimage instance, notes map, getApiLinksFromViewId, getApiLinksReadStatus, and getCommunityAuthors results
+function addNodesToGraph(token, cy, si, nodes, nodeData, readData, authorData){
   for(var i = 0; i < nodeData.length; i++){
 
     var id = createCytoscapeId(nodes, nodeData[i].to);
@@ -236,9 +212,9 @@ function addNodesToGraph(token, cy, nodes, nodeData, readData, authorData){
     if(nodeData[i]._to.type === "Note" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
       handleNote(cy, id, nodeData[i], readData, authorData);
     } else if(nodeData[i]._to.type === "Attachment" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
-      handleAttachment(token, cy, nodes, nodeData[i], authorData);
+      handleAttachment(token, cy, si, nodes, nodeData[i], authorData);
     } else if(nodeData[i]._to.type === "Drawing" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
-      handleDrawing(token, cy, nodes, nodeData[i], authorData);
+      handleDrawing(token, cy, si, nodes, nodeData[i], authorData);
     } else if(nodeData[i]._to.type === "View" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
       handleView(cy, nodes, nodeData[i]);
     }
@@ -313,7 +289,7 @@ function handleNote(cy, id, nodeData, readData, authorData){
 
 
 // handles adding attachments to the cytoscape instance
-function handleAttachment(token, cy, nodes, nodeData, authorData){
+function handleAttachment(token, cy, si, nodes, nodeData, authorData){
 
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var date = parseDate(nodeData.created);
@@ -323,28 +299,17 @@ function handleAttachment(token, cy, nodes, nodeData, authorData){
   documentInfo.then(function(result){
     var isImage = String(result.data.type).substring(0,5) === "image" ? true : false;
     if(isImage){
-      cy.add({
-        data: {
-          id: id,
-          name: nodeData._to.title,
-          author: authorName,
-          date: date,
-          kfId: nodeData.to,
-          type: nodeData._to.type,
-          isImage: true,
-        },
-        style: {
-          'background-image': (SERVER + String(result.data.url).substring(1,)).replace(/\s/g,"%20"),
-          'height': nodeData.data.height,
-          'width': nodeData.data.width,
-          'background-height': nodeData.data.height,
-          'background-width': nodeData.data.width,
-        },
-        classes: "image",
-        position: {
-          x: nodeData.data.x,
-          y: nodeData.data.y
-        }
+
+      var bounds = si.rectangle({
+        x: nodeData.data.x,
+        y: nodeData.data.y,
+        width: nodeData.data.width,
+        height: nodeData.data.height,
+      });
+      si.addSupportImage({
+        url: (SERVER + String(result.data.url).substring(1,)).replace(/\s/g,"%20"),
+        name: nodeData._to.title,
+        bounds: bounds
       });
 
     } else {
@@ -372,7 +337,7 @@ function handleAttachment(token, cy, nodes, nodeData, authorData){
 
 
 // handles adding drawings to the cytoscape instance
-function handleDrawing(token, cy, nodes, nodeData, authorData){
+function handleDrawing(token, cy, si, nodes, nodeData, authorData){
 
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var date = parseDate(nodeData.created);
@@ -380,26 +345,21 @@ function handleDrawing(token, cy, nodes, nodeData, authorData){
 
   var documentInfo = getApiObjectsObjectId(token, SERVER, nodeData.to);
   documentInfo.then(function(result){
-    cy.add({
-      data: {
-        id: id,
-        name: nodeData._to.title,
-        author: authorName,
-        date: date,
-        kfId: nodeData.to,
-        type: nodeData._to.type,
-        svg: result.data.svg
-      },
-      style: {
-        'height': nodeData.data.height,
-        'width': nodeData.data.width,
-      },
-      classes: "drawing",
-      position: {
-        x: nodeData.data.x,
-        y: nodeData.data.y
-      }
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(result.data.svg, "image/svg+xml");
+
+    var bounds = si.rectangle({
+      x: nodeData.data.x,
+      y: nodeData.data.y,
+      width: doc.childNodes[0].attributes.width.value,
+      height: doc.childNodes[0].attributes.height.value,
     });
+    si.addSupportImage({
+      url: 'data:image/svg+xml;utf8,' + encodeURIComponent(result.data.svg),
+      name: nodeData._to.title,
+      bounds: bounds
+    });
+
   });
 
 }
