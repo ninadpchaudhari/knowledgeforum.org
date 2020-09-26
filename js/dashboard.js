@@ -109,10 +109,15 @@ function appendUserCommunities(data, server) {
   // execute all promises and append the users communities
   Promise.all(promises).then(function(responses) {
     for(var i = 0; i < responses.length; i++){
-      var title = data[i]._community.title;
-      var id = data[i].communityId;
-      var welcomeViewID = responses[i]._id;
-      $('#userCommunities').append('<li><p>' + title + '</p><a href="' + server + 'auth/jwt?token=' + token + '&redirectUrl=/view/' + welcomeViewID + '" target="_blank"><button class="enterButton" type="button"><i class="far fa-arrow-alt-circle-right"></i></button></a></li>');
+      if(responses[i]){
+        if(responses[i]._id){
+          var title = data[i]._community.title;
+          var id = data[i].communityId;
+          var welcomeViewID = responses[i]._id;
+          $('#userCommunities').append('<li><p>' + title + '</p><a href="' + server + 'auth/jwt?token=' + token + '&redirectUrl=/view/' + welcomeViewID + '" target="_blank"><button class="enterButton" type="button"><i class="far fa-arrow-alt-circle-right"></i></button></a></li>');
+        }
+      }
+
     }
   }).catch(function(error) {
     console.log(error);

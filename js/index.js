@@ -20,6 +20,12 @@ $(document).ready(function(){
     return false;
   })
 
+  document.getElementById("demo-image-container").addEventListener("click", function(){
+    var iframe = document.getElementById("iframeDemo");
+    iframe.setAttribute("src", "/html/demoview.html");
+  });
+
+
 });
 
 

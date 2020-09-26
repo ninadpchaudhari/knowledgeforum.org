@@ -6,8 +6,7 @@
   "dependencies": {
     "cytoscape": "^3.2.11",
     "cytoscape-node-html-label": "^1.2.0",
-    "cytoscape-panzoom": "^2.5.3",
-    "cytoscape-supportimages": "^1.0.1"
+    "cytoscape-panzoom": "^2.5.3"
   },
   "devDependencies": {},
   "scripts": {

@@ -1,24 +1,17 @@
 /*
 * EDIT VALUES FOR iFRAME SAMPLE VIEW HERE
 */
-// const USERNAME = "admin";
-// const PASSWORD = "build";
-// const SERVER = getServerURL("Local");
-// const viewId = "5f5009ec1beff90212b92dd6"; // TEST COMMUNITY WELCOME VIEW ID
-// const COMMUNITYID = "5f5009eb1beff90212b92dd3" // TEST COMMUNITY ID
-
-// KF How To - KB RESOURCES
 const USERNAME = "cytoscape";
 const PASSWORD = "cytoscape";
 const SERVER = getServerURL("Albany Stage");
-const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c"
+const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c" // KF How To - KB RESOURCES
 var viewId = sessionStorage.getItem("viewId") === null ? "5ea995a7cbdc04a6f53a1b5f" : sessionStorage.getItem("viewId");
 
 
 $(document).ready(function() {
   var cytoscape = require('cytoscape');
   var nodeHtmlLabel = require('cytoscape-node-html-label');
-  var supportimages = require('cytoscape-supportimages');
+  var supportimages = require('../manual_modules/cytoscape-supportimages.js');
   var panzoom = require('cytoscape-panzoom');
   nodeHtmlLabel( cytoscape );
   supportimages( cytoscape );
@@ -77,8 +70,10 @@ $(document).ready(function() {
       name: 'grid',
     },
 
+    hideEdgesonViewport: false,
     minZoom: MINZOOM,
     maxZoom: MAXZOOM,
+    autolock: true,
     wheelSensitivity: 0.15
   });
 
@@ -153,8 +148,6 @@ $(document).ready(function() {
 
       addNodesToGraph(token, cy, si, nodes, result[0], result[2], result[3]);
       addEdgesToGraph(cy, nodes, result[1]);
-
-      var imgs = si.images();
 
     });
 
@@ -306,10 +299,11 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
         width: nodeData.data.width,
         height: nodeData.data.height,
       });
-      si.addSupportImage({
+      var img = si.addSupportImage({
         url: (SERVER + String(result.data.url).substring(1,)).replace(/\s/g,"%20"),
         name: nodeData._to.title,
-        bounds: bounds
+        bounds: bounds,
+        locked: true,
       });
 
     } else {
@@ -348,20 +342,44 @@ function handleDrawing(token, cy, si, nodes, nodeData, authorData){
     var parser = new DOMParser();
     var doc = parser.parseFromString(result.data.svg, "image/svg+xml");
 
-    var bounds = si.rectangle({
-      x: nodeData.data.x,
-      y: nodeData.data.y,
-      width: doc.childNodes[0].attributes.width.value,
-      height: doc.childNodes[0].attributes.height.value,
-    });
-    si.addSupportImage({
-      url: 'data:image/svg+xml;utf8,' + encodeURIComponent(result.data.svg),
-      name: nodeData._to.title,
-      bounds: bounds
+    // var bounds = si.rectangle({
+    //   x: nodeData.data.x,
+    //   y: nodeData.data.y,
+    //   width: doc.childNodes[0].attributes.width.value,
+    //   height: doc.childNodes[0].attributes.height.value,
+    // });
+    // si.addSupportImage({
+    //   url: 'data:image/svg+xml;utf8,' + encodeURIComponent(result.data.svg),
+    //   name: nodeData._to.title,
+    //   bounds: bounds
+    // });
+
+    cy.add({
+      data: {
+        id: id,
+        name: nodeData._to.title,
+        author: authorName,
+        date: date,
+        kfId: nodeData.to,
+        type: nodeData._to.type,
+        svg: result.data.svg
+      },
+      style: {
+        'background-image': 'data:image/svg+xml;utf8,' + encodeURIComponent(result.data.svg),
+        'background-height': doc.childNodes[0].attributes.height.value,
+        'background-width': doc.childNodes[0].attributes.width.value,
+        'height': doc.childNodes[0].attributes.height.value,
+        'width': doc.childNodes[0].attributes.width.value,
+        'z-compound-depth': 'bottom',
+      },
+      classes: "drawing",
+      position: {
+        x: nodeData.data.x,
+        y: nodeData.data.y
+      }
     });
 
   });
-
 }
 
 
