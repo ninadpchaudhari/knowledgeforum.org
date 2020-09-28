@@ -96,6 +96,13 @@ function responseHandler(uname, data){
 
       successfulLogin = true;
 
+      // this else if case handles a user having the same username on multiple servers but with different passwords
+    } else if(data[i][0].message != undefined && userStorage != null){
+      var uname = document.getElementById("uname").value;
+      var pwd = document.getElementById("pwd").value;
+      localStorage.removeItem(uname);
+      executePromises(uname, pwd);
+      break;
     } else if(errorMessage == "") {
       errorMessage = data[i][0].message;
     } else if(errorMessage == "This userName is not registered." && data[i][0].message == "This password is not correct.") {
