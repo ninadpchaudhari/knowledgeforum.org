@@ -51,11 +51,6 @@ function appendUserServers(){
 function loadServer(server){
   var token = extractTokenFromStorage(server);
 
-  var serverCommunitiesData = getCommunities(token, server);
-  serverCommunitiesData.then(function(result) {
-    appendCommunities(result, server);
-  });
-
   // reset loading gif for user communities
   $('#userCommunities').replaceWith('<ul class="userCommunities" id = "userCommunities"><div class = "loader"></div></ul>');
   var userCommunitiesData = getUserCommunities(token, server);
@@ -76,6 +71,11 @@ function loadServer(server){
       $('#joinCommunityButton').replaceWith('<input class = "joinButton" type="button" value="Join" onclick="joinCommunity(\'' + userId + '\',\'' + server + '\')" id="joinCommunityButton">');
     }
 
+  });
+
+  var serverCommunitiesData = getCommunities(token, server);
+  serverCommunitiesData.then(function(result) {
+    appendCommunities(result, server);
   });
 
 }
