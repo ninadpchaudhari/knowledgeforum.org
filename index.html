@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-  <title>Integrating KF</title>
+  <title>knowledgeforum.org</title>
 
   <meta name="description" content="">
   <meta charset="utf-8">
@@ -23,7 +23,7 @@
 
         <div class = "row loginRow">
           <div class = "col-lg-8 col-md-10 col-sm-12 loginFormWrapper">
-            <h1>Integrating KF</h1>
+            <h1>knowledgeforum.org</h1>
             <form class = "loginForm" id = "loginForm">
 
               <div class = "inputWrapper">
@@ -60,38 +60,20 @@
       <div class = "col-md-6 about">
 
         <div class = "aboutWrapper">
-          <h1>What is Integrating KF?</h1>
+          <h1>What is knowledgeforum.org?</h1>
           <p>A knowledge forum is an electronic group workspace designed to support the process of knowledge building.
               There are multiple installations of knowledge forums hosted by many universities and private entities all over the world.
-              IntegratingKF unites all of these installations and hence the stakeholders to help confluence knowledge building research,
+              Knowledgeforum.org unites all of these installations and hence the stakeholders to help confluence knowledge building research,
               widen the reach of the tool & provide a central location for all global stakeholders.</p>
 
-              <!-- BEGIN CAROUSEL -->
-              <div class = "carouselWrapper">
-                  <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
-                    <ol class="carousel-indicators">
-                      <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-                      <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-                    </ol>
-                  <div class="carousel-inner">
-                    <div class="carousel-item active">
-                      <img class="d-block w-100" src="assets/sample_view.PNG" alt="First slide">
-                    </div>
-                  </div>
-                  <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Previous</span>
-                  </a>
-                  <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Next</span>
-                  </a>
-                </div>
+            <!-- BEGIN DEMO IMAGE -->
+            <div class="overlay-container demo-image" data-toggle="modal" data-target="#exampleModal" id="demo-image-container">
+              <img class="d-block w-100" src="assets/sample_view.gif" alt="First slide">
+              <div class="overlay">
+                  <div class="overlay-text">Demo a Knowledge Forum</div>
+              </div>
             </div>
-            <!-- END CAROUSEL -->
-
-            <!-- Button trigger modal -->
-            <button type="button" class="button demo" data-toggle="modal" data-target="#exampleModal">Demo a Knowledge Forum</button>
+            <!-- END DEMO IMAGE -->
 
             <!-- BEGIN IFRAME MODAL -->
             <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -104,10 +86,10 @@
                     </button>
                   </div>
                   <div class="modal-body">
-                    <iframe id="iframeDemo" src="" title="Knowledge Forum Demo"></iframe>
+                    <iframe id="iframeDemo" title="Knowledge Forum Demo"></iframe>
                   </div>
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="button modal-btn" data-dismiss="modal">Close</button>
                   </div>
                 </div>
               </div>
@@ -126,5 +108,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   <script src="js/config.js"></script>
+  <script src="api/user.js"></script>
   <script src="js/index.js"></script>
 </body>

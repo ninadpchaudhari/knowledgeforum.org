@@ -139,11 +139,41 @@ body {
   }
 }
 
-.carouselWrapper {
-  max-width: 80%;
-  margin-left: auto;
-  margin-right: auto;
-  padding-bottom: 20px;
+.overlay-container {
+  position: relative;
+  width: 50%;
+  border-radius: 5px;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  transition: .5s ease;
+  background-color: #0e386e;
+  border-radius: 5px;
+}
+
+.overlay-container:hover .overlay {
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+.overlay-text {
+  color: white;
+  font-size: 26px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 
 .demo {
@@ -153,6 +183,12 @@ body {
   margin-bottom: 20px;
 }
 
+.demo-image{
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .modal-dialog {
   max-width: 90%;
   margin: 5vh auto;
@@ -160,6 +196,10 @@ body {
 
 .modal-body {
   height: 75vh;
+}
+
+.modal-btn {
+  width: auto;
 }
 
 iframe {

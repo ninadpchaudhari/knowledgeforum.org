@@ -7,17 +7,9 @@ const SERVERS = [
   {name:"Albany Stage", url:"https://kf6-stage.rit.albany.edu/"},
   {name:"IKIT", url:"https://kf6.ikit.org/"},
   {name:"Albany", url:"https://kf6.rit.albany.edu/"},
-  {name:"Singapore", url:"https://kf.rdc.nie.edu.sg/"}
+  {name:"Singapore", url:"https://kf.rdc.nie.edu.sg/"},
+  //{name:"Local", url:"http://localhost:9000/"}
 ];
-
-/*
-* EDIT VALUES FOR iFRAME SAMPLE VIEW HERE
-*/
-const USERNAME = "demo1";
-const PASSWORD = "demo1";
-const SERVER = getServerURL("IKIT Stage");
-const WELCOMEVIEWID = "558abcb01f3b621e75d9bc0a"; // PKU SUMMER SCHOOL COMMUNITY 
-
 
 // Helper function to retrieve a servers name from its URL
 function getServerName(url){
@@ -36,4 +28,17 @@ function getServerURL(name){
   }
 
   return "Error: server " + name + " does not exist";
+}
+
+
+// Helper function to retrieve the current users token for a specified server
+function extractTokenFromStorage(server) {
+  var uname = localStorage.getItem("Username");
+  var data = JSON.parse(localStorage.getItem(uname));
+
+  for (i in data) {
+    if (data[i][0] == server) {
+      return data[i][1];
+    }
+  }
 }

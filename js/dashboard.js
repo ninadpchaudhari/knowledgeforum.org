@@ -33,10 +33,10 @@ function appendUserServers(){
    var activeServerURL = getServerURL(this.innerText);
    var serverTokenPair = [];
    for(i in data){
-     var url = data[i][0];
+     var server = data[i][0];
      var token = data[i][1];
-     var status = (url == activeServerURL) ? "active" : "inactive";
-     serverTokenPair.push([url, token, status]);
+     var status = (server == activeServerURL) ? "active" : "inactive";
+     serverTokenPair.push([server, token, status]);
    }
 
    var uname = localStorage.getItem("Username");
@@ -45,94 +45,44 @@ function appendUserServers(){
 
 }
 
+
 // replaces the "join community" and "my knowledge building communities" sections
 // with the relevant information for the specified server
-function loadServer(url){
-
-  var serverCommunitiesData = getCommunities(url);
-  serverCommunitiesData.then(function(result) {
-    appendCommunities(result, url);
-  });
+function loadServer(server){
+  var token = extractTokenFromStorage(server);
 
   // reset loading gif for user communities
   $('#userCommunities').replaceWith('<ul class="userCommunities" id = "userCommunities"><div class = "loader"></div></ul>');
-  var userCommunitiesData = getUserCommunities(url);
+  var userCommunitiesData = getUserCommunities(token, server);
   userCommunitiesData.then(function(result) {
-    appendUserCommunities(result, url);
+    appendUserCommunities(result, server);
   });
 
-  var userInfo = getUserInfo(url);
+  var userInfo = getUserInfo(token, server);
   userInfo.then(function(result) {
-    var firstName = result.firstName;
-    var lastName = result.lastName;
-    var userId = result._id;
-    var server = getServerName(url);
-    $('#currentInfo').replaceWith('<div class="currentInfo" id="currentInfo">' + firstName + ' ' + lastName + '<div></div>' + server + '</div>');
-    $('#joinCommunityButton').replaceWith('<input class = "joinButton" type="button" value="Join" onclick="joinCommunity(\'' + userId + '\',\'' + url + '\')" id="joinCommunityButton">')
-  });
-
-}
-
-
-// returns the users token for the specified server
-function extractTokenFromStorage(url) {
-  var uname = localStorage.getItem("Username");
-  var data = JSON.parse(localStorage.getItem(uname));
-
-  for (i in data) {
-    if (data[i][0] == url) {
-      return data[i][1];
+    if(result.error === true){
+      tokenErrorHandler();
+    } else {
+      var firstName = result.firstName;
+      var lastName = result.lastName;
+      var userId = result._id;
+      var serverName = getServerName(server);
+      $('#currentInfo').replaceWith('<div class="currentInfo" id="currentInfo">' + firstName + ' ' + lastName + '<div></div>' + serverName + '</div>');
+      $('#joinCommunityButton').replaceWith('<input class = "joinButton" type="button" value="Join" onclick="joinCommunity(\'' + userId + '\',\'' + server + '\')" id="joinCommunityButton">');
     }
-  }
-}
 
-
-// retrieves the users information for the specified server
-function getUserInfo(url) {
-  var token = extractTokenFromStorage(url);
-
-  return fetch(url + 'api/users/me', {
-    method: "GET",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-  }).then(function(response) {
-      if(response.status == 401){
-        tokenErrorHandler();
-      } else {
-        return response.json();
-      }
-  }).then(function(body) {
-      return (body);
-  }).catch(function(error) {
-      return ("Error:", error);
   });
-}
 
-
-// returns a promise for all the communities from the specified server
-function getCommunities(url) {
-  var token = extractTokenFromStorage(url);
-
-  return fetch(url + 'api/communities', {
-    method: "GET",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-  }).then(function(response) {
-      return response.json();
-  }).then(function(body) {
-      return (body);
-  }).catch(function(error) {
-      return ("Error:", error);
+  var serverCommunitiesData = getCommunities(token, server);
+  serverCommunitiesData.then(function(result) {
+    appendCommunities(result, server);
   });
+
 }
 
 
 // appends all the servers communities to the community choice dropdown
-function appendCommunities(data, url) {
+function appendCommunities(data, server) {
   $('#communityChoiceDropdown').replaceWith('<select value="getCommunity" class="communityChoiceDropdown" id="communityChoiceDropdown" required></select>');
 
   for(var i = 0; i < data.length; i++){
@@ -143,128 +93,51 @@ function appendCommunities(data, url) {
 }
 
 
-// returns a promise for all the communities a user is a part of in the specified server
-function getUserCommunities(url) {
-  var token = extractTokenFromStorage(url);
-
-  return fetch(url + 'api/users/myRegistrations', {
-    method: "GET",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-  }).then(function(response) {
-    return response.json();
-  }).then(function(body) {
-      return (body);
-  }).catch(function(error) {
-      return ("Error:", error);
-  });
-
-}
-
-
 // appends all the users servers communities to their list of knowledge building communities
-function appendUserCommunities(data, url) {
+function appendUserCommunities(data, server) {
   $('#userCommunities').replaceWith("<ul class='userCommunities' id = 'userCommunities'></ul>");
-  var token = extractTokenFromStorage(url);
+  var token = extractTokenFromStorage(server);
   var promises = [];
 
   // for loop to create promises to get welcome view IDs for each community
   for(var i = 0; i < data.length; i++){
     var id = data[i].communityId;
-    const p = new Promise((resolve, reject) => {
-      var welcomeViewID = getCommunityViews(id, url).then(function(result) {
-        if(result[0]){
-          if(result[0]._id){ return result[0]._id; }
-        } else {
-          console.log(id);
-          console.log(result);
-        }
-      })
-      resolve(welcomeViewID);
-    })
-
+    var p = getCommunityWelcomeView(token, id, server);
     promises.push(p);
   }
 
-  // execute all promises
+  // execute all promises and append the users communities
   Promise.all(promises).then(function(responses) {
-    return Promise.all(responses.map(function (response) {
-      return response;
-    }));
-  }).then(function(body) {
-    // here we use the welcome view id, title, and communityId to create each list entry
-    // body and data are same length
-    for(var i = 0; i < body.length; i++){
-      var title = data[i]._community.title;
-      var id = data[i].communityId;
-      var welcomeViewID = body[i];
-      $('#userCommunities').append('<li><p>' + title + '</p><a href="' + url + 'auth/jwt?token=' + token + '&redirectUrl=/view/' + welcomeViewID + '" target="_blank"><button class="enterButton" type="button"><i class="far fa-arrow-alt-circle-right"></i></button></a></li>');
+    for(var i = 0; i < responses.length; i++){
+      if(responses[i]){
+        if(responses[i]._id){
+          var title = data[i]._community.title;
+          var id = data[i].communityId;
+          var welcomeViewID = responses[i]._id;
+          $('#userCommunities').append('<li><p>' + title + '</p><a href="' + server + 'auth/jwt?token=' + token + '&redirectUrl=/view/' + welcomeViewID + '" target="_blank"><button class="enterButton" type="button"><i class="far fa-arrow-alt-circle-right"></i></button></a></li>');
+        }
+      }
+
     }
   }).catch(function(error) {
     console.log(error);
   });
-
 }
-
-
-// retrieves the views from the specified community
-function getCommunityViews(communityId, url){
-  var token = extractTokenFromStorage(url);
-
-  // retrieve the communities views here
-  return fetch(url + 'api/communities/' + communityId + '/views', {
-    method: "GET",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-  }).then(function(response) {
-      return response.json();
-  }).then(function(body) {
-      return (body);
-  }).catch(function(error) {
-      return ("Error:", error);
-  });
-}
-
 
 // registers the user for a community
-function joinCommunity(userId, url){
+function joinCommunity(userId, server){
   var selectCommunityDropdown = document.getElementById("communityChoiceDropdown");
   var communityId = selectCommunityDropdown.options[selectCommunityDropdown.selectedIndex].value;
   var registrationKey = document.getElementById("communityKey").value;
-  var token = extractTokenFromStorage(url);
+  var token = extractTokenFromStorage(server);
 
-  var body = {
-    'communityId': communityId,
-    'registrationKey': registrationKey,
-    'userId': userId
-  };
-
-  var promise = fetch(url + 'api/authors', {
-    method: "POST",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-    body: JSON.stringify(body),
-  }).then(function(response) {
-      if(response.status == 400){
-        var errorMessageDiv = document.getElementById("errorMessage");
-        errorMessageDiv.innerHTML = "Registration key does not match or you are already registered.";
-        errorMessageDiv.style.display = "visible";
-      } else {
-        return response.json();
-      }
-  }).then(function(body) {
-      return ("Success:", [body, url]);
-  }).catch(function(error) {
-      return ("Error:", error);
-  });
-
+  var promise = postCommunityRegistration(token, communityId, server, userId, registrationKey);
   promise.then(result => new Promise(resolve => {
+    if(result[0].error === true){
+      var errorMessageDiv = document.getElementById("errorMessage");
+      errorMessageDiv.innerHTML = "Registration key does not match or you are already registered.";
+      errorMessageDiv.style.display = "visible";
+    }
     setTimeout(function(){
       resolve();
     }, 2000);
