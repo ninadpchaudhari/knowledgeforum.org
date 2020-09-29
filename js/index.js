@@ -8,7 +8,12 @@ $(document).ready(function(){
     if($(window).width() <= 768) {
       document.getElementById("popover").setAttribute("data-trigger", "focus");
     }
+
   })
+
+  if($(window).width() <= 768) {
+    document.getElementById("popover").setAttribute("data-trigger", "focus");
+  }
 
   $('#loginForm').on("submit", function(e){
     e.preventDefault();
@@ -79,6 +84,7 @@ function responseHandler(uname, data){
       var server = data[i][1];
 
       // if its the first login we set first server as the default active server
+
       // and all other servers as inactive
       if(userStorage == null && successfulLogin == false){
         serverTokenPair.push([server, token, "active"]);
@@ -87,7 +93,6 @@ function responseHandler(uname, data){
       }
 
       // if it is not the first login then we retrieve last active server from localStorage
-      // and set the rest to inactive
       else if(userStorage[i][2] == "active"){
         serverTokenPair.push([server, token, "active"]);
       } else {
@@ -95,6 +100,7 @@ function responseHandler(uname, data){
       }
 
       successfulLogin = true;
+
 
       // this else if case handles a user having the same username on multiple servers but with different passwords
     } else if(data[i][0].message != undefined && userStorage != null){
