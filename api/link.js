@@ -1,6 +1,6 @@
 // returns a promise that on fullfillment returns all links from the given viewId
-function getApiLinksFromViewId(token, server, welcomeViewId) {
-  return fetch(server + 'api/links/from/' + welcomeViewId, {
+function getApiLinksFromViewId(token, server, viewId) {
+  return fetch(server + 'api/links/from/' + viewId, {
     method: "GET",
     headers: {
       'Content-Type': 'application/json',
@@ -15,6 +15,23 @@ function getApiLinksFromViewId(token, server, welcomeViewId) {
   });
 }
 
+
+// returns a promise that on fullfillment returns all links FROM ID to TO ID  
+function getApiLinksViewIdToObjectId(token, server, viewId, objectId) {
+  return fetch(server + 'api/links/from/' + viewId + '/to/' + objectId, {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+  }).then(function(response) {
+    return response.json();
+  }).then(function(body) {
+    return (body);
+  }).catch(function(error) {
+    return ("Error:", error);
+  });
+}
 
 // returns a promise that on fullfillment returns an array of the read note ids only
 function getApiLinksReadStatus(token, server, communityId, welcomeViewId){
@@ -56,7 +73,7 @@ function postReadStatus(token, server, communityId, contributionId){
 }
 
 
-// returns a promise that on fullfillment returns all of the links fulfilling the query 
+// returns a promise that on fullfillment returns all of the links fulfilling the query
 function postApiLinksCommunityIdSearch(token, server, communityId, query) {
   var body = {
     'query': query

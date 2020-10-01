@@ -15,7 +15,9 @@
 }
 
 .cytoscape-label{
-  font-size: 1.25vh;
+  font-size: 9px;
+  margin-top: -7px;
+  margin-left: -10px;
 }
 
 .cytoscape-icon{
