@@ -124,7 +124,6 @@ function appendUserCommunities(data, server) {
   });
 }
 
-
 // registers the user for a community
 function joinCommunity(userId, server){
   var selectCommunityDropdown = document.getElementById("communityChoiceDropdown");

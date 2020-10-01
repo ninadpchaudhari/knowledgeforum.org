@@ -131,7 +131,9 @@ body {
   .aboutWrapper > h1 {
     font-size: 1.75rem;
   }
+}
 
+@media (max-width: 1024px){
   .aboutWrapper > p {
     font-size: 1.25rem;
   }
