@@ -1,10 +1,10 @@
 /*
 * EDIT VALUES FOR iFRAME SAMPLE VIEW HERE
 */
-const USERNAME = "cytoscape";
-const PASSWORD = "cytoscape";
-const SERVER = getServerURL("Albany Stage");
-const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c" // KF How To - KB RESOURCES
+const USERNAME = "demo1";
+const PASSWORD = "demo1";
+const SERVER = getServerURL("IKIT Stage");
+const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c"
 var viewId = sessionStorage.getItem("viewId") === null ? "5ea995a7cbdc04a6f53a1b5f" : sessionStorage.getItem("viewId");
 
 
@@ -29,16 +29,21 @@ $(document).ready(function() {
         selector: 'node',
         style: {
           'label': "data(name)",
+          'font-size': '11px',
+          'text-halign': 'right',
+          'text-valign': 'center',
+          'text-margin-x': '-5',
+          'padding': '0',
           'background-opacity': '0',
           'background-clip': 'none',
-          'background-width': '25px',
-          'background-height': '25px'
+          'background-width': '15px',
+          'background-height': '15px'
         }
       },
       {
         selector: 'edge',
         style: {
-          'width': 3,
+          'width': 1,
           'line-color': '#ccc',
           'target-arrow-color': '#ccc',
           'target-arrow-shape': 'triangle',
@@ -71,9 +76,9 @@ $(document).ready(function() {
     },
 
     hideEdgesonViewport: false,
+    autolock: true,
     minZoom: MINZOOM,
     maxZoom: MAXZOOM,
-    autolock: true,
     wheelSensitivity: 0.15
   });
 
@@ -81,15 +86,15 @@ $(document).ready(function() {
   cy.nodeHtmlLabel([
     // {
     //   query: 'node',
-    //   halign: 'center', // title vertical position. Can be 'left',''center, 'right'
+    //   halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
     //   valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-    //   halignBox: 'center', // title vertical position. Can be 'left',''center, 'right'
+    //   halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
     //   valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-    //   cssClass: '', // any classes will be as attribute of <div> container for every title
+    //   cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
     //   tpl: function(data){
     //     // we only want author and creation date listed for notes
-    //     if(data.type === 'note'){
-    //       return '<div class = "cytoscape-label">' + data.author + '<br>' + data.date + '</div>';
+    //     if(data.type === 'note' || data.type == 'riseabove' || data.type == 'Attachment'){
+    //       return '<div>' + data.author + '<br>' + data.date + '</div>';
     //     } else {
     //       return '';
     //     }
@@ -160,7 +165,6 @@ $(document).ready(function() {
 
       if(this.hasClass("image")){
         console.log("image");
-        console.log(this);
       // WORD DOCUMENTS ARE STILL UNREADABLE ON OPEN AFTER DOWNLOAD
       } else if(this.hasClass("attachment")){
         window.open(this.data('download'));
@@ -299,7 +303,8 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
         width: nodeData.data.width,
         height: nodeData.data.height,
       });
-      var img = si.addSupportImage({
+
+      si.addSupportImage({
         url: (SERVER + String(result.data.url).substring(1,)).replace(/\s/g,"%20"),
         name: nodeData._to.title,
         bounds: bounds,
@@ -342,41 +347,28 @@ function handleDrawing(token, cy, si, nodes, nodeData, authorData){
     var parser = new DOMParser();
     var doc = parser.parseFromString(result.data.svg, "image/svg+xml");
 
-    // var bounds = si.rectangle({
-    //   x: nodeData.data.x,
-    //   y: nodeData.data.y,
-    //   width: doc.childNodes[0].attributes.width.value,
-    //   height: doc.childNodes[0].attributes.height.value,
-    // });
-    // si.addSupportImage({
-    //   url: 'data:image/svg+xml;utf8,' + encodeURIComponent(result.data.svg),
-    //   name: nodeData._to.title,
-    //   bounds: bounds
-    // });
+    // use width and height from svg tag to find the aspect ratio
+    var svg_width = doc.childNodes[0].attributes.width.value;
+    var svg_height = doc.childNodes[0].attributes.height.value;
+    var aspect_ratio = svg_width/svg_height;
 
-    cy.add({
-      data: {
-        id: id,
-        name: nodeData._to.title,
-        author: authorName,
-        date: date,
-        kfId: nodeData.to,
-        type: nodeData._to.type,
-        svg: result.data.svg
-      },
-      style: {
-        'background-image': 'data:image/svg+xml;utf8,' + encodeURIComponent(result.data.svg),
-        'background-height': doc.childNodes[0].attributes.height.value,
-        'background-width': doc.childNodes[0].attributes.width.value,
-        'height': doc.childNodes[0].attributes.height.value,
-        'width': doc.childNodes[0].attributes.width.value,
-        'z-compound-depth': 'bottom',
-      },
-      classes: "drawing",
-      position: {
-        x: nodeData.data.x,
-        y: nodeData.data.y
-      }
+    // use the given width and known aspect ratio to calculate appropiate height for svg
+
+    var node_width = parseInt(nodeData.data.width);
+    var node_height = node_width/aspect_ratio;
+
+    var bounds = si.rectangle({
+      x: nodeData.data.x,
+      y: nodeData.data.y,
+      height: node_height,
+      width: parseInt(nodeData.data.width)
+    });
+
+    si.addSupportImage({
+      url: 'data:image/svg+xml;utf8,' + encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>' + result.data.svg),
+      name: nodeData._to.title,
+      bounds: bounds,
+      locked: true,
     });
 
   });
