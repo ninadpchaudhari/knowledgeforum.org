@@ -5,10 +5,6 @@ $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip()
     $('[data-toggle="popover"]').popover()
 
-    if($(window).width() <= 768) {
-      document.getElementById("popover").setAttribute("data-trigger", "focus");
-    }
-
   })
 
   if($(window).width() <= 768) {
