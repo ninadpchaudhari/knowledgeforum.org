@@ -1305,15 +1305,32 @@ function createCytoscapeId(nodes, kfId){
 
         if (imageCache[url] && imageCache[url].image) {
             return imageCache[url].image;
+        } else if(imageCache[url] && imageCache[url].video) {
+            return imageCache[url].video;
         }
 
         var cache = imageCache[url] = imageCache[url] || {};
 
-        var image = cache.image = new Image();
-        image.addEventListener('load', onLoad);
-        image.src = url;
+        var isGif = url.slice(-3) === "gif" ? true : false;
 
-        return image;
+        if(isGif){
+          var video = cache.video = document.createElement("video");
+          video.addEventListener('canplay', onLoad);
+          video.src = "../assets/sample-mp4-file.mp4";
+          video.autoplay = true;
+          video.loop = true;
+          return video;
+        } else {
+          var image = cache.image = new Image();
+          image.addEventListener('load', onLoad);
+          image.src = url;
+          return image;
+        }
+
+        // var image = cache.image = new Image();
+        // image.addEventListener('load', onLoad);
+        // image.src = url;
+        // return image;
     };
 
 
@@ -1409,7 +1426,9 @@ function createCytoscapeId(nodes, kfId){
             r.redraw();
         });
 
-        if (img.complete) {
+        console.log(img);
+
+        if (img.complete || img.readyState === 3) {
             if (!supportImage.bounds.width) {
                 supportImage.bounds.width = img.width;
             }
@@ -43934,4 +43953,4 @@ function toNumber(value) {
 module.exports = debounce;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[3]);
+},{}]},{},[4,3]);
