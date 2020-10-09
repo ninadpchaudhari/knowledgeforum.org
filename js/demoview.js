@@ -154,6 +154,8 @@ $(document).ready(function() {
       addNodesToGraph(token, cy, si, nodes, result[0], result[2], result[3]);
       addEdgesToGraph(cy, nodes, result[1]);
 
+      console.log(si);
+
     });
 
 
@@ -294,8 +296,7 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
 
   var documentInfo = getApiObjectsObjectId(token, SERVER, nodeData.to);
   documentInfo.then(function(result){
-    var isImage = String(result.data.type).substring(0,5) === "image" ? true : false;
-    if(isImage){
+    if(String(result.data.type).substring(0,5) === "image"){
 
       var bounds = si.rectangle({
         x: nodeData.data.x,
@@ -308,7 +309,7 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
         url: (SERVER + String(result.data.url).substring(1,)).replace(/\s/g,"%20"),
         name: nodeData._to.title,
         bounds: bounds,
-        locked: true,
+        locked: false,
       });
 
     } else {
@@ -321,7 +322,6 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
           date: date,
           kfId: nodeData.to,
           type: nodeData._to.type,
-          isImage: false,
           download: SERVER + result.data.url.substring(1,)
         },
         classes: "attachment",

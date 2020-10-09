@@ -420,6 +420,8 @@ $(document).ready(function() {
       addNodesToGraph(token, cy, si, nodes, result[0], result[2], result[3]);
       addEdgesToGraph(cy, nodes, result[1]);
 
+      console.log(si);
+
     });
 
 
@@ -560,8 +562,7 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
 
   var documentInfo = getApiObjectsObjectId(token, SERVER, nodeData.to);
   documentInfo.then(function(result){
-    var isImage = String(result.data.type).substring(0,5) === "image" ? true : false;
-    if(isImage){
+    if(String(result.data.type).substring(0,5) === "image"){
 
       var bounds = si.rectangle({
         x: nodeData.data.x,
@@ -574,7 +575,7 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
         url: (SERVER + String(result.data.url).substring(1,)).replace(/\s/g,"%20"),
         name: nodeData._to.title,
         bounds: bounds,
-        locked: true,
+        locked: false,
       });
 
     } else {
@@ -587,7 +588,6 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
           date: date,
           kfId: nodeData.to,
           type: nodeData._to.type,
-          isImage: false,
           download: SERVER + result.data.url.substring(1,)
         },
         classes: "attachment",
@@ -1313,12 +1313,13 @@ function createCytoscapeId(nodes, kfId){
 
         var isGif = url.slice(-3) === "gif" ? true : false;
 
-        if(isGif){
+        if (isGif) {
           var video = cache.video = document.createElement("video");
-          video.addEventListener('canplay', onLoad);
-          video.src = "../assets/sample-mp4-file.mp4";
+          video.addEventListener('loadedmetadata', onLoad);
+          video.src = "../assets/samplemp4.mp4";
           video.autoplay = true;
           video.loop = true;
+          video.muted = true;
           return video;
         } else {
           var image = cache.image = new Image();
@@ -1326,11 +1327,6 @@ function createCytoscapeId(nodes, kfId){
           image.src = url;
           return image;
         }
-
-        // var image = cache.image = new Image();
-        // image.addEventListener('load', onLoad);
-        // image.src = url;
-        // return image;
     };
 
 
@@ -1423,12 +1419,23 @@ function createCytoscapeId(nodes, kfId){
             supportImage.resourceH = h;
             supportImage.bounds.width = supportImage.bounds.width || w;
             supportImage.bounds.height = supportImage.bounds.height || h;
+
+            if(img.readyState >= 0){
+              img.addEventListener('canplaythrough', function(){
+                img.play();
+                animateFrames();
+
+                function animateFrames(){
+                  context.drawImage(img, supportImage.bounds.x, supportImage.bounds.y, supportImage.bounds.width, supportImage.bounds.height);
+                  requestAnimationFrame(animateFrames);
+                }
+              });
+            }
+
             r.redraw();
         });
 
-        console.log(img);
-
-        if (img.complete || img.readyState === 3) {
+        if (img.complete || img.readyState >= 0) {
             if (!supportImage.bounds.width) {
                 supportImage.bounds.width = img.width;
             }
@@ -1439,7 +1446,7 @@ function createCytoscapeId(nodes, kfId){
             var y = supportImage.bounds.y;
             var w = supportImage.bounds.width;
             var h = supportImage.bounds.height;
-            context.drawImage(img, 0, 0, img.width, img.height, x, y, w, h);
+            if(img.complete){ context.drawImage(img, 0, 0, img.width, img.height, x, y, w, h); }
 
             if (supportImage.selected()) {
                 context.beginPath();
@@ -1449,7 +1456,6 @@ function createCytoscapeId(nodes, kfId){
                 this.drawResizeControls(context, supportImage);
             }
         }
-
     };
 
 
