@@ -154,8 +154,6 @@ $(document).ready(function() {
       addNodesToGraph(token, cy, si, nodes, result[0], result[2], result[3]);
       addEdgesToGraph(cy, nodes, result[1]);
 
-      console.log(si);
-
     });
 
 

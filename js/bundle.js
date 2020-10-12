@@ -420,8 +420,6 @@ $(document).ready(function() {
       addNodesToGraph(token, cy, si, nodes, result[0], result[2], result[3]);
       addEdgesToGraph(cy, nodes, result[1]);
 
-      console.log(si);
-
     });
 
 
@@ -1299,21 +1297,22 @@ function createCytoscapeId(nodes, kfId){
     };
 
 
-    SupportImageCanvasRenderer.prototype.getCachedImage = function(url, onLoad) {
+    SupportImageCanvasRenderer.prototype.getCachedImage = function(supportImage, onLoad) {
         var r = this;
         var imageCache = r.imageCache = r.imageCache || {};
+        var url = supportImage.url;
+        var id = supportImage.id;
 
         if (imageCache[url] && imageCache[url].image) {
             return imageCache[url].image;
-        } else if(imageCache[url] && imageCache[url].video) {
-            return imageCache[url].video;
+        } else if(imageCache[id] && imageCache[id].video) {
+            return imageCache[id].video;
         }
-
-        var cache = imageCache[url] = imageCache[url] || {};
 
         var isGif = url.slice(-3) === "gif" ? true : false;
 
         if (isGif) {
+          var cache = imageCache[id] = imageCache[id] || {};
           var video = cache.video = document.createElement("video");
           video.addEventListener('loadedmetadata', onLoad);
           video.src = "../assets/samplemp4.mp4";
@@ -1322,6 +1321,7 @@ function createCytoscapeId(nodes, kfId){
           video.muted = true;
           return video;
         } else {
+          var cache = imageCache[url] = imageCache[url] || {};
           var image = cache.image = new Image();
           image.addEventListener('load', onLoad);
           image.src = url;
@@ -1411,7 +1411,7 @@ function createCytoscapeId(nodes, kfId){
         var r = this;
 
         // get image, and if not loaded then ask to redraw when later loaded
-        var img = this.getCachedImage(supportImage.url, function(evt) {
+        var img = this.getCachedImage(supportImage, function(evt) {
             var resource = evt.currentTarget;
             var w = resource.width;
             var h = resource.height;
