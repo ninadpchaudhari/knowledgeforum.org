@@ -267,11 +267,17 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
 /*
 * EDIT VALUES FOR iFRAME SAMPLE VIEW HERE
 */
-const USERNAME = "demo1";
-const PASSWORD = "demo1";
-const SERVER = getServerURL("IKIT Stage");
-const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c"
-var viewId = sessionStorage.getItem("viewId") === null ? "5ea995a7cbdc04a6f53a1b5f" : sessionStorage.getItem("viewId");
+// const USERNAME = "demo1";
+// const PASSWORD = "demo1";
+// const SERVER = getServerURL("IKIT Stage");
+// const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c"
+// var viewId = sessionStorage.getItem("viewId") === null ? "5ea995a7cbdc04a6f53a1b5f" : sessionStorage.getItem("viewId");
+
+const USERNAME = "admin";
+const PASSWORD = "build";
+const SERVER = getServerURL("Local");
+const COMMUNITYID = "5f5009eb1beff90212b92dd3"
+var viewId = sessionStorage.getItem("viewId") === null ? "5f5009ec1beff90212b92dd6" : sessionStorage.getItem("viewId");
 
 
 $(document).ready(function() {
@@ -561,6 +567,11 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
   var documentInfo = getApiObjectsObjectId(token, SERVER, nodeData.to);
   documentInfo.then(function(result){
     if(String(result.data.type).substring(0,5) === "image"){
+      var imageUrl =  (SERVER + String(result.data.url).substring(1,)).replace(/\s/g,"%20");
+
+      if(String(result.data.type).slice(-3) === "gif"){
+        imageUrl = imageUrl.substring(0, imageUrl.length - 3) + "mp4";
+      }
 
       var bounds = si.rectangle({
         x: nodeData.data.x,
@@ -570,7 +581,7 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
       });
 
       si.addSupportImage({
-        url: (SERVER + String(result.data.url).substring(1,)).replace(/\s/g,"%20"),
+        url: imageUrl,
         name: nodeData._to.title,
         bounds: bounds,
         locked: false,
@@ -1309,13 +1320,14 @@ function createCytoscapeId(nodes, kfId){
             return imageCache[id].video;
         }
 
-        var isGif = url.slice(-3) === "gif" ? true : false;
+        var video_exts = ['mp4', 'webm'];
+        var isVideo = video_exts.indexOf(url.slice(-3)) > -1 ? true : false;
 
-        if (isGif) {
+        if (isVideo) {
           var cache = imageCache[id] = imageCache[id] || {};
           var video = cache.video = document.createElement("video");
           video.addEventListener('loadedmetadata', onLoad);
-          video.src = "../assets/samplemp4.mp4";
+          video.src = url;
           video.autoplay = true;
           video.loop = true;
           video.muted = true;

@@ -606,13 +606,14 @@
             return imageCache[id].video;
         }
 
-        var isGif = url.slice(-3) === "gif" ? true : false;
+        var video_exts = ['mp4', 'webm'];
+        var isVideo = video_exts.indexOf(url.slice(-3)) > -1 ? true : false;
 
-        if (isGif) {
+        if (isVideo) {
           var cache = imageCache[id] = imageCache[id] || {};
           var video = cache.video = document.createElement("video");
           video.addEventListener('loadedmetadata', onLoad);
-          video.src = "../assets/samplemp4.mp4";
+          video.src = url;
           video.autoplay = true;
           video.loop = true;
           video.muted = true;
