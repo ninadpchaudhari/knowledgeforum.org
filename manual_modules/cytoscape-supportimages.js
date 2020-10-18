@@ -596,6 +596,7 @@
 
     SupportImageCanvasRenderer.prototype.getCachedImage = function(supportImage, onLoad) {
         var r = this;
+
         var imageCache = r.imageCache = r.imageCache || {};
         var url = supportImage.url;
         var id = supportImage.id;
@@ -684,7 +685,7 @@
         for (var idx = supportImages.length - 1; idx >= 0; --idx) {
             var image = supportImages[idx];
             if (image.visible) {
-                this.drawSupportImage(context, image);
+              this.drawSupportImage(context, image);
             }
         }
 
@@ -718,15 +719,45 @@
             supportImage.bounds.width = supportImage.bounds.width || w;
             supportImage.bounds.height = supportImage.bounds.height || h;
 
+            /*
+            * For every HTMLMediaElement we call play() on 'canplaythrough' then
+            * if it is the last HTMLMediaElement loaded we call animateFrames which will
+            * call drawImage() for each video and then call requestAnimationFrame() afterwards
+            * so the drawImage() calls are done in batches and requestAnimationFrame() is synced
+            * for each video. This is to improve performance.
+            */
             if(img.readyState >= 0){
+
+              // var imageCache = r.imageCache;
+              // var suppImgExtension = supportImage._private.core;
+              // var videosAnimating = r.videosAnimating = r.videosAnimating || false;
+              //
+              // if(videosAnimating === false){
+              //   r.videosAnimating = true;
+              //   console.log("1");
+              //   animateFrames();
+              // }
+              //
+              // function animateFrames(){
+              //   for(var id in imageCache){
+              //     if(imageCache[id].video){
+              //       var suppImgInstance = suppImgExtension.image(id);
+              //       var video = imageCache[id].video;
+              //       context.drawImage(video, suppImgInstance.bounds.x, suppImgInstance.bounds.y, suppImgInstance.bounds.width, suppImgInstance.bounds.height);
+              //     }
+              //   }
+              //   requestAnimationFrame(animateFrames);
+              // }
+
+              animateFrames();
+
+              function animateFrames(){
+                context.drawImage(img, supportImage.bounds.x, supportImage.bounds.y, supportImage.bounds.width, supportImage.bounds.height);
+                requestAnimationFrame(animateFrames);
+              }
+
               img.addEventListener('canplaythrough', function(){
                 img.play();
-                animateFrames();
-
-                function animateFrames(){
-                  context.drawImage(img, supportImage.bounds.x, supportImage.bounds.y, supportImage.bounds.width, supportImage.bounds.height);
-                  requestAnimationFrame(animateFrames);
-                }
               });
             }
 
