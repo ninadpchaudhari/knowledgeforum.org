@@ -273,6 +273,12 @@ const SERVER = getServerURL("IKIT Stage");
 const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c"
 var viewId = sessionStorage.getItem("viewId") === null ? "5ea995a7cbdc04a6f53a1b5f" : sessionStorage.getItem("viewId");
 
+// const USERNAME = "admin";
+// const PASSWORD = "build";
+// const SERVER = getServerURL("Local");
+// const COMMUNITYID = "5f5009eb1beff90212b92dd3"
+// var viewId = sessionStorage.getItem("viewId") === null ? "5f5009ec1beff90212b92dd6" : sessionStorage.getItem("viewId");
+
 
 $(document).ready(function() {
   var cytoscape = require('cytoscape');
@@ -427,7 +433,7 @@ $(document).ready(function() {
     cy.on('tap', 'node', function(event){
       var kfId = this.data('kfId');
       var type = this.data('type');
-      console.log(this);
+      console.log(kfId);
 
       if(this.hasClass("image")){
         console.log("image");
@@ -560,8 +566,12 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
 
   var documentInfo = getApiObjectsObjectId(token, SERVER, nodeData.to);
   documentInfo.then(function(result){
-    var isImage = String(result.data.type).substring(0,5) === "image" ? true : false;
-    if(isImage){
+    if(String(result.data.type).substring(0,5) === "image"){
+      var imageUrl =  (SERVER + String(result.data.url).substring(1,)).replace(/\s/g,"%20");
+
+      if(String(result.data.type).slice(-3) === "gif"){
+        imageUrl = imageUrl.substring(0, imageUrl.length - 3) + "mp4";
+      }
 
       var bounds = si.rectangle({
         x: nodeData.data.x,
@@ -571,7 +581,7 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
       });
 
       si.addSupportImage({
-        url: (SERVER + String(result.data.url).substring(1,)).replace(/\s/g,"%20"),
+        url: imageUrl,
         name: nodeData._to.title,
         bounds: bounds,
         locked: true,
@@ -587,7 +597,6 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
           date: date,
           kfId: nodeData.to,
           type: nodeData._to.type,
-          isImage: false,
           download: SERVER + result.data.url.substring(1,)
         },
         classes: "attachment",
@@ -1299,21 +1308,38 @@ function createCytoscapeId(nodes, kfId){
     };
 
 
-    SupportImageCanvasRenderer.prototype.getCachedImage = function(url, onLoad) {
+    SupportImageCanvasRenderer.prototype.getCachedImage = function(supportImage, onLoad) {
         var r = this;
+
         var imageCache = r.imageCache = r.imageCache || {};
+        var url = supportImage.url;
+        var id = supportImage.id;
 
         if (imageCache[url] && imageCache[url].image) {
             return imageCache[url].image;
+        } else if(imageCache[id] && imageCache[id].video) {
+            return imageCache[id].video;
         }
 
-        var cache = imageCache[url] = imageCache[url] || {};
+        var video_exts = ['mp4', 'webm'];
+        var isVideo = video_exts.indexOf(url.slice(-3)) > -1 ? true : false;
 
-        var image = cache.image = new Image();
-        image.addEventListener('load', onLoad);
-        image.src = url;
-
-        return image;
+        if (isVideo) {
+          var cache = imageCache[id] = imageCache[id] || {};
+          var video = cache.video = document.createElement("video");
+          video.addEventListener('loadedmetadata', onLoad);
+          video.src = url;
+          video.autoplay = true;
+          video.loop = true;
+          video.muted = true;
+          return video;
+        } else {
+          var cache = imageCache[url] = imageCache[url] || {};
+          var image = cache.image = new Image();
+          image.addEventListener('load', onLoad);
+          image.src = url;
+          return image;
+        }
     };
 
 
@@ -1373,7 +1399,7 @@ function createCytoscapeId(nodes, kfId){
         for (var idx = supportImages.length - 1; idx >= 0; --idx) {
             var image = supportImages[idx];
             if (image.visible) {
-                this.drawSupportImage(context, image);
+              this.drawSupportImage(context, image);
             }
         }
 
@@ -1398,7 +1424,7 @@ function createCytoscapeId(nodes, kfId){
         var r = this;
 
         // get image, and if not loaded then ask to redraw when later loaded
-        var img = this.getCachedImage(supportImage.url, function(evt) {
+        var img = this.getCachedImage(supportImage, function(evt) {
             var resource = evt.currentTarget;
             var w = resource.width;
             var h = resource.height;
@@ -1406,10 +1432,24 @@ function createCytoscapeId(nodes, kfId){
             supportImage.resourceH = h;
             supportImage.bounds.width = supportImage.bounds.width || w;
             supportImage.bounds.height = supportImage.bounds.height || h;
+
+            if(img.readyState >= 0){
+              img.addEventListener('canplaythrough', function(){
+                img.play();
+              });
+
+              function animateFrames(){
+                context.drawImage(img, supportImage.bounds.x, supportImage.bounds.y, supportImage.bounds.width, supportImage.bounds.height);
+                requestAnimationFrame(animateFrames);
+              }
+
+              animateFrames();
+            }
+
             r.redraw();
         });
 
-        if (img.complete) {
+        if (img.complete || img.readyState >= 0) {
             if (!supportImage.bounds.width) {
                 supportImage.bounds.width = img.width;
             }
@@ -1420,7 +1460,7 @@ function createCytoscapeId(nodes, kfId){
             var y = supportImage.bounds.y;
             var w = supportImage.bounds.width;
             var h = supportImage.bounds.height;
-            context.drawImage(img, 0, 0, img.width, img.height, x, y, w, h);
+            if(img.complete){ context.drawImage(img, 0, 0, img.width, img.height, x, y, w, h); }
 
             if (supportImage.selected()) {
                 context.beginPath();
@@ -1430,7 +1470,6 @@ function createCytoscapeId(nodes, kfId){
                 this.drawResizeControls(context, supportImage);
             }
         }
-
     };
 
 
@@ -43934,4 +43973,4 @@ function toNumber(value) {
 module.exports = debounce;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[3]);
+},{}]},{},[4,3]);

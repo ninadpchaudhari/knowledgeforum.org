@@ -55,6 +55,7 @@ function loadServer(server){
   $('#userCommunities').replaceWith('<ul class="userCommunities" id = "userCommunities"><div class = "loader"></div></ul>');
   var userCommunitiesData = getUserCommunities(token, server);
   userCommunitiesData.then(function(result) {
+    result.sort((a, b) => compareStrings(a._community.title, b._community.title));
     appendUserCommunities(result, server);
   });
 
@@ -75,6 +76,7 @@ function loadServer(server){
 
   var serverCommunitiesData = getCommunities(token, server);
   serverCommunitiesData.then(function(result) {
+    result.sort((a, b) => compareStrings(a.title, b.title));
     appendCommunities(result, server);
   });
 
@@ -183,4 +185,12 @@ function toggleSidebar(){
   } else {
     div.className = "d-flex";
   }
+}
+
+// function to return which string is higher alphabetically
+// 1 if a is higher, -1 if b is higher, 0 if a == b
+function compareStrings(a, b){
+    if(a.toLowerCase() < b.toLowerCase()) { return -1; }
+    if(a.toLowerCase() > b.toLowerCase()) { return 1; }
+    return 0;
 }
