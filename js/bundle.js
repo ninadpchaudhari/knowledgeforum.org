@@ -267,17 +267,17 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
 /*
 * EDIT VALUES FOR iFRAME SAMPLE VIEW HERE
 */
-// const USERNAME = "demo1";
-// const PASSWORD = "demo1";
-// const SERVER = getServerURL("IKIT Stage");
-// const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c"
-// var viewId = sessionStorage.getItem("viewId") === null ? "5ea995a7cbdc04a6f53a1b5f" : sessionStorage.getItem("viewId");
+const USERNAME = "demo1";
+const PASSWORD = "demo1";
+const SERVER = getServerURL("IKIT Stage");
+const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c"
+var viewId = sessionStorage.getItem("viewId") === null ? "5ea995a7cbdc04a6f53a1b5f" : sessionStorage.getItem("viewId");
 
-const USERNAME = "admin";
-const PASSWORD = "build";
-const SERVER = getServerURL("Local");
-const COMMUNITYID = "5f5009eb1beff90212b92dd3"
-var viewId = sessionStorage.getItem("viewId") === null ? "5f5009ec1beff90212b92dd6" : sessionStorage.getItem("viewId");
+// const USERNAME = "admin";
+// const PASSWORD = "build";
+// const SERVER = getServerURL("Local");
+// const COMMUNITYID = "5f5009eb1beff90212b92dd3"
+// var viewId = sessionStorage.getItem("viewId") === null ? "5f5009ec1beff90212b92dd6" : sessionStorage.getItem("viewId");
 
 
 $(document).ready(function() {
@@ -433,7 +433,7 @@ $(document).ready(function() {
     cy.on('tap', 'node', function(event){
       var kfId = this.data('kfId');
       var type = this.data('type');
-      console.log(this);
+      console.log(kfId);
 
       if(this.hasClass("image")){
         console.log("image");
@@ -584,7 +584,7 @@ function handleAttachment(token, cy, si, nodes, nodeData, authorData){
         url: imageUrl,
         name: nodeData._to.title,
         bounds: bounds,
-        locked: false,
+        locked: true,
       });
 
     } else {
@@ -1433,36 +1433,7 @@ function createCytoscapeId(nodes, kfId){
             supportImage.bounds.width = supportImage.bounds.width || w;
             supportImage.bounds.height = supportImage.bounds.height || h;
 
-            /*
-            * For every HTMLMediaElement we call play() on 'canplaythrough' then
-            * if it is the last HTMLMediaElement loaded we call animateFrames which will
-            * call drawImage() for each video and then call requestAnimationFrame() afterwards
-            * so the drawImage() calls are done in batches and requestAnimationFrame() is synced
-            * for each video. This is to improve performance.
-            */
             if(img.readyState >= 0){
-
-              // var imageCache = r.imageCache;
-              // var suppImgExtension = supportImage._private.core;
-              // var videosAnimating = r.videosAnimating = r.videosAnimating || false;
-              //
-              // if(videosAnimating === false){
-              //   r.videosAnimating = true;
-              //   console.log("1");
-              //   animateFrames();
-              // }
-              //
-              // function animateFrames(){
-              //   for(var id in imageCache){
-              //     if(imageCache[id].video){
-              //       var suppImgInstance = suppImgExtension.image(id);
-              //       var video = imageCache[id].video;
-              //       context.drawImage(video, suppImgInstance.bounds.x, suppImgInstance.bounds.y, suppImgInstance.bounds.width, suppImgInstance.bounds.height);
-              //     }
-              //   }
-              //   requestAnimationFrame(animateFrames);
-              // }
-
               img.addEventListener('canplaythrough', function(){
                 img.play();
               });
