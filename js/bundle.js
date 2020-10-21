@@ -1463,16 +1463,16 @@ function createCytoscapeId(nodes, kfId){
               //   requestAnimationFrame(animateFrames);
               // }
 
-              animateFrames();
+              img.addEventListener('canplaythrough', function(){
+                img.play();
+              });
 
               function animateFrames(){
                 context.drawImage(img, supportImage.bounds.x, supportImage.bounds.y, supportImage.bounds.width, supportImage.bounds.height);
                 requestAnimationFrame(animateFrames);
               }
 
-              img.addEventListener('canplaythrough', function(){
-                img.play();
-              });
+              animateFrames();
             }
 
             r.redraw();
