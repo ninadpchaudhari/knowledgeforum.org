@@ -7,6 +7,10 @@ function getApiObjectsObjectId(token, server, objectId) {
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+    if(response.status != 200){
+      console.log("Error: " + server + 'api/objects/' + objectId);
+      console.log(response);
+    }
     return response.json();
   }).then(function(body) {
     return (body);

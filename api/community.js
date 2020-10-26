@@ -7,6 +7,10 @@ function getCommunities(token, server) {
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+    if(response.status != 200){
+      console.log("Error: " + server + 'api/communities');
+      console.log(response);
+    }
       return response.json();
   }).then(function(body) {
       return (body);
@@ -25,6 +29,10 @@ function getCommunityViews(token, communityId, server){
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+    if(response.status != 200){
+      console.log("Error: " + server + 'api/communities/' + communityId + '/views');
+      console.log(response);
+    }
     return response.json();
   }).then(function(body) {
       return (body);
@@ -43,6 +51,10 @@ function getCommunityWelcomeView(token, communityId, server){
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+    if(response.status != 200){
+      console.log("Error: " + server + 'api/communities/' + communityId + '/views');
+      console.log(response);
+    }
     return response.json();
   }).then(function(body) {
       return (body[0]);
@@ -61,6 +73,10 @@ function getCommunityAuthors(token, communityId, server){
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+    if(response.status != 200){
+      console.log("Error: " + server + 'api/communities/' + communityId + '/authors');
+      console.log(response);
+    }
     return response.json();
   }).then(function(body) {
     return (body);
@@ -86,11 +102,12 @@ function postCommunityRegistration(token, communityId, server, userId, registrat
     },
     body: JSON.stringify(body),
   }).then(function(response) {
-      if(response.status === 201){
-        return response.json();
-      } else {
+      if(response.status != 201){
+        console.log("Error: " + server + 'api/authors');
+        console.log(response);
         return {error: true};
       }
+      return response.json();
   }).then(function(body) {
       return ("Success:", [body, server]);
   }).catch(function(error) {
