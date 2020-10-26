@@ -1,17 +1,17 @@
 /*
 * EDIT VALUES FOR iFRAME SAMPLE VIEW HERE
 */
-// const USERNAME = "demo1";
-// const PASSWORD = "demo1";
-// const SERVER = getServerURL("IKIT Stage");
-// const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c"
-// var viewId = sessionStorage.getItem("viewId") === null ? "5ea995a7cbdc04a6f53a1b5f" : sessionStorage.getItem("viewId");
+const USERNAME = "demo1";
+const PASSWORD = "demo1";
+const SERVER = getServerURL("IKIT Stage");
+const COMMUNITYID = "5ea995a6cbdc04a6f53a1b5c"
+var viewId = sessionStorage.getItem("viewId") === null ? "5ea995a7cbdc04a6f53a1b5f" : sessionStorage.getItem("viewId");
 
-const USERNAME = "admin";
-const PASSWORD = "build";
-const SERVER = getServerURL("Local");
-const COMMUNITYID = "5f5009eb1beff90212b92dd3"
-var viewId = sessionStorage.getItem("viewId") === null ? "5f5009ec1beff90212b92dd6" : sessionStorage.getItem("viewId");
+// const USERNAME = "admin";
+// const PASSWORD = "build";
+// const SERVER = getServerURL("Local");
+// const COMMUNITYID = "5f5009eb1beff90212b92dd3"
+// var viewId = sessionStorage.getItem("viewId") === null ? "5f5009ec1beff90212b92dd6" : sessionStorage.getItem("viewId");
 
 
 $(document).ready(function() {
