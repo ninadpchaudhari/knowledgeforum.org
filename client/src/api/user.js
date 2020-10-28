@@ -21,7 +21,7 @@ export function getUserToken(username, password, server){
 
 
 // returns a promise that on fulfillment returns an [user token, server] object pair
-function getUserTokenServerPair(username, password, server){
+export function getUserTokenServerPair(username, password, server){
   var body = {
     'userName': username,
     'password': password

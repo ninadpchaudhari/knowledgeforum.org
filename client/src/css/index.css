@@ -1,9 +1,6 @@
-body {
+body, .main {
+  background-image: url("../assets/world_map.png");
   height: 100vh;
-}
-
-.main {
-  height: inherit;
 }
 
 .row {
@@ -25,7 +22,7 @@ body {
 }
 
 .loginFormWrapper {
-  margin-top: 0;
+  margin-top: 15%;
   background-color: white;
   border: 1px solid #48535c;
   border-radius: 3px;
