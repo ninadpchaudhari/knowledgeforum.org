@@ -58,6 +58,7 @@ body, .main {
 .inputWrapper > input {
   border: none;
   width: 80%;
+  padding-left: 5px;
 }
 
 .inputWrapper > input:focus {
@@ -71,6 +72,10 @@ body, .main {
 
 .checkBoxWrapper > input[type=checkbox]:checked {
   background-color: #6ba6d6;
+}
+
+.checkBoxWrapper > label {
+  padding-left: 5px;
 }
 
 .checkBoxWrapper > a {

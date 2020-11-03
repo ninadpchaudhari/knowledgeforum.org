@@ -1,0 +1,219 @@
+body {
+  background-image: url("../assets/world_map.png");
+  height: 100vh;
+}
+
+.main {
+  padding: 0;
+}
+
+/*------------*/
+/* SIDEBAR CSS FROM https://github.com/StartBootstrap/startbootstrap-simple-sidebar/blob/master/css/simple-sidebar.css */
+#wrapper {
+    overflow-x: hidden;
+ }
+
+#sidebar-wrapper {
+  min-height: 100vh;
+  margin-left: -15rem;
+  -webkit-transition: margin .25s ease-out;
+  -moz-transition: margin .25s ease-out;
+  -o-transition: margin .25s ease-out;
+  transition: margin .25s ease-out;
+}
+
+#sidebar-wrapper .sidebar-heading {
+  padding: 0.875rem 1.25rem;
+  font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+  width: 15rem;
+}
+
+#page-content-wrapper {
+  min-width: 100vw;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  margin-left: 0;
+}
+
+@media (min-width: 768px) {
+  #sidebar-wrapper {
+    margin-left: 0;
+  }
+
+  #page-content-wrapper {
+    min-width: 0;
+    width: 100%;
+  }
+
+  #wrapper.toggled #sidebar-wrapper {
+    margin-left: -15rem;
+  }
+}
+/*------------*/
+
+.navbar {
+  background-color: white;
+}
+
+.select-server, .joinButton, .enterButton {
+  background-color: #2d5085;
+  border: none;
+  font-weight: 500;
+}
+
+.select-server:hover, .joinButton:hover, .enterButton:hover {
+  background-color: #5d98f0;
+  cursor: pointer;
+}
+
+.nav-link {
+  font-weight: 500;
+  font-size: 1.25rem;
+  color: #203c66 !important;
+}
+
+.currentInfo {
+  margin-left: 10px;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #203c66 !important;
+}
+
+#page-content-wrapper {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.sidebar-custom {
+  background-color: rgba(107, 166, 214, 0.5);
+}
+
+.sidebar-heading {
+  font-size: 1.5rem !important;
+  font-weight: 500 !important;
+  color: white;
+  letter-spacing: 2px;
+}
+
+.server-list {
+  padding-left: 0;
+}
+
+.server-list > li {
+  list-style: none;
+  color: white;
+  font-weight: 500;
+  font-size: 1.15rem;
+  padding: 5px;
+  padding-left: 10px;
+  margin-left: 5px;
+}
+
+.server-list > li:hover {
+  cursor: pointer;
+  background-color: #5d98f0;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.active {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #2d5085 !important;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.active:hover {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.mainContentCol > h1 {
+  padding-top: 15px;
+  letter-spacing: 2px;
+  font-size: 2rem;
+  color: #203c66 !important;
+}
+
+@media (max-width: 768px){
+  .mainContentCol > h1 {
+    font-size: 1.25rem;
+    letter-spacing: normal;
+  }
+}
+
+.joinCommunityForm {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.communityChoiceDropdown, .joinCommunityForm > input {
+  width: 95%;
+}
+
+.joinCommunityForm > label {
+  color: #203c66 !important;
+  font-weight: 500;
+  font-size: 1.25rem;
+}
+
+@media (max-width: 768px){
+  .joinCommunityForm > label {
+    font-size: 1rem;
+  }
+}
+
+.joinButton, .enterButton {
+  font-size: 1rem; letter-spacing: 2px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px;
+  margin-top: 15px;
+}
+
+.enterButton {
+  margin-top: 0px;
+}
+
+.loader {
+  margin: 0 auto;
+  border: 8px solid #f3f3f3; /* Light grey */
+  border-top: 8px solid #203c66; /* Blue */
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.userCommunities {
+  padding-left: 10px;
+}
+
+.userCommunities > li {
+  list-style-type: none;
+}
+
+.userCommunities > li > p {
+  font-size: 1.25rem;
+  font-weight: 500;
+  display: inline-block;
+  color: #203c66;
+}
+
+@media (max-width: 768px){
+  .userCommunities > li > p {
+    font-size: 1rem;
+  }
+}
+
+.enterButton {
+  margin-left: 10px;
+}

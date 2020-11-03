@@ -51,7 +51,7 @@ function getUserInfo(token, server){
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
-      if(response.status == 200){
+      if(response.status === 200){
         return response.json();
       } else {
         return {error: true};

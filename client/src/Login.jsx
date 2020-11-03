@@ -1,6 +1,10 @@
 import React, {Component} from 'react';
+import $ from 'jquery';
+import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
+import {executePromises} from './helper/Login_helper.js';
+
 import './css/index.css';
-import {getUserToken} from './api/user.js';
+import sample_view from './assets/sample_view.gif';
 
 class Login extends Component {
   constructor(props) {
@@ -8,7 +12,7 @@ class Login extends Component {
     this.state = {
       uname: null,
       pwd: null,
-      refreshCheckbox: null,
+      errorMessage: null,
     }
   }
 
@@ -21,15 +25,24 @@ class Login extends Component {
 
   formSubmitHandler = (event) => {
     event.preventDefault();
-    var token = getUserToken(this.state.uname, this.state.pwd, "https://kf6-stage.ikit.org/");
-    token.then((result) => {
-      console.log(result);
-      if(result.message){
-        this.setState({response: result.message});
-      } else if(result.token){
-        this.setState({response: result.token});
-      }
+    var uname = document.getElementById("uname").value;
+    var pwd = document.getElementById("pwd").value;
+    document.getElementById("errorMessage").style.display = "hidden";
+    executePromises(uname, pwd, this);
+    return false;
+  }
 
+  componentDidMount(){
+    // enables the popover for refreshing servers on login tool tip
+    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-toggle="popover"]').popover()
+    if($(window).width() <= 768) {
+      document.getElementById("popover").setAttribute("data-trigger", "focus");
+    }
+
+    document.getElementById("demo-image-container").addEventListener("click", function(){
+      var iframe = document.getElementById("iframeDemo");
+      iframe.setAttribute("src", "/html/demoview.html");
     });
   }
 
@@ -65,15 +78,14 @@ class Login extends Component {
                     </div>
 
                     <div>
-                      <p style={{display:'hidden',color:'red'}} id = "errorMessage" name="errorMessage"></p>
+                      <p style={{display:'hidden',color:'red'}} id = "errorMessage" name="errorMessage">{this.state.errorMessage}</p>
                     </div>
 
                     <input className = "button" type="submit" value="Login"></input>
+
                   </form>
                 </div>
               </div>
-
-              <div>Server Response: {this.state.response}</div>
             </div>
 
 
@@ -87,7 +99,7 @@ class Login extends Component {
                     widen the reach of the tool & provide a central location for all global stakeholders.</p>
 
                   <div className="overlay-container demo-image" data-toggle="modal" data-target="#exampleModal" id="demo-image-container">
-                    <img className="d-block w-100" src={"http://localhost:3000/assets/sample_view.gif"} alt={"First slide"}></img>
+                    <img className="d-block w-100" src={sample_view} alt={"First slide"}></img>
                     <div className="overlay">
                         <div className="overlay-text">Demo a Knowledge Forum</div>
                     </div>
