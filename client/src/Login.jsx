@@ -3,7 +3,7 @@ import $ from 'jquery';
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
 import {executePromises} from './helper/Login_helper.js';
 
-import './css/index.css';
+import login_style from './css/index.css';
 import sample_view from './assets/sample_view.gif';
 
 class Login extends Component {
@@ -48,7 +48,7 @@ class Login extends Component {
 
   render() {
     return(
-      <div className="container-fluid main">
+      <div className={'containter-fluid ${login_style.main}'}>
 
         <div className = "row">
 
