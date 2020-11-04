@@ -3,7 +3,7 @@ import $ from 'jquery';
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
 import {executePromises} from './helper/Login_helper.js';
 
-import login_style from './css/index.css';
+import './css/Login.css';
 import sample_view from './assets/sample_view.gif';
 
 class Login extends Component {
@@ -48,28 +48,28 @@ class Login extends Component {
 
   render() {
     return(
-      <div className={'containter-fluid ${login_style.main}'}>
+      <div className='container-fluid login-main'>
 
-        <div className = "row">
+        <div className = "row login-row">
 
-            <div className = "col-md-6 login" id = "login">
+            <div className = "col-md-6 login-col login" id = "login">
 
-              <div className = "row loginRow">
-                <div className = "col-lg-8 col-md-10 col-sm-12 loginFormWrapper">
+              <div className = "row login-form-row">
+                <div className = {"col-lg-8 col-md-10 col-sm-12 login-form-wrapper"}>
                   <h1>knowledgeforum.org</h1>
                   <form onSubmit={this.formSubmitHandler} className = "loginForm" id = "loginForm">
 
-                    <div className = "inputWrapper">
+                    <div className = "login-input-wrapper">
                       <i className="fas fa-user"></i>
                       <input type="text" id="uname" name="uname" placeholder="Username" required onChange={this.inputChangeHandler}></input>
                     </div>
 
-                    <div className = "inputWrapper">
+                    <div className = "login-input-wrapper">
                       <i className="fas fa-lock"></i>
                       <input type="password" id="pwd" name="pwd" placeholder="Password" required onChange={this.inputChangeHandler}></input>
                     </div>
 
-                    <div className = "checkBoxWrapper">
+                    <div className = "login-checkbox-wrapper">
                       <input type="checkbox" id="refreshCheckbox" name="refreshCheckbox"></input>
                       <label for="refreshCheckbox">Refresh my servers on login?</label>
                       <a id="popover" tabindex="0" role="button" data-toggle="popover"
@@ -81,7 +81,7 @@ class Login extends Component {
                       <p style={{display:'hidden',color:'red'}} id = "errorMessage" name="errorMessage">{this.state.errorMessage}</p>
                     </div>
 
-                    <input className = "button" type="submit" value="Login"></input>
+                    <input className = "login-button" type="submit" value="Login"></input>
 
                   </form>
                 </div>
@@ -89,19 +89,19 @@ class Login extends Component {
             </div>
 
 
-            <div className = "col-md-6 about">
+            <div className = "col-md-6 login-about">
 
-              <div className = "aboutWrapper">
+              <div className = "login-about-wrapper">
                 <h1>What is knowledgeforum.org?</h1>
                 <p>A knowledge forum is an electronic group workspace designed to support the process of knowledge building.
                     There are multiple installations of knowledge forums hosted by many universities and private entities all over the world.
                     Knowledgeforum.org unites all of these installations and hence the stakeholders to help confluence knowledge building research,
                     widen the reach of the tool & provide a central location for all global stakeholders.</p>
 
-                  <div className="overlay-container demo-image" data-toggle="modal" data-target="#exampleModal" id="demo-image-container">
+                  <div className="login-overlay-container login-demo-image" data-toggle="modal" data-target="#exampleModal" id="demo-image-container">
                     <img className="d-block w-100" src={sample_view} alt={"First slide"}></img>
-                    <div className="overlay">
-                        <div className="overlay-text">Demo a Knowledge Forum</div>
+                    <div className="login-overlay">
+                        <div className="login-overlay-text">Demo a Knowledge Forum</div>
                     </div>
                   </div>
 
@@ -118,7 +118,7 @@ class Login extends Component {
                           <iframe id="iframeDemo" title="Knowledge Forum Demo"></iframe>
                         </div>
                         <div className="modal-footer">
-                          <button type="button" className="button modal-btn" data-dismiss="modal">Close</button>
+                          <button type="button" className="login-button modal-btn" data-dismiss="modal">Close</button>
                         </div>
                       </div>
                     </div>

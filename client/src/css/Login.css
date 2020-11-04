@@ -1,27 +1,24 @@
-body, .main {
+body, .login-main {
   background-image: url("../assets/world_map.png");
   height: 100vh;
 }
 
-.row {
+.login-row {
   height: inherit;
 }
 
-.col-md-6 {
+.login-col {
   padding-left: 0;
   padding-right: 0;
+  background-color: rgba(107, 166, 214, 0.5);
 }
 
-.loginRow {
+.login-form-row {
   margin-left: 0;
   margin-right: 0;
 }
 
-.login {
-  background-color: rgba(107, 166, 214, 0.5);
-}
-
-.loginFormWrapper {
+.login-form-wrapper {
   margin-top: 15%;
   background-color: white;
   border: 1px solid #48535c;
@@ -33,19 +30,19 @@ body, .main {
 }
 
  @media (max-width: 768px){
-   .loginFormWrapper {
+   .login-form-wrapper {
      margin-top: 0;
      border: none;
      border-radius: 0px;
    }
 }
 
-.loginFormWrapper > h1 {
+.login-form-wrapper > h1 {
   font-size: 2.25rem;
   font-weight: 500;
 }
 
-.inputWrapper {
+.login-input-wrapper {
   border: 1px solid black;
   border-radius: 4px;
   padding-left: 2%;
@@ -55,39 +52,39 @@ body, .main {
   padding-bottom: 7px;
 }
 
-.inputWrapper > input {
+.login-input-wrapper > input {
   border: none;
   width: 80%;
   padding-left: 5px;
 }
 
-.inputWrapper > input:focus {
+.login-input-wrapper > input:focus {
   outline-width: 0;
 }
 
-.checkBoxWrapper {
+.login-checkbox-wrapper {
   margin-top: 3%;
   margin-bottom: 3%;
 }
 
-.checkBoxWrapper > input[type=checkbox]:checked {
+.login-checkbox-wrapper > input[type=checkbox]:checked {
   background-color: #6ba6d6;
 }
 
-.checkBoxWrapper > label {
+.login-checkbox-wrapper > label {
   padding-left: 5px;
 }
 
-.checkBoxWrapper > a {
+.login-checkbox-wrapper > a {
   color: black;
   padding: 2px;
 }
 
-.checkBoxWrapper > input[type=checkbox]:hover, .checkBoxWrapper > a:hover {
+.login-checkbox-wrapper > input[type=checkbox]:hover, .checkBoxWrapper > a:hover {
   cursor: pointer;
 }
 
-.button {
+.login-button {
   width: 100%;
   background-color: #6ba6d6;
   font-size: 1.1rem;
@@ -98,21 +95,21 @@ body, .main {
   padding: 8px;
 }
 
-.button:hover {
+.login-button:hover {
   cursor: pointer;
   border: 2px solid black;
   padding: 6px;
 }
 
-.about {
+.login-about {
   background-color: rgba(255, 255, 255, 0.95);
 }
 
-.aboutWrapper {
+.login-about-wrapper {
   padding-top: 5%;
 }
 
-.aboutWrapper > h1 {
+.login-about-wrapper > h1 {
   padding-top: 20px;
   padding-bottom: 5px;
   margin-left: 5%;
@@ -121,7 +118,7 @@ body, .main {
   display: inline-block;
 }
 
-.aboutWrapper > p {
+.login-about-wrapper > p {
   font-size: 1.5rem;
   font-weight: 500;
   margin: 5%;
@@ -129,24 +126,24 @@ body, .main {
 }
 
 @media (max-width: 768px){
-  .aboutWrapper > h1 {
+  .login-about-wrapper > h1 {
     font-size: 1.75rem;
   }
 }
 
 @media (max-width: 1024px){
-  .aboutWrapper > p {
+  .login-about-wrapper > p {
     font-size: 1.25rem;
   }
 }
 
-.overlay-container {
+.login-overlay-container {
   position: relative;
   width: 50%;
   border-radius: 5px;
 }
 
-.overlay {
+.login-overlay {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -160,12 +157,12 @@ body, .main {
   border-radius: 5px;
 }
 
-.overlay-container:hover .overlay {
+.login-overlay-container:hover .login-overlay {
   opacity: 0.85;
   cursor: pointer;
 }
 
-.overlay-text {
+.login-overlay-text {
   color: white;
   font-size: 26px;
   position: absolute;
@@ -177,14 +174,14 @@ body, .main {
   text-align: center;
 }
 
-.demo {
+.login-demo {
   width: -webkit-fill-available;
   margin-left: 5%;
   margin-right: 5%;
   margin-bottom: 20px;
 }
 
-.demo-image{
+.login-demo-image{
   width: 90%;
   margin-left: auto;
   margin-right: auto;
