@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import Select from 'react-select';
 
 import $ from 'jquery';
 import {appendUserServers} from './helper/Dashboard_helper.js';
@@ -23,7 +24,16 @@ class Dashboard extends Component {
       serverList: [],
       userCommunityData: [],
       serverCommunityData: [],
+      selectedCommunityToJoin: null,
+      communityRegistrationKey: null,
+      joinCommunityErrorMessage: null,
     }
+  }
+
+  inputChangeHandler = (event) => {
+    let name = event.target.name;
+    let value = event.target.value;
+    this.setState({[name]: value});
   }
 
   serverSelectHandler = (event) => {
@@ -52,6 +62,10 @@ class Dashboard extends Component {
 
     // loads the server specific data
     loadServer(serverURL, this);
+  }
+
+  handleDropDownChange = (event) => {
+    this.setState({selectedCommunityToJoin: {value: event.value, label: event.label}});
   }
 
   componentDidMount() {
@@ -106,19 +120,23 @@ class Dashboard extends Component {
                 <form className="col-lg-8 col-md-10 col-sm-12 joinCommunityForm" id = "joinCommunityForm">
 
                   <label for="server">Community:</label><br></br>
-                  <select value="getCommunity" className="communityChoiceDropdown" id="communityChoiceDropdown" required>
-                    {this.state.serverCommunityData.map((s) =>
-                         <option key={s.communityId} value={s.communityId}>{s.title}</option>)}
-                  </select><br></br>
+                  <Select value={this.state.selectedCommunityToJoin}
+                          className="communityChoiceDropdown"
+                          id="communityChoiceDropdown"
+                          options={this.state.serverCommunityData}
+                          onChange={this.handleDropDownChange}
+                          required>
+                  </Select><br></br>
 
                   <label for="communityKey">Community Registration Key:</label><br></br>
-                  <input type="text" id="communityKey" name="communityKey" required></input><br></br>
+                  <input type="text" id="communityKey" name="communityRegistrationKey" required onChange={this.inputChangeHandler}></input><br></br>
 
                   <div>
-                    <p style={{display: 'hidden', color: 'red'}} id = "errorMessage"></p>
+                    <p style={{color: 'red'}} id = "errorMessage">{this.state.joinCommunityErrorMessage}</p>
                   </div>
 
-                  <input className = "joinButton" type="button" value="Join" onClick={() => joinCommunity(this.state.userId, this.state.currentServerURL)} id="joinCommunityButton"></input>
+                  <input className = "joinButton" type="button" value="Join"
+                      onClick={() => joinCommunity(this.state.userId, this.state.currentServerURL, this.state.communityRegistrationKey, this.state.selectedCommunityToJoin.value, this)} id="joinCommunityButton"></input>
 
                 </form>
               </div>

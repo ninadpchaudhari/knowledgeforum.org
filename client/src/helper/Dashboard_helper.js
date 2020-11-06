@@ -89,7 +89,12 @@ function updateCommunities(result, dashboard_component){
     serverCommunityData.push({title: title, communityId: communityId});
   }
 
-  dashboard_component.setState({serverCommunityData: serverCommunityData});
+  const community_options = serverCommunityData.map(c => ({
+    "value": c.communityId,
+    "label": c.title
+  }));
+
+  dashboard_component.setState({serverCommunityData: community_options});
 }
 
 
@@ -131,25 +136,20 @@ function updateUserCommunities(data, server, dashboard_component) {
 
 
 // registers the user for a community
-export function joinCommunity(userId, server){
-  var selectCommunityDropdown = document.getElementById("communityChoiceDropdown");
-  var communityId = selectCommunityDropdown.options[selectCommunityDropdown.selectedIndex].value;
-  var registrationKey = document.getElementById("communityKey").value;
+export function joinCommunity(userId, server, registrationKey, communityId, dashboard_component){
   var token = extractTokenFromStorage(server);
-
+  var ref = dashboard_component;
   var promise = postCommunityRegistration(token, communityId, server, userId, registrationKey);
-  promise.then(result => new Promise(resolve => {
-    if(result[0].error === true){
-      var errorMessageDiv = document.getElementById("errorMessage");
-      errorMessageDiv.innerHTML = "Registration key does not match or you are already registered.";
-      errorMessageDiv.style.display = "visible";
+  promise.then(result => {
+    if(result[0].error){
+      document.getElementById('communityKey').value = '';
+      ref.setState({joinCommunityErrorMessage: "Registration key does not match or you are already registered."});
     }
-    setTimeout(function(){
-      resolve();
-    }, 2000);
-  })).then(() => {
-    //location.reload();
-  });
+    else { 
+      document.getElementById('communityKey').value = '';
+      loadServer(server, ref);
+    }
+  })
 }
 
 
