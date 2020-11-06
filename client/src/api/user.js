@@ -42,7 +42,7 @@ export function getUserTokenServerPair(username, password, server){
 
 
 // returns a promise that on fullfillment returns the user information corresponding to the given token and server
-function getUserInfo(token, server){
+export function getUserInfo(token, server){
 
   return fetch(server + 'api/users/me', {
     method: "GET",
@@ -66,7 +66,7 @@ function getUserInfo(token, server){
 
 
 // returns a promse that on fulfillment returns the communities a user is registered to in a given server from their token
-function getUserCommunities(token, server){
+export function getUserCommunities(token, server){
   return fetch(server + 'api/users/myRegistrations', {
     method: "GET",
     headers: {

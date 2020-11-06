@@ -1,5 +1,5 @@
 // returns a promise that on fullfillment returns all the communities from the specified server
-function getCommunities(token, server) {
+export function getCommunities(token, server) {
   return fetch(server + 'api/communities', {
     method: "GET",
     headers: {
@@ -17,7 +17,7 @@ function getCommunities(token, server) {
 
 
 // returns a promise that on fullfillment returns all the views from the specified community on the specified server
-function getCommunityViews(token, communityId, server){
+export function getCommunityViews(token, communityId, server){
   return fetch(server + 'api/communities/' + communityId + '/views', {
     method: "GET",
     headers: {
@@ -35,7 +35,7 @@ function getCommunityViews(token, communityId, server){
 
 
 // returns a promise that on fullfillment returns the welcome view from the specified community on the specified server
-function getCommunityWelcomeView(token, communityId, server){
+export function getCommunityWelcomeView(token, communityId, server){
   return fetch(server + 'api/communities/' + communityId + '/views', {
     method: "GET",
     headers: {
@@ -53,7 +53,7 @@ function getCommunityWelcomeView(token, communityId, server){
 
 
 // returns a promise that on fullfillment returns the authors from the specified community on the specified server
-function getCommunityAuthors(token, communityId, server){
+export function getCommunityAuthors(token, communityId, server){
   return fetch(server + 'api/communities/' + communityId + '/authors', {
     method: "GET",
     headers: {
@@ -71,7 +71,7 @@ function getCommunityAuthors(token, communityId, server){
 
 
 // registers a given user to the specified community on the specified server
-function postCommunityRegistration(token, communityId, server, userId, registrationKey){
+export function postCommunityRegistration(token, communityId, server, userId, registrationKey){
   var body = {
     'communityId': communityId,
     'registrationKey': registrationKey,
