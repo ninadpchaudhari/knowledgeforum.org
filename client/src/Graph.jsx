@@ -3,28 +3,36 @@ import Cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
 import CytoscapePanZoom from 'cytoscape-panzoom';
 import CytoscapeNodeHtmlLabel from 'cytoscape-node-html-label';
-//import CytoscapeSupportImages from './manual_modules/cytoscape-supportimages.js';
+import CytoscapeSupportImages from 'cytoscape-supportimages';
+
+import {getApiLinksFromViewId} from './api/link.js';
+import {postApiLinksCommunityIdSearch} from './api/link.js';
+import {getApiLinksReadStatus} from './api/link.js';
+import {getCommunityAuthors} from './api/community.js';
+import {addNodesToGraph} from './helper/Graph_helper.js';
+import {addEdgesToGraph} from './helper/Graph_helper.js';
 
 import './css/cytoscape.js-panzoom.css';
+import './css/Graph.css';
 
 import {MINZOOM, MAXZOOM} from './config.js';
 
 Cytoscape.use(CytoscapePanZoom);
 Cytoscape.use(CytoscapeNodeHtmlLabel);
-//Cytoscape.use(CytoscapeSupportImages);
+Cytoscape.use(CytoscapeSupportImages);
 
 class Graph extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      token: null,
-      server: null,
-      communityId: null,
-      viewId: null
+      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZjNkOTQyMDAzOWRiYjQyNTFiNTJhMTgiLCJpYXQiOjE2MDQ5NjI1MjUsImV4cCI6MTYwNDk4MDUyNX0.m20V1LLXrV_ei9jcjtYehGagpwoVWZlwiKMJras1haY",
+      server: "https://kf6-stage.ikit.org/",
+      communityId: "5ea995a6cbdc04a6f53a1b5c",
+      viewId: "5ea995a7cbdc04a6f53a1b5f"
     };
   };
 
-  componentDidMount(){
+  componentDidMount() {
     var cy = this.cy;
 
     // CYTOSCAPE-PANZOOM EXTENSION
@@ -60,83 +68,102 @@ class Graph extends Component {
 
     // CYTOSCAPE-NODE-HTML-LABEL EXTENSION
     cy.nodeHtmlLabel([
-      // {
-      //   query: 'node',
-      //   halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-      //   valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-      //   halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-      //   valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-      //   cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
-      //   tpl: function(data){
-      //     // we only want author and creation date listed for notes
-      //     if(data.type === 'note' || data.type == 'riseabove' || data.type == 'Attachment'){
-      //       return '<div>' + data.author + '<br>' + data.date + '</div>';
-      //     } else {
-      //       return '';
-      //     }
-      //   }
-      // },
+      {
+        query: 'node',
+        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
+        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
+        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        tpl: function(data){
+          // we only want author and creation date listed for notes
+          if(data.type === 'note' || data.type == 'riseabove' || data.type == 'Attachment'){
+            return '<div>' + data.author + '<br>' + data.date + '</div>';
+          } else {
+            return '';
+          }
+        }
+      },
     ]);
+
+    var promise = getApiLinksFromViewId(this.state.token, this.state.server, this.state.viewId);
+    var promise1 = postApiLinksCommunityIdSearch(this.state.token, this.state.server, this.state.communityId, {type: "buildson"});
+    var promise2 = getApiLinksReadStatus(this.state.token, this.state.server, this.state.communityId, this.state.viewId);
+    var promise3 = getCommunityAuthors(this.state.token, this.state.communityId, this.state.server);
+    var ref = this;
+
+    Promise.all([promise, promise1, promise2, promise3]).then((result) => {
+
+      // we keep a map with (key, value) of (kfId, count) in order to create duplicate notes with unique ids
+      // simply append the count to the end of their note id
+      var nodes = new Map();
+      var si = cy.supportimages();
+
+      addNodesToGraph(ref, ref.state.token, cy, si, nodes, result[0], result[2], result[3]);
+      addEdgesToGraph(ref, cy, nodes, result[1]);
+
+    });
 
   }
 
   render() {
-    return <CytoscapeComponent
-      cy={(cy) => { this.cy = cy }}
-      style={ { width: '100%', height: '100vh' } }
-      stylesheet={ [
-        {
-          selector: 'node',
-          style: {
-            'label': "data(name)",
-            'font-size': '11px',
-            'text-halign': 'right',
-            'text-valign': 'center',
-            'text-margin-x': '-5',
-            'padding': '0',
-            'background-opacity': '0',
-            'background-clip': 'none',
-            'background-width': '15px',
-            'background-height': '15px'
-          }
-        },
-        {
-          selector: 'edge',
-          style: {
-            'width': 1,
-            'line-color': '#ccc',
-            'target-arrow-color': '#ccc',
-            'target-arrow-shape': 'triangle',
-            'curve-style': 'bezier'
-          }
-        },
+    return(
+          <CytoscapeComponent
+          cy={(cy) => { this.cy = cy }}
+          style={ { width: '100%', height: '100vh' } }
+          stylesheet={ [
+            {
+              selector: 'node',
+              style: {
+                'label': "data(name)",
+                'font-size': '11px',
+                'text-halign': 'right',
+                'text-valign': 'center',
+                'text-margin-x': '-5',
+                'padding': '0',
+                'background-opacity': '0',
+                'background-clip': 'none',
+                'background-width': '15px',
+                'background-height': '15px'
+              }
+            },
+            {
+              selector: 'edge',
+              style: {
+                'width': 1,
+                'line-color': '#ccc',
+                'target-arrow-color': '#ccc',
+                'target-arrow-shape': 'triangle',
+                'curve-style': 'bezier'
+              }
+            },
 
-        {selector: '.unread-note', style: {'background-image': ["../assets/icon_note_blue.png"]}},
-        {selector: '.read-note', style: {'background-image': ["../assets/icon_note_red.png"]}},
-        {selector: '.unread-riseabove', style: {'background-image': ["../assets/icon_riseabove_blue.png"]}},
-        {selector: '.read-riseabove', style: {'background-image': ["../assets/icon_riseabove_red.png"]}},
-        {selector: '.attachment', style: {'background-image': ["../assets/icon_attachment.gif"]}},
-        {selector: '.view', style: {'background-image': ["../assets/icon_view.png"]}},
-        {
-          selector: '.image',
-          style: {
-            'label': ''
-          }
-        },
-        {
-          selector: '.drawing',
-          style: {
-            'label': ''
-          }
-        }
-      ] }
-      layout={ {name: 'grid'} }
-      hideEdgesonViewport={ false }
-      autolock={ false }
-      wheelSensitivity={ 0.15 }
-      minZoom={ MINZOOM }
-      maxZoom={ MAXZOOM }
-      />;
+            {selector: '.unread-note', style: {'background-image': ["./assets/icon_note_blue.png"]}},
+            {selector: '.read-note', style: {'background-image': ["./assets/icon_note_red.png"]}},
+            {selector: '.unread-riseabove', style: {'background-image': ["./assets/icon_riseabove_blue.png"]}},
+            {selector: '.read-riseabove', style: {'background-image': ["./assets/icon_riseabove_red.png"]}},
+            {selector: '.attachment', style: {'background-image': ["./assets/icon_attachment.gif"]}},
+            {selector: '.view', style: {'background-image': ["./assets/icon_view.png"]}},
+            {
+              selector: '.image',
+              style: {
+                'label': ''
+              }
+            },
+            {
+              selector: '.drawing',
+              style: {
+                'label': ''
+              }
+            }
+          ] }
+          layout={ {name: 'grid'} }
+          hideEdgesonViewport={ false }
+          autolock={ false }
+          wheelSensitivity={ 0.15 }
+          minZoom={ MINZOOM }
+          maxZoom={ MAXZOOM }
+          />);
   }
 }
 

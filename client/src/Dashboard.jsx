@@ -54,8 +54,8 @@ class Dashboard extends Component {
     for(var i in serverTokenPairs){
       var server = serverTokenPairs[i][0];
       var token = serverTokenPairs[i][1];
-      var status = (server == activeServerURL) ? "active" : "inactive";
-      if(server == activeServerURL) { this.setState({token: serverTokenPairs[i][1]}); }
+      var status = (server === activeServerURL) ? "active" : "inactive";
+      if(server === activeServerURL) { this.setState({token: serverTokenPairs[i][1]}); }
       serverTokenPair.push([server, token, status]);
     }
     localStorage.setItem(this.state.username, JSON.stringify(serverTokenPair));
@@ -76,20 +76,20 @@ class Dashboard extends Component {
     return (
       <div className="d-flex" id="wrapper">
 
-        <div className="sidebar-custom" id="sidebar-wrapper">
-          <h1 className="sidebar-heading">Your Servers:</h1>
+        <div className="sidebar-custom dashboard-sidebar-custom" id="sidebar-wrapper">
+          <h1 className="sidebar-heading dashboard-sidebar-heading">Your Servers:</h1>
           <div className="list-group list-group-flush">
-            <ul className = "server-list" id = "server-list">{this.state.serverList.map((s) =>
-                    <li key={s.name} onClick={this.serverSelectHandler} class={s.class}>{s.name}</li>)}</ul>
+            <ul className = "dashboard-server-list" id = "server-list">{this.state.serverList.map((s) =>
+                    <li key={s.name} onClick={this.serverSelectHandler} className={s.class}>{s.name}</li>)}</ul>
           </div>
         </div>
 
         <div id="page-content-wrapper">
 
-          <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-            <button className="d-none d-md-block btn btn-primary select-server" id="menu-toggle" onClick={toggleSidebar}>Select Server</button>
-            <button className="d-md-none btn btn-primary select-server" id="menu-toggle" onClick={toggleSidebar}><i className="fas fa-server"></i></button>
-            <div class="currentInfo" id="currentInfo">{this.state.name}<div></div>{this.state.currentServerName}</div>
+          <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom dashboard-navbar">
+            <button className="d-none d-md-block btn btn-primary dashboard-select-server" id="menu-toggle" onClick={toggleSidebar}>Select Server</button>
+            <button className="d-md-none btn btn-primary dashboard-select-server" id="menu-toggle" onClick={toggleSidebar}><i className="fas fa-server"></i></button>
+            <div class="dashboard-currentInfo" id="currentInfo">{this.state.name}<div></div>{this.state.currentServerName}</div>
 
             <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
@@ -98,7 +98,7 @@ class Dashboard extends Component {
             <div className="collapse navbar-collapse" id="navbarSupportedContent">
               <ul className="navbar-nav ml-auto mt-2 mt-lg-0">
                 <li className="nav-item">
-                  <a className="nav-link" href="" id="logout" onClick={() => logout(this)}>Logout</a>
+                  <a className="nav-link dashboard-nav-link" href="" id="logout" onClick={() => logout(this)}>Logout</a>
                 </li>
               </ul>
             </div>
@@ -107,21 +107,21 @@ class Dashboard extends Component {
           <div className="container-fluid">
             <div className = "row">
 
-              <div className = "col-md-6 mainContentCol">
+              <div className = "col-md-6 dashboard-mainContentCol">
                 <h1>My Knowledge Building Communities</h1>
-                <ul className="userCommunities" id = "userCommunities">
+                <ul className="dashboard-userCommunities" id = "userCommunities">
                   {this.state.userCommunityData.map((c) =>
-                    <li><p>{c.title}</p><a href={c.server + 'auth/jwt?token=' + c.token + '&redirectUrl=/view/' + c.welcomeViewId} target="_blank"><button class="enterButton" type="button"><i class="far fa-arrow-alt-circle-right"></i></button></a></li>)}
+                    <li><p>{c.title}</p><a href={c.server + 'auth/jwt?token=' + c.token + '&redirectUrl=/view/' + c.welcomeViewId} target="_blank"><button class="dashboard-enterButton" type="button"><i class="far fa-arrow-alt-circle-right"></i></button></a></li>)}
                 </ul>
               </div>
 
               <div className = "col-md-6 mainContentCol">
                 <h1>Join Community</h1>
-                <form className="col-lg-8 col-md-10 col-sm-12 joinCommunityForm" id = "joinCommunityForm">
+                <form className="col-lg-8 col-md-10 col-sm-12 dashboard-joinCommunityForm" id = "joinCommunityForm">
 
                   <label for="server">Community:</label><br></br>
                   <Select value={this.state.selectedCommunityToJoin}
-                          className="communityChoiceDropdown"
+                          className="dashboard-communityChoiceDropdown"
                           id="communityChoiceDropdown"
                           options={this.state.serverCommunityData}
                           onChange={this.handleDropDownChange}
@@ -135,7 +135,7 @@ class Dashboard extends Component {
                     <p style={{color: 'red'}} id = "errorMessage">{this.state.joinCommunityErrorMessage}</p>
                   </div>
 
-                  <input className = "joinButton" type="button" value="Join"
+                  <input className = "dashboard-joinButton" type="button" value="Join"
                       onClick={() => joinCommunity(this.state.userId, this.state.currentServerURL, this.state.communityRegistrationKey, this.state.selectedCommunityToJoin.value, this)} id="joinCommunityButton"></input>
 
                 </form>

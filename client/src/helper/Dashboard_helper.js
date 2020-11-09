@@ -1,9 +1,7 @@
 /*
 * THIS FILE PROVIDES HELPER FUNCTIONS FOR LOGIN COMPONENT
 */
-import $ from 'jquery';
 import {getServerName} from '../config.js';
-import {getServerURL} from '../config.js';
 import {extractTokenFromStorage} from '../config.js';
 import {getUserInfo} from '../api/user.js';
 import {getUserCommunities} from '../api/user.js';
@@ -15,7 +13,6 @@ import {postCommunityRegistration} from '../api/community.js';
 export function appendUserServers(dashboard_component){
   var uname = localStorage.getItem("Username");
   var data = JSON.parse(localStorage.getItem(uname));
-  var serverList = document.getElementById("server-list");
   var servers = [];
 
   dashboard_component.setState({username: uname});
@@ -24,7 +21,7 @@ export function appendUserServers(dashboard_component){
     var serverName = getServerName(data[i][0]);
 
     // set the last active server as the default
-    if(data[i][2] == "active"){
+    if(data[i][2] === "active"){
       dashboard_component.setState({currentServerURL: data[i][0]});
       dashboard_component.setState({currentServerName: getServerName(data[i][0])});
       dashboard_component.setState({token: data[i][1]});
@@ -117,7 +114,6 @@ function updateUserCommunities(data, server, dashboard_component) {
       if(responses[i]){
         if(responses[i]._id){
           var title = data[i]._community.title;
-          var id = data[i].communityId;
           var welcomeViewID = responses[i]._id;
           userCommunityData.push({
             title: title,
@@ -145,7 +141,7 @@ export function joinCommunity(userId, server, registrationKey, communityId, dash
       document.getElementById('communityKey').value = '';
       ref.setState({joinCommunityErrorMessage: "Registration key does not match or you are already registered."});
     }
-    else { 
+    else {
       document.getElementById('communityKey').value = '';
       loadServer(server, ref);
     }
@@ -166,7 +162,7 @@ export function logout(dashboard_component){
   var uname = localStorage.getItem("Username");
   var userinfo = JSON.parse(localStorage.getItem(uname));
 
-  if(uname == null || userinfo == null){
+  if(uname === null || userinfo === null){
     localStorage.clear();
   } else {
     for(var i in userinfo){
@@ -183,7 +179,7 @@ export function logout(dashboard_component){
 // function to add to buttons to toggle the side bar
 export function toggleSidebar(){
   var div = document.getElementById('wrapper');
-  if (div.className == "d-flex") {
+  if (div.className === "d-flex") {
     div.className = "d-flex toggled";
   } else {
     div.className = "d-flex";

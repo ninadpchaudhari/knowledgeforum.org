@@ -1,5 +1,5 @@
 // returns a promise that on fullfillment returns the object given by objectId
-function getApiObjectsObjectId(token, server, objectId) {
+export function getApiObjectsObjectId(token, server, objectId) {
   return fetch(server + 'api/objects/' + objectId, {
     method: "GET",
     headers: {

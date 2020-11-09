@@ -1,5 +1,5 @@
 // returns a promise that on fullfillment returns all links from the given viewId
-function getApiLinksFromViewId(token, server, viewId) {
+export function getApiLinksFromViewId(token, server, viewId) {
   return fetch(server + 'api/links/from/' + viewId, {
     method: "GET",
     headers: {
@@ -16,8 +16,8 @@ function getApiLinksFromViewId(token, server, viewId) {
 }
 
 
-// returns a promise that on fullfillment returns all links FROM ID to TO ID  
-function getApiLinksViewIdToObjectId(token, server, viewId, objectId) {
+// returns a promise that on fullfillment returns all links FROM ID to TO ID
+export function getApiLinksViewIdToObjectId(token, server, viewId, objectId) {
   return fetch(server + 'api/links/from/' + viewId + '/to/' + objectId, {
     method: "GET",
     headers: {
@@ -34,7 +34,7 @@ function getApiLinksViewIdToObjectId(token, server, viewId, objectId) {
 }
 
 // returns a promise that on fullfillment returns an array of the read note ids only
-function getApiLinksReadStatus(token, server, communityId, welcomeViewId){
+export function getApiLinksReadStatus(token, server, communityId, welcomeViewId){
   return fetch(server + 'api/records/myreadstatusview/' + communityId + '/' + welcomeViewId, {
     method: "GET",
     headers: {
@@ -46,7 +46,7 @@ function getApiLinksReadStatus(token, server, communityId, welcomeViewId){
   }).then(function(body) {
     var results = [];
     for(var i in body){
-      if(body[i].type == "read"){ results.push(body[i].to); }
+      if(body[i].type === "read"){ results.push(body[i].to); }
     }
     return (results);
   }).catch(function(error) {
@@ -56,7 +56,7 @@ function getApiLinksReadStatus(token, server, communityId, welcomeViewId){
 
 
 // used to mark notes as read according to the given parameters
-function postReadStatus(token, server, communityId, contributionId){
+export function postReadStatus(token, server, communityId, contributionId){
   return fetch(server + 'api/records/read/' + communityId + '/' + contributionId, {
     method: "POST",
     headers: {
@@ -74,7 +74,7 @@ function postReadStatus(token, server, communityId, contributionId){
 
 
 // returns a promise that on fullfillment returns all of the links fulfilling the query
-function postApiLinksCommunityIdSearch(token, server, communityId, query) {
+export function postApiLinksCommunityIdSearch(token, server, communityId, query) {
   var body = {
     'query': query
   };
