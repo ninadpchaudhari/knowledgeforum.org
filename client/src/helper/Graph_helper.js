@@ -2,19 +2,19 @@ import {getApiObjectsObjectId} from '../api/object.js';
 
 // adds the notes to the cytoscape graph
 // parameters are token, cytoscape instance, cytoscape-supportimage instance, notes map, getApiLinksFromViewId, getApiLinksReadStatus, and getCommunityAuthors results
-export function addNodesToGraph(graph_component, token, cy, si, nodes, nodeData, readData, authorData){
+export function addNodesToGraph(graph_component, token, cy_elements, si, nodes, nodeData, readData, authorData){
   for(var i = 0; i < nodeData.length; i++){
 
     var id = createCytoscapeId(nodes, nodeData[i].to);
-    
+
     if(nodeData[i]._to.type === "Note" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
-      handleNote(cy, id, nodeData[i], readData, authorData);
+      handleNote(cy_elements, id, nodeData[i], readData, authorData);
     } else if(nodeData[i]._to.type === "Attachment" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
-      handleAttachment(graph_component, token, cy, si, nodes, nodeData[i], authorData);
+      handleAttachment(graph_component, token, cy_elements, si, nodes, nodeData[i], authorData);
     } else if(nodeData[i]._to.type === "Drawing" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
-      handleDrawing(graph_component, token, cy, si, nodes, nodeData[i], authorData);
+      handleDrawing(graph_component, token, si, nodes, nodeData[i], authorData);
     } else if(nodeData[i]._to.type === "View" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
-      handleView(cy, nodes, nodeData[i]);
+      handleView(cy_elements, nodes, nodeData[i]);
     }
 
   }
@@ -23,7 +23,7 @@ export function addNodesToGraph(graph_component, token, cy, si, nodes, nodeData,
 
 // adds the edges to the cytoscape graph
 // parameters are cytoscape instance, notes map, and postApiLinksCommunityIdSearch results
-export function addEdgesToGraph(graph_component, cy, nodes, edgeData){
+export function addEdgesToGraph(graph_component, cy_elements, nodes, edgeData){
   for(var i = 0; i < edgeData.length; i++){
     var obj = edgeData[i];
 
@@ -33,7 +33,7 @@ export function addEdgesToGraph(graph_component, cy, nodes, edgeData){
         if(fromCount !== 'undefined' && toCount !== 'undefined'){
           for(var j = 0; j < fromCount; j++){
             for(var k = 0; k < toCount; k++){
-              cy.add({
+              cy_elements.edges.push({
                 group: 'edges',
                 data: {
                   id: obj._id + '-' + (parseInt(j) + 1) + (parseInt(k) + 1),
@@ -52,7 +52,7 @@ export function addEdgesToGraph(graph_component, cy, nodes, edgeData){
 
 
 // handles adding notes to the cytoscape instance
-function handleNote(cy, id, nodeData, readData, authorData){
+function handleNote(cy_elements, id, nodeData, readData, authorData){
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var date = parseDate(nodeData.created);
   var readStatus, type;
@@ -66,7 +66,7 @@ function handleNote(cy, id, nodeData, readData, authorData){
     type = "riseabove";
   }
 
-  cy.add({
+  cy_elements.nodes.push({
       group: 'nodes',
       data: {
         id: id,
@@ -82,12 +82,11 @@ function handleNote(cy, id, nodeData, readData, authorData){
         y: nodeData.data.y
       }
   });
-
 }
 
 
 // handles adding attachments to the cytoscape instance
-function handleAttachment(graph_component, token, cy, si, nodes, nodeData, authorData){
+function handleAttachment(graph_component, token, cy_elements, si, nodes, nodeData, authorData){
 
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var date = parseDate(nodeData.created);
@@ -118,7 +117,7 @@ function handleAttachment(graph_component, token, cy, si, nodes, nodeData, autho
       });
 
     } else {
-      cy.add({
+      cy_elements.nodes.push({
         group: 'nodes',
         data: {
           id: id,
@@ -141,11 +140,7 @@ function handleAttachment(graph_component, token, cy, si, nodes, nodeData, autho
 
 
 // handles adding drawings to the cytoscape instance
-function handleDrawing(graph_component, token, cy, si, nodes, nodeData, authorData){
-
-  var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
-  var date = parseDate(nodeData.created);
-  var id = createCytoscapeId(nodes, nodeData.to);
+function handleDrawing(graph_component, token, si, nodes, nodeData, authorData){
   var server = graph_component.state.server;
 
   var documentInfo = getApiObjectsObjectId(token, server, nodeData.to);
@@ -159,7 +154,6 @@ function handleDrawing(graph_component, token, cy, si, nodes, nodeData, authorDa
     var aspect_ratio = svg_width/svg_height;
 
     // use the given width and known aspect ratio to calculate appropiate height for svg
-
     var node_width = parseInt(nodeData.data.width);
     var node_height = node_width/aspect_ratio;
 
@@ -182,9 +176,9 @@ function handleDrawing(graph_component, token, cy, si, nodes, nodeData, authorDa
 
 
 // handles adding a link to another view
-function handleView(cy, nodes, nodeData){
+function handleView(cy_elements, nodes, nodeData){
   var id = createCytoscapeId(nodes, nodeData.to);
-  cy.add({
+  cy_elements.nodes.push({
     data: {
       id: id,
       name: nodeData._to.title,

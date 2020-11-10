@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Select from 'react-select';
+import { Link } from 'react-router-dom';
 
 import $ from 'jquery';
 import {appendUserServers} from './helper/Dashboard_helper.js';
@@ -27,6 +28,7 @@ class Dashboard extends Component {
       selectedCommunityToJoin: null,
       communityRegistrationKey: null,
       joinCommunityErrorMessage: null,
+      viewType: 'classic',
     }
   }
 
@@ -64,6 +66,10 @@ class Dashboard extends Component {
     loadServer(serverURL, this);
   }
 
+  handleViewChange = (event) => {
+    this.setState({viewType: {value: event.value, label: event.label}});
+  }
+
   handleDropDownChange = (event) => {
     this.setState({selectedCommunityToJoin: {value: event.value, label: event.label}});
   }
@@ -81,6 +87,13 @@ class Dashboard extends Component {
           <div className="list-group list-group-flush">
             <ul className = "dashboard-server-list" id = "server-list">{this.state.serverList.map((s) =>
                     <li key={s.name} onClick={this.serverSelectHandler} className={s.class}>{s.name}</li>)}</ul>
+            {/*<p>View Type:</p>
+            <Select value = {this.state.viewType}
+                    onChange = {this.handleViewChange}
+                    options={[
+                      { value: 'classic', label: 'Classic' },
+                      { value: 'cytoscape', label: 'Cytoscape' },
+                    ]} />*/}
           </div>
         </div>
 
@@ -111,11 +124,29 @@ class Dashboard extends Component {
                 <h1>My Knowledge Building Communities</h1>
                 <ul className="dashboard-userCommunities" id = "userCommunities">
                   {this.state.userCommunityData.map((c) =>
-                    <li><p>{c.title}</p><a href={c.server + 'auth/jwt?token=' + c.token + '&redirectUrl=/view/' + c.welcomeViewId} target="_blank"><button class="dashboard-enterButton" type="button"><i class="far fa-arrow-alt-circle-right"></i></button></a></li>)}
+                    <li>
+                        <p>{c.title}</p>
+                        <Link style={{ color: 'inherit', textDecoration: 'inherit'}} to={{
+                          pathname: '/graph',
+                          state: {
+                            token: c.token,
+                            server: c.server,
+                            communityId: c.communityId,
+                            viewId: c.welcomeViewId
+                          }
+                        }}>
+                          <button class="dashboard-enterButton" type="button">
+                          <i class="far fa-arrow-alt-circle-right"></i></button>
+                        </Link>
+
+                        {/*<p>{c.title}</p>
+                        <a href={c.server + 'auth/jwt?token=' + c.token + '&redirectUrl=/view/' + c.welcomeViewId} target="_blank">
+                        <button class="dashboard-enterButton" type="button"><i class="far fa-arrow-alt-circle-right"></i></button></a>*/}
+                    </li>)}
                 </ul>
               </div>
 
-              <div className = "col-md-6 mainContentCol">
+              <div className = "col-md-6 dashboard-mainContentCol">
                 <h1>Join Community</h1>
                 <form className="col-lg-8 col-md-10 col-sm-12 dashboard-joinCommunityForm" id = "joinCommunityForm">
 

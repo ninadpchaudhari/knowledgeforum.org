@@ -113,13 +113,12 @@ function updateUserCommunities(data, server, dashboard_component) {
     for(var i = 0; i < responses.length; i++){
       if(responses[i]){
         if(responses[i]._id){
-          var title = data[i]._community.title;
-          var welcomeViewID = responses[i]._id;
           userCommunityData.push({
-            title: title,
+            title: data[i]._community.title,
             server: dashboard_component.state.currentServerURL,
             token: dashboard_component.state.token,
-            welcomeViewId: welcomeViewID,
+            communityId: responses[i].communityId,
+            welcomeViewId: responses[i]._id,
           });
         }
       }

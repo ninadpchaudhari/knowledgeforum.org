@@ -206,7 +206,7 @@ body {
   font-size: 1.25rem;
   font-weight: 500;
   display: inline-block;
-  color: #203c66;
+  color: #203c66 !important;
 }
 
 @media (max-width: 768px){

@@ -15,6 +15,13 @@ import {addEdgesToGraph} from './helper/Graph_helper.js';
 import './css/cytoscape.js-panzoom.css';
 import './css/Graph.css';
 
+import unread_note_icon from './assets/icon_note_blue.png';
+import read_note_icon from './assets/icon_note_red.png';
+import unread_riseabove_icon from './assets/icon_riseabove_blue.png';
+import read_riseabove_icon from './assets/icon_riseabove_red.png';
+import attachment_icon from './assets/icon_attachment.gif';
+import view_icon from './assets/icon_view.png';
+
 import {MINZOOM, MAXZOOM} from './config.js';
 
 Cytoscape.use(CytoscapePanZoom);
@@ -25,10 +32,11 @@ class Graph extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZjNkOTQyMDAzOWRiYjQyNTFiNTJhMTgiLCJpYXQiOjE2MDQ5NjI1MjUsImV4cCI6MTYwNDk4MDUyNX0.m20V1LLXrV_ei9jcjtYehGagpwoVWZlwiKMJras1haY",
-      server: "https://kf6-stage.ikit.org/",
-      communityId: "5ea995a6cbdc04a6f53a1b5c",
-      viewId: "5ea995a7cbdc04a6f53a1b5f"
+      token: this.props.location.state.token,
+      server: this.props.location.state.server,
+      communityId: this.props.location.state.communityId,
+      viewId: this.props.location.state.viewId,
+      elements: [],
     };
   };
 
@@ -77,7 +85,7 @@ class Graph extends Component {
         cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
         tpl: function(data){
           // we only want author and creation date listed for notes
-          if(data.type === 'note' || data.type == 'riseabove' || data.type == 'Attachment'){
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
             return '<div>' + data.author + '<br>' + data.date + '</div>';
           } else {
             return '';
@@ -98,10 +106,12 @@ class Graph extends Component {
       // simply append the count to the end of their note id
       var nodes = new Map();
       var si = cy.supportimages();
+      var cy_elements = {nodes: [], edges: []};
 
-      addNodesToGraph(ref, ref.state.token, cy, si, nodes, result[0], result[2], result[3]);
-      addEdgesToGraph(ref, cy, nodes, result[1]);
+      addNodesToGraph(ref, ref.state.token, cy_elements, si, nodes, result[0], result[2], result[3]);
+      addEdgesToGraph(ref, cy_elements, nodes, result[1]);
 
+      this.setState({elements: cy_elements});
     });
 
   }
@@ -111,6 +121,7 @@ class Graph extends Component {
           <CytoscapeComponent
           cy={(cy) => { this.cy = cy }}
           style={ { width: '100%', height: '100vh' } }
+          elements={CytoscapeComponent.normalizeElements(this.state.elements)}
           stylesheet={ [
             {
               selector: 'node',
@@ -138,12 +149,12 @@ class Graph extends Component {
               }
             },
 
-            {selector: '.unread-note', style: {'background-image': ["./assets/icon_note_blue.png"]}},
-            {selector: '.read-note', style: {'background-image': ["./assets/icon_note_red.png"]}},
-            {selector: '.unread-riseabove', style: {'background-image': ["./assets/icon_riseabove_blue.png"]}},
-            {selector: '.read-riseabove', style: {'background-image': ["./assets/icon_riseabove_red.png"]}},
-            {selector: '.attachment', style: {'background-image': ["./assets/icon_attachment.gif"]}},
-            {selector: '.view', style: {'background-image': ["./assets/icon_view.png"]}},
+            {selector: '.unread-note', style: {'background-image': [unread_note_icon]}},
+            {selector: '.read-note', style: {'background-image': [read_note_icon]}},
+            {selector: '.unread-riseabove', style: {'background-image': [unread_riseabove_icon]}},
+            {selector: '.read-riseabove', style: {'background-image': [read_riseabove_icon]}},
+            {selector: '.attachment', style: {'background-image': [attachment_icon]}},
+            {selector: '.view', style: {'background-image': [view_icon]}},
             {
               selector: '.image',
               style: {
