@@ -149,10 +149,10 @@ class Graph extends Component {
         ref.setState({viewId: kfId});
         ref.loadElements(cy);
       } else {
-        if(type == "riseabove"){
+        if(type === "riseabove"){
           this.removeClass("unread-riseabove");
           this.addClass("read-riseabove");
-        } else if(type == "note"){
+        } else if(type === "note"){
           this.removeClass("unread-note");
           this.addClass("read-note");
         }
