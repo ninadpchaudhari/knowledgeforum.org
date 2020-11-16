@@ -194,6 +194,7 @@ body, .login-main {
 
 .modal-body {
   height: 75vh;
+  overflow: hidden;
 }
 
 .modal-btn {
