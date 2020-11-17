@@ -80,7 +80,7 @@ export function responseHandler(uname, data, login_component){
       localStorage.removeItem(username);
       executePromises(username, password, login_component);
       break;
-    } else if(errorMessage === "") {
+    } else if(data[i][0].message !== undefined && errorMessage === "") {
       errorMessage = data[i][0].message;
     } else if(errorMessage === "This userName is not registered." && data[i][0].message === "This password is not correct.") {
       errorMessage = data[i][0].message;
