@@ -1,5 +1,4 @@
 body {
-  background-image: url("../assets/world_map.png");
   height: 100vh;
 }
 
@@ -11,6 +10,7 @@ body {
 /* SIDEBAR CSS FROM https://github.com/StartBootstrap/startbootstrap-simple-sidebar/blob/master/css/simple-sidebar.css */
 #wrapper {
     overflow-x: hidden;
+    background-image: url("../assets/world_map.png");
  }
 
 #sidebar-wrapper {

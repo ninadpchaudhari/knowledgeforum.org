@@ -1,0 +1,8 @@
+#sticky-sidebar{
+    flex: 0 0 3%;
+    max-width: 3%;
+}
+#main-canvas{
+    flex: 0 0 97%;
+    max-width: 97%;
+}

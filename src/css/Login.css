@@ -1,8 +1,9 @@
-body, .login-main {
-  background-image: url("../assets/world_map.png");
+body, {
   height: 100vh;
 }
-
+.login-main {
+    background-image: url("../assets/world_map.png");
+}
 .login-row {
   height: inherit;
 }

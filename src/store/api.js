@@ -7,6 +7,9 @@ export let apiUrl = `${url}/api`;
 
 export function setServer(server) {
     //SET SERVER ON SESSION STORAGE
+    if (server.endsWith("/")){
+        server = server.substring(0, server.length -1);
+    }
     localStorage.setItem("server", server);
     url = server;
     apiUrl = `${url}/api`;

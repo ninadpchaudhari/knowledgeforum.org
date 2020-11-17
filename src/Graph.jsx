@@ -164,7 +164,7 @@ class Graph extends Component {
 
   render() {
     return(
-          <CytoscapeComponent
+           <CytoscapeComponent
           cy={(cy) => { this.cy = cy }}
           style={ { width: '100%', height: '100vh' } }
           elements={CytoscapeComponent.normalizeElements(this.state.elements)}
@@ -220,7 +220,8 @@ class Graph extends Component {
           wheelSensitivity={ 0.15 }
           minZoom={ MINZOOM }
           maxZoom={ MAXZOOM }
-          />);
+          />
+          );
   }
 }
 
