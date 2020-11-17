@@ -13,7 +13,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "watchify ./js/demoview.js -o ./js/bundle.js",
     "watch-supportimages": "watchify ./manual_modules/cytoscape-supportimages.js ./js/demoview.js -o ./js/bundle.js",
-    "build": "browserify ./js/demoview.js -o ./js/bundle.js"
+    "build": "browserify ./js/demoview.js -o ./js/bundle.js",
+    "build-conference": "browserify ./js/KBSIConference.js -o ./js/bundle_conference.js"
   },
   "repository": {
     "type": "git",
