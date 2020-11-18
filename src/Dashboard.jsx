@@ -28,7 +28,7 @@ class Dashboard extends Component {
       selectedCommunityToJoin: null,
       communityRegistrationKey: null,
       joinCommunityErrorMessage: null,
-      viewType: 'classic',
+      viewType: {value: 'Classic', label: 'Classic'}
     }
   }
 
@@ -70,7 +70,7 @@ class Dashboard extends Component {
     this.setState({viewType: {value: event.value, label: event.label}});
   }
 
-  handleDropDownChange = (event) => {
+  handleCommunityDropDownChange = (event) => {
     this.setState({selectedCommunityToJoin: {value: event.value, label: event.label}});
   }
 
@@ -79,6 +79,33 @@ class Dashboard extends Component {
   }
 
   render(){
+    let viewToRender;
+    if(this.state.viewType.value === "Classic"){
+      viewToRender = this.state.userCommunityData.map((c) =>
+      <li>
+        <p>{c.title}</p>
+        <a href={c.server + 'auth/jwt?token=' + c.token + '&redirectUrl=/view/' + c.welcomeViewId} target="_blank">
+        <button className="dashboard-enterButton" type="button"><i className="far fa-arrow-alt-circle-right"></i></button></a>
+      </li>);
+    } else if(this.state.viewType.value === "Enhanced"){
+      viewToRender = this.state.userCommunityData.map((c) =>
+        <li>
+            <p>{c.title}</p>
+            <Link style={{ color: 'inherit', textDecoration: 'inherit'}} to={{
+              pathname: '/graph',
+              state: {
+                token: c.token,
+                server: c.server,
+                communityId: c.communityId,
+                viewId: c.welcomeViewId
+              }}} target="_blank">
+              <button className="dashboard-enterButton" type="button">
+              <i className="far fa-arrow-alt-circle-right"></i></button>
+            </Link>
+        </li>);
+    }
+
+
     return (
       <div className="d-flex" id="wrapper">
 
@@ -87,13 +114,16 @@ class Dashboard extends Component {
           <div className="list-group list-group-flush">
             <ul className = "dashboard-server-list" id = "server-list">{this.state.serverList.map((s) =>
                     <li key={s.name} onClick={this.serverSelectHandler} className={s.class}>{s.name}</li>)}</ul>
-            {/*<p>View Type:</p>
-            <Select value = {this.state.viewType}
-                    onChange = {this.handleViewChange}
-                    options={[
-                      { value: 'classic', label: 'Classic' },
-                      { value: 'cytoscape', label: 'Cytoscape' },
-                    ]} />*/}
+            <div className="dashboard-viewDropDownContainer">
+              <p>View Type:</p>
+              <Select isSearchable={false}
+                      value = {this.state.viewType}
+                      onChange = {this.handleViewChange}
+                      options={[
+                        { value: 'Classic', label: 'Classic' },
+                        { value: 'Enhanced', label: 'Enhanced' },
+                      ]} />
+            </div>
           </div>
         </div>
 
@@ -123,26 +153,7 @@ class Dashboard extends Component {
               <div className = "col-md-6 dashboard-mainContentCol">
                 <h1>My Knowledge Building Communities</h1>
                 <ul className="dashboard-userCommunities" id = "userCommunities">
-                  {this.state.userCommunityData.map((c) =>
-                    <li>
-                        <p>{c.title}</p>
-                        <Link style={{ color: 'inherit', textDecoration: 'inherit'}} to={{
-                          pathname: '/graph',
-                          state: {
-                            token: c.token,
-                            server: c.server,
-                            communityId: c.communityId,
-                            viewId: c.welcomeViewId
-                          }
-                        }}>
-                          <button class="dashboard-enterButton" type="button">
-                          <i class="far fa-arrow-alt-circle-right"></i></button>
-                        </Link>
-
-                        {/*<p>{c.title}</p>
-                        <a href={c.server + 'auth/jwt?token=' + c.token + '&redirectUrl=/view/' + c.welcomeViewId} target="_blank">
-                        <button class="dashboard-enterButton" type="button"><i class="far fa-arrow-alt-circle-right"></i></button></a>*/}
-                    </li>)}
+                  {viewToRender}
                 </ul>
               </div>
 
@@ -155,7 +166,7 @@ class Dashboard extends Component {
                           className="dashboard-communityChoiceDropdown"
                           id="communityChoiceDropdown"
                           options={this.state.serverCommunityData}
-                          onChange={this.handleDropDownChange}
+                          onChange={this.handleCommunityDropDownChange}
                           required>
                   </Select><br></br>
 

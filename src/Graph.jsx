@@ -32,7 +32,7 @@ Cytoscape.use(CytoscapeSupportImages);
 class Graph extends Component {
   constructor(props) {
     super(props);
-
+    
     if(props.isDemo){
       this.state = {
         token: this.props.token,
@@ -54,7 +54,7 @@ class Graph extends Component {
     this.loadElements = this.loadElements.bind(this);
   };
 
-  loadElements(cy) {
+  loadElements(cy, si) {
     var promise = getApiLinksFromViewId(this.state.token, this.state.server, this.state.viewId);
     var promise1 = postApiLinksCommunityIdSearch(this.state.token, this.state.server, this.state.communityId, {type: "buildson"});
     var promise2 = getApiLinksReadStatus(this.state.token, this.state.server, this.state.communityId, this.state.viewId);
@@ -66,9 +66,10 @@ class Graph extends Component {
       // we keep a map with (key, value) of (kfId, count) in order to create duplicate notes with unique ids
       // simply append the count to the end of their note id
       var nodes = new Map();
-      var si = cy.supportimages();
-      si._private.supportImages = []; // clear the support images extension
 
+      // clear the support images extension
+      si._private.supportImages = [];
+      si._private.renderer.imageCache = {};
 
       var graph_nodes = addNodesToGraph(ref.state.server, ref.state.token, si, nodes, result[0], result[2], result[3]);
       var graph_edges = addEdgesToGraph(nodes, result[1]);
@@ -147,7 +148,10 @@ class Graph extends Component {
       },
     ]);
 
-    this.loadElements(cy);
+    // CYTOSCAPE SUPPORTIMAGES EXTENSION
+    var si = cy.supportimages();
+
+    this.loadElements(cy, si);
 
     var ref = this;
     // on single click of node log its kf id and mark it as read
@@ -163,7 +167,7 @@ class Graph extends Component {
         console.log("attachment");
       } else if(this.hasClass("view")){
         ref.setState({viewId: kfId});
-        ref.loadElements(cy);
+        ref.loadElements(cy, si);
       } else {
         if(type === "riseabove"){
           this.removeClass("unread-riseabove");

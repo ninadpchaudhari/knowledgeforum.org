@@ -119,6 +119,20 @@ body {
   border-bottom-left-radius: 5px;
 }
 
+.dashboard-viewDropDownContainer {
+  border-top: 2px solid #fcf000;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dashboard-viewDropDownContainer > p {
+  color: white;
+  font-weight: 500;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
 .active {
   background-color: rgba(255, 255, 255, 0.9);
   color: #2d5085 !important;
