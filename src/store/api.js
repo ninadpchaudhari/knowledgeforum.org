@@ -148,6 +148,19 @@ export const getLinkForObj = (objId) => {
     return axios.get(`${apiUrl}/links/either/${objId}`)
 }
 
+// returns a promise that on fullfillment returns an array of the read note ids only
+export function getApiLinksReadStatus(communityId, viewId){
+    return axios.get(`${apiUrl}/records/myreadstatusview/${communityId}/${viewId}`).then(function(result) {
+        const body = result.data
+        var results = [];
+        for(var i in body){
+            if(body[i].type === "read"){ results.push(body[i].to); }
+        }
+        return (results);
+    }).catch(function(error) {
+        return ("Error:", error);
+    });
+}
 // export default {url, apiUrl, postContribution, getCommunity,
 //                 getLinks, getObject, createAttachment,
 //                 getAuthor, uploadFile, putObject,

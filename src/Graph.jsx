@@ -54,6 +54,7 @@ class Graph extends Component {
 
     this.loadElements = this.loadElements.bind(this);
       this.componentDidMount = this.componentDidMount.bind(this);
+      this.refreshElements = this.refreshElements.bind(this);
   };
 
   loadElements(cy) {
@@ -64,20 +65,24 @@ class Graph extends Component {
     var ref = this;
 
     Promise.all([promise, promise1, promise2, promise3]).then((result) => {
-
-      // we keep a map with (key, value) of (kfId, count) in order to create duplicate notes with unique ids
-      // simply append the count to the end of their note id
-      var nodes = new Map();
-      var si = cy.supportimages();
-      si._private.supportImages = []; // clear the support images extension
-      var cy_elements = {nodes: [], edges: []};
-
-      addNodesToGraph(ref, ref.state.token, cy_elements, si, nodes, result[0], result[2], result[3]);
-      addEdgesToGraph(ref, cy_elements, nodes, result[1]);
-
-      this.setState({elements: cy_elements});
+        const cy_elements = ref.refreshElements(...result)
+        this.setState({elements: cy_elements});
     });
   }
+
+    refreshElements(viewLinks, buildsons, reads, authors){
+        var cy_elements = {nodes: [], edges: []};
+        if (this.cy){
+            var nodes = new Map();
+            var si = this.cy.supportimages();
+            si._private.supportImages = []; // clear the support images extension
+
+            addNodesToGraph(this, this.state.token, cy_elements, si, nodes, viewLinks, reads, authors);
+            addEdgesToGraph(this, cy_elements, nodes, buildsons);
+
+        }
+        return cy_elements;
+    }
 
   componentDidMount() {
     var cy = this.cy;
@@ -140,8 +145,6 @@ class Graph extends Component {
     cy.on('tap', 'node', function(event){
       var kfId = this.data('kfId');
       var type = this.data('type');
-      console.log(this);
-      console.log(kfId);
 
       if(this.hasClass("image")){
         console.log("image");
@@ -167,11 +170,13 @@ class Graph extends Component {
   }
 
   render() {
+
+      const elements = this.refreshElements(this.props.viewLinks, this.props.buildsOn, this.props.reads, Object.values(this.props.authors))
     return(
            <CytoscapeComponent
           cy={(cy) => { this.cy = cy }}
           style={ { width: '100%', height: '100vh' } }
-          elements={CytoscapeComponent.normalizeElements(this.state.elements)}
+               elements={CytoscapeComponent.normalizeElements(elements)}
           stylesheet={ [
             {
               selector: 'node',
@@ -232,6 +237,10 @@ class Graph extends Component {
 const mapStateToProps = (state, ownProps) => {
     return {
         author: state.globals.author,
+        authors: state.users,
+        viewLinks: state.notes.viewLinks,
+        buildsOn: state.notes.buildsOn,
+        reads: state.notes.readLinks
     }
 }
 
