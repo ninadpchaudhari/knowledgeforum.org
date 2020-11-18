@@ -7,6 +7,7 @@ import { fetchLoggedUser } from '../store/globalsReducer.js'
 import Graph from '../Graph';
 import "./View.css";
 import SideBar from "./SideBar.js"
+import DialogHandler from './dialogHandler/DialogHandler.js'
 
 class View extends Component {
 
@@ -46,6 +47,7 @@ class View extends Component {
     render(){
     return(
         <div className="container-fluid">
+            <DialogHandler />
             <div className="row" >
                 <div className="col" id="sticky-sidebar">
                     <SideBar communityId={this.props.communityId}

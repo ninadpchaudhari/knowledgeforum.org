@@ -1,0 +1,73 @@
+/*
+    Document   : kf
+    Author     : Yoshiaki
+*/
+
+.KFSupportStart {
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.KFSupportEnd {
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.kfSupportStartLabel {
+    border-color: #EFB137;
+    border-style: solid;
+    border-width: 1px;
+    padding: 1px 2px 1px 1px;
+}
+
+.kfSupportEndMark {
+    background-color: #EFB137;
+    border-color: #EFB137;
+    color: #EFB137;
+    border-radius: 0 10px 10px 0;
+    border-style: solid;
+    border-width: 1px;
+    padding: 1px 0 1px 2px;
+}
+
+.kfSupportStartMark {
+    background-color: #EFB137;
+    border-color: #EFB137;
+    color: #EFB137;
+    border-radius: 10px 0 0 10px;
+    border-style: solid;
+    border-width: 1px;
+    padding: 1px 0 1px 2px;
+}
+
+.kfTemplateStartLabel {
+    border-style: none;
+}
+
+.kfTemplateStartMark {
+    background-color: transparent;
+    border-style: none;
+}
+
+.kfTemplateEndMark {
+    background-color: transparent;
+    border-style: none;
+}
+
+.kfTemplateContent {
+    border: solid 1px #000000;
+}
+
+.KFReferenceQuote {
+    font-style: italic;
+}
+
+.KFReference {
+    color: black;
+}
+
+.KFReferenceAuthor {
+    font-size: 10px;
+    color: #777777;
+    white-space: nowrap;
+}

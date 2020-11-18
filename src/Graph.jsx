@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import { connect } from 'react-redux'
 import Cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
 import CytoscapePanZoom from 'cytoscape-panzoom';
@@ -12,7 +13,7 @@ import {getCommunityAuthors} from './api/community.js';
 import {addNodesToGraph} from './helper/Graph_helper.js';
 import {addEdgesToGraph} from './helper/Graph_helper.js';
 import {postReadStatus} from './api/link.js';
-
+import { openContribution } from './store/noteReducer.js'
 import './css/cytoscape.js-panzoom.css';
 import './css/Graph.css';
 
@@ -52,6 +53,7 @@ class Graph extends Component {
     }
 
     this.loadElements = this.loadElements.bind(this);
+      this.componentDidMount = this.componentDidMount.bind(this);
   };
 
   loadElements(cy) {
@@ -153,6 +155,8 @@ class Graph extends Component {
           this.removeClass("unread-riseabove");
           this.addClass("read-riseabove");
         } else if(type === "note"){
+
+           ref.props.openContribution(kfId,"write")
           this.removeClass("unread-note");
           this.addClass("read-note");
         }
@@ -225,4 +229,17 @@ class Graph extends Component {
   }
 }
 
-export default Graph
+const mapStateToProps = (state, ownProps) => {
+    return {
+        author: state.globals.author,
+    }
+}
+
+const mapDispatchToProps = {
+    openContribution,
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Graph)
