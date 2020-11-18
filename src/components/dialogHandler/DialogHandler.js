@@ -3,7 +3,7 @@ import Dialog from '../dialog/Dialog.js';
 import Note from '../note/Note.js';
 import { useSelector, useDispatch } from 'react-redux';
 import {closeDialog, closeDrawDialog, focusDialog } from '../../store/dialogReducer.js'
-import {removeNote, addDrawing, postContribution} from '../../store/noteReducer.js'
+import {removeNote, addDrawing, postContribution, buildOnNote} from '../../store/noteReducer.js'
 import DrawDialog from '../drawDialog/DrawDialog.js'
 
 const DialogHandler = props => {
@@ -47,6 +47,14 @@ const DialogHandler = props => {
         [dispatch]
     );
 
+    const onBuildOnClick = useCallback(
+        (noteId) => {
+            console.log("build on note" + noteId);
+            dispatch(buildOnNote(noteId));
+        },
+        [dispatch]
+    );
+
     return (
         <div>{
             dialogs.dialogs.map((elt, i) =>
@@ -58,9 +66,12 @@ const DialogHandler = props => {
                         onClose={()=>onDialogClose(elt)}
                         onConfirm={()=> onDialogConfirm(elt)}
                         confirmButton={elt.confirmButton}
-                        editable={elt.mode==="write"}>
+                        editable={elt.editable}
+                        buildon={elt.buildOn}
+                        onBuildOnClick={()=>onBuildOnClick(elt.noteId)}
+                >
 
-                    <Note key={elt.noteId} dlgId={elt.id} noteId={elt.noteId} mode={elt.mode}/>
+                    <Note key={elt.noteId} dlgId={elt.id} noteId={elt.noteId} mode={elt.editable? "write": "read"}/>
                 </Dialog>
             )
         }

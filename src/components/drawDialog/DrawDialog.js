@@ -76,6 +76,7 @@ class DrawDialog extends React.Component {
                 style={{zIndex: 3000}}
                 onClose={this.props.onClose}
                 onConfirm={this.onConfirm}
+                editable={true}
                 confirmButton='Add'>
 
 

@@ -234,12 +234,15 @@ export const newNote = (view, communityId, authorId, buildson) => dispatch => {
             title: 'New Note',
             confirmButton: 'create',
             noteId: note._id,
-            mode: "write", // new note should open in write tab
+            editable: true, // new note should open in write tab
         }))
     })
 
 }
-
+export const buildOnNote = (noteId) => (dispatch, getState )=> {
+    const state = getState()
+    dispatch(newNote(state.globals.view, state.globals.communityId, state.globals.author._id, noteId))
+}
 export const editSvgDialog = (noteId, svg) => dispatch => {
     dispatch(editSvg({ noteId, svg }))
     dispatch(openDrawDialog(noteId))
@@ -317,12 +320,12 @@ export const fetchRecords = (contribId) => async (dispatch, getState) => {
     dispatch(setRecords({ contribId, records }))
 }
 
-export const openContribution = (contribId, mode) => async (dispatch, getState) => {
+export const openContribution = (contribId) => async (dispatch, getState) => {
 
     const [contrib, fromLinks, toLinks] = await Promise.all([api.getObject(contribId),
     api.getLinks(contribId, 'from'),
     api.getLinks(contribId, 'to')])
-
+    const author = getState().globals.author;
     const note = { attachments: [], fromLinks, toLinks, records: [], annos: {}, ...contrib }
     const noteBody = preProcess(note.data.body, toLinks, fromLinks)
     note.data.body = noteBody
@@ -332,7 +335,8 @@ export const openContribution = (contribId, mode) => async (dispatch, getState) 
         title: 'Edit Note',
         confirmButton: 'edit',
         noteId: note._id,
-        mode: mode || "write", // read or write tab
+        editable: author && (note.authors.includes(author._id) || author.role === "manager"), // read or write tab
+        buildOn: true
     }))
     //annotations
     const annoLinks = toLinks.filter((link) => link.type === 'annotates')

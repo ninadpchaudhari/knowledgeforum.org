@@ -65,7 +65,7 @@ class ScaffoldSelect extends React.Component {
                     <Col className='p-0'>
                         <Form>
                             <Form.Group className='mb-1' controlId="exampleForm.ControlSelect2">
-                                <Form.Control size='sm' as="select" onChange={this.onSelectChange}>
+                                <Form.Control className="scaffold-select-input" size='sm' as="select" onChange={this.onSelectChange}>
                                     {options}
                                 </Form.Control>
                             </Form.Group>

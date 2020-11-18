@@ -8,3 +8,9 @@
 .wordcount-bar {
     border: 1px solid #ccc;
 }
+.write-title-form{
+    margin-bottom: 0.5rem;
+}
+.write-tab-input{
+    height: 1.3rem;
+}

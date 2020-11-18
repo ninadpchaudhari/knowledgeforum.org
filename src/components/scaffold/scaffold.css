@@ -20,3 +20,8 @@
     color: #000000;
     background-color: #E48E00;
 }
+.scaffold-select-input{
+    padding:0;
+    height: 1.3rem;
+    font-size: 0.7rem;
+}

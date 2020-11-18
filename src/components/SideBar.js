@@ -8,7 +8,7 @@ const SideBar = props => {
     const dispatch = useDispatch();
     return(
         <div className="row">
-            <Col className="ml-0 pl-0" md="12" sm="2" xs="2">
+            <Col className="ml-0 pl-2" md="12" sm="2" xs="2">
                 <DropdownButton className="circle-button" drop="right" variant="outline-info" title={<i className="fas fa-plus-circle"></i>}>
 
                     <Dropdown.Item onClick={() => dispatch(newNote(props.view, props.communityId, props.author._id))}>

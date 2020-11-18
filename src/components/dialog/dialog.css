@@ -1,6 +1,9 @@
-.dlg-confirm-button {
+.dlg-button {
     float: right;
-    font-size: 0.6rem;
+    font-size: 0.8rem !important;
+    padding: 0 !important;
+    height: 1.5rem;
+    margin-left: 0.5rem;
 }
 
 .dlg-card {
@@ -13,10 +16,11 @@
     cursor: move; /* fallback if grab cursor is unsupported */
     cursor: -moz-grab;
     cursor: -webkit-grab;
+    height: 25px;
 }
 
 .dlg-card-body {
-    padding: 0 0.5rem;
+    padding: 0 0.5rem !important;
 }
 
 .dlg-card-body > div{

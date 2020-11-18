@@ -40,8 +40,9 @@ class WriteTab extends React.Component {
             <Container className='write-container p-0'>
                     <Row>
                         <Col>
-                            <Form.Group controlId="note-title">
+                            <Form.Group className="write-title-form" controlId="note-title">
                                 <Form.Control type="text"
+                                              className="write-tab-input"
                                               size="sm"
                                               placeholder="Enter title"
                                               value={note.title}
