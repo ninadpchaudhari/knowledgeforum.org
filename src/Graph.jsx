@@ -68,12 +68,28 @@ class Graph extends Component {
       var nodes = new Map();
       var si = cy.supportimages();
       si._private.supportImages = []; // clear the support images extension
-      var cy_elements = {nodes: [], edges: []};
 
-      addNodesToGraph(ref, ref.state.token, cy_elements, si, nodes, result[0], result[2], result[3]);
-      addEdgesToGraph(ref, cy_elements, nodes, result[1]);
 
-      this.setState({elements: cy_elements});
+      var graph_nodes = addNodesToGraph(ref.state.server, ref.state.token, si, nodes, result[0], result[2], result[3]);
+      var graph_edges = addEdgesToGraph(nodes, result[1]);
+      var self = this;
+
+      Promise.all(graph_nodes.concat(graph_edges)).then((graph_results) => {
+        var cy_elements = {nodes: [], edges: []};
+        for(let i = 0; i < graph_results.length; i++){
+          if(graph_results[i].group === "nodes"){
+            cy_elements.nodes.push(graph_results[i]);
+          } else if(graph_results[i].group === "edges"){
+            cy_elements.edges.push(graph_results[i]);
+          } else if(graph_results[i].url){
+            si.addSupportImage(graph_results[i]);
+          }
+        }
+
+        si.notify({type: 'render'});
+        self.setState({elements: cy_elements});
+      });
+
     });
   }
 
