@@ -14,6 +14,7 @@ import {addNodesToGraph} from './helper/Graph_helper.js';
 import {addEdgesToGraph} from './helper/Graph_helper.js';
 import {postReadStatus} from './api/link.js';
 import { openContribution } from './store/noteReducer.js'
+import { setViewId } from './store/globalsReducer.js'
 import './css/cytoscape.js-panzoom.css';
 import './css/Graph.css';
 
@@ -152,7 +153,8 @@ class Graph extends Component {
         console.log("attachment");
       } else if(this.hasClass("view")){
         ref.setState({viewId: kfId});
-        ref.loadElements(cy);
+          ref.props.setViewId(kfId)
+          /* ref.loadElements(cy); */
       } else {
         if(type === "riseabove"){
           this.removeClass("unread-riseabove");
@@ -245,6 +247,7 @@ const mapStateToProps = (state, ownProps) => {
 }
 
 const mapDispatchToProps = {
+    setViewId,
     openContribution,
 }
 
