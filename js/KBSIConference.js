@@ -4,8 +4,8 @@
 const USERNAME = "demo1";
 const PASSWORD = "demo1";
 const SERVER = getServerURL("IKIT Stage");
-const COMMUNITYID = "5e99d2d76e7e6d076a550c20"
-var viewId = sessionStorage.getItem("viewId") === null ? "5e99d2d76e7e6d076a550c23" : sessionStorage.getItem("viewId");
+const COMMUNITYID = "5f95b3702123f08ccf5edd84"
+var viewId = sessionStorage.getItem("viewId") === null ? "5f95b3702123f08ccf5edd87" : sessionStorage.getItem("viewId");
 
 $(document).ready(function() {
   var cytoscape = require('cytoscape');
@@ -83,22 +83,23 @@ $(document).ready(function() {
 
   // CYTOSCAPE-NODE-HTML-LABEL EXTENSION
   cy.nodeHtmlLabel([
-    // {
-    //   query: 'node',
-    //   halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-    //   valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-    //   halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-    //   valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-    //   cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
-    //   tpl: function(data){
-    //     // we only want author and creation date listed for notes
-    //     if(data.type === 'note' || data.type == 'riseabove' || data.type == 'Attachment'){
-    //       return '<div>' + data.author + '<br>' + data.date + '</div>';
-    //     } else {
-    //       return '';
-    //     }
-    //   }
-    // },
+    {
+      query: 'node',
+      halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
+      valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+      halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
+      valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+      cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+      tpl: function(data){
+        // we only want author and creation date listed for notes
+        if(data.type === 'note' || data.type == 'riseabove' || data.type == 'Attachment'){
+          return '<div>' + data.author + '</div>';
+          //return '<div>' + data.author + '<br>' + data.date + '</div>';
+        } else {
+          return '';
+        }
+      }
+    },
   ]);
 
   // CYTOSCAPE-PANZOOM EXTENSION
@@ -180,7 +181,7 @@ $(document).ready(function() {
           this.addClass("read-note");
         }
 
-        postReadStatus(token, SERVER, COMMUNITYID, kfId);
+        //postReadStatus(token, SERVER, COMMUNITYID, kfId);
       }
     });
 

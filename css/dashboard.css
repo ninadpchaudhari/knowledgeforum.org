@@ -83,6 +83,22 @@ body {
   color: #203c66 !important;
 }
 
+.kbsiconference {
+  border: 1px solid #203c66;
+  border-radius: 4px;
+  padding: 5px;
+  margin-left: 20px;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #203c66;
+}
+
+.kbsiconference:hover {
+  text-decoration: none;
+  border: 1px solid #5d98f0;
+  color: #5d98f0;
+}
+
 #page-content-wrapper {
   background-color: rgba(255, 255, 255, 0.95);
 }
