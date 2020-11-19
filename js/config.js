@@ -4,9 +4,9 @@
 */
 const SERVERS = [
   {name:"IKIT Stage", url:"https://kf6-stage.ikit.org/"},
-  {name:"Albany Stage", url:"https://kf6-stage.rit.albany.edu/"},
+  //{name:"Albany Stage", url:"https://kf6-stage.rit.albany.edu/"},
   {name:"IKIT", url:"https://kf6.ikit.org/"},
-  {name:"Albany", url:"https://kf6.rit.albany.edu/"},
+  //{name:"Albany", url:"https://kf6.rit.albany.edu/"},
   {name:"Singapore", url:"https://kf.rdc.nie.edu.sg/"},
   //{name:"Local", url:"http://localhost:9000/"}
 ];
