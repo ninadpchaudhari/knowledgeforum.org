@@ -271,9 +271,7 @@ const USERNAME = "demo1";
 const PASSWORD = "demo1";
 const SERVER = getServerURL("IKIT Stage");
 const COMMUNITYID = "5f95b3702123f08ccf5edd84"
-document.referrer = "https://light.knowledgeforum.org/#/";
-console.log("https://light.knowledgeforum.org/#/".includes("light"));
-var viewId = document.referrer.indexOf("light") > 0 ? window.location.search.split("=")[1] : sessionStorage.getItem("viewId");
+var viewId = document.referrer.includes("light") ? window.location.search.split("=")[1] : sessionStorage.getItem("viewId");
 
 $(document).ready(function() {
   var cytoscape = require('cytoscape');
@@ -462,9 +460,6 @@ $(document).ready(function() {
       cy.layout({name: this.getAttribute("value")}).run();
     });
   }
-
-  console.log(document.referrer);
-
 });
 
 
