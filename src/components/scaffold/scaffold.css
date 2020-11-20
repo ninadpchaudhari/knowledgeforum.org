@@ -1,0 +1,27 @@
+
+.KFSupportButton {
+    margin: 0.0625rem 0.125rem 0.0625rem !important;
+    cursor: pointer !important;
+    border: 0.0625rem solid !important;
+    border-color: #efb137 !important;
+    border-radius: 0.5625rem !important;
+    padding: 0rem 0.4375rem 0rem 0.4375rem !important;
+    /*width: 6.25rem;*/
+    overflow: hidden;
+    text-align: center !important;
+    font-size: 0.81em !important;
+    height: 1.2rem !important;
+}
+.KFSupportButton:hover {
+    color: #FFFFFF;
+    background-color: #E48E00;
+}
+.KFSupportButton:active {
+    color: #000000;
+    background-color: #E48E00;
+}
+.scaffold-select-input{
+    padding:0;
+    height: 1.3rem;
+    font-size: 0.7rem;
+}

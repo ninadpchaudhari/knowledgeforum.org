@@ -1,0 +1,9 @@
+#sticky-sidebar{
+    padding-top: 1rem;
+    flex: 0 0 4%;
+    max-width: 4%;
+}
+#main-canvas{
+    flex: 0 0 96%;
+    max-width: 96%;
+}

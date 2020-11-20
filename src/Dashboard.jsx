@@ -30,6 +30,7 @@ class Dashboard extends Component {
       joinCommunityErrorMessage: null,
       viewType: {value: 'Classic', label: 'Classic'}
     }
+      this.enterCommunity = this.enterCommunity.bind(this);
   }
 
   inputChangeHandler = (event) => {
@@ -77,6 +78,14 @@ class Dashboard extends Component {
   componentDidMount() {
     appendUserServers(this);
   }
+    enterCommunity(c){
+        localStorage.setItem("cToken", c.token)
+        localStorage.setItem("cServer", c.server)
+        localStorage.setItem("cCommunityId", c.communityId)
+        localStorage.setItem("cViewId", c.welcomeViewId)
+        this.props.history.push("/graph")
+    }
+
 
   render(){
     let viewToRender;
@@ -91,17 +100,18 @@ class Dashboard extends Component {
       viewToRender = this.state.userCommunityData.map((c) =>
         <li>
             <p>{c.title}</p>
-            <Link style={{ color: 'inherit', textDecoration: 'inherit'}} to={{
-              pathname: '/graph',
-              state: {
+
+            <button className="dashboard-enterButton" type="button" onClick={() => this.enterCommunity(c)}>
+                <i className="far fa-arrow-alt-circle-right"></i></button>
+            {/* <Link style={{ color: 'inherit', textDecoration: 'inherit'}} to={{
+                pathname: '/graph',
+                state: {
                 token: c.token,
                 server: c.server,
                 communityId: c.communityId,
                 viewId: c.welcomeViewId
-              }}} target="_blank">
-              <button className="dashboard-enterButton" type="button">
-              <i className="far fa-arrow-alt-circle-right"></i></button>
-            </Link>
+                }}} target="_blank">
+                </Link> */}
         </li>);
     }
 
@@ -132,7 +142,7 @@ class Dashboard extends Component {
           <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom dashboard-navbar">
             <button className="d-none d-md-block btn btn-primary dashboard-select-server" id="menu-toggle" onClick={toggleSidebar}>Select Server</button>
             <button className="d-md-none btn btn-primary dashboard-select-server" id="menu-toggle" onClick={toggleSidebar}><i className="fas fa-server"></i></button>
-            <div class="dashboard-currentInfo" id="currentInfo">{this.state.name}<div></div>{this.state.currentServerName}</div>
+            <div className="dashboard-currentInfo" id="currentInfo">{this.state.name}<div></div>{this.state.currentServerName}</div>
 
             <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
@@ -141,7 +151,7 @@ class Dashboard extends Component {
             <div className="collapse navbar-collapse" id="navbarSupportedContent">
               <ul className="navbar-nav ml-auto mt-2 mt-lg-0">
                 <li className="nav-item">
-                  <a className="nav-link dashboard-nav-link" href="" id="logout" onClick={() => logout(this)}>Logout</a>
+                  <button className="nav-link dashboard-nav-link btn btn-link" href="" id="logout" onClick={() => logout(this)}>Logout</button>
                 </li>
               </ul>
             </div>
@@ -161,7 +171,7 @@ class Dashboard extends Component {
                 <h1>Join Community</h1>
                 <form className="col-lg-8 col-md-10 col-sm-12 dashboard-joinCommunityForm" id = "joinCommunityForm">
 
-                  <label for="server">Community:</label><br></br>
+                  <label htmlFor="server">Community:</label><br></br>
                   <Select value={this.state.selectedCommunityToJoin}
                           className="dashboard-communityChoiceDropdown"
                           id="communityChoiceDropdown"
@@ -170,7 +180,7 @@ class Dashboard extends Component {
                           required>
                   </Select><br></br>
 
-                  <label for="communityKey">Community Registration Key:</label><br></br>
+                  <label htmlFor="communityKey">Community Registration Key:</label><br></br>
                   <input className="dashboard-communityKeyInput" type="text" id="communityKey" name="communityRegistrationKey" required onChange={this.inputChangeHandler}></input><br></br>
 
                   <div>

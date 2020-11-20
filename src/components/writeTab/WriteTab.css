@@ -1,0 +1,16 @@
+
+.write-container {
+    /* padding: 0; */
+}
+.col-scaffold {
+    /* padding-right: 0; */
+}
+.wordcount-bar {
+    border: 1px solid #ccc;
+}
+.write-title-form{
+    margin-bottom: 0.5rem;
+}
+.write-tab-input{
+    height: 1.3rem;
+}

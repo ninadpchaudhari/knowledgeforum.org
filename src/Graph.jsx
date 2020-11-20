@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import { connect } from 'react-redux'
 import Cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
 import CytoscapePanZoom from 'cytoscape-panzoom';
@@ -11,8 +12,9 @@ import {getApiLinksReadStatus} from './api/link.js';
 import {getCommunityAuthors} from './api/community.js';
 import {addNodesToGraph} from './helper/Graph_helper.js';
 import {addEdgesToGraph} from './helper/Graph_helper.js';
-import {postReadStatus} from './api/link.js';
-
+import {postReadStatus} from './store/api.js'
+import { openContribution } from './store/noteReducer.js'
+import { setViewId } from './store/globalsReducer.js'
 import './css/cytoscape.js-panzoom.css';
 import './css/Graph.css';
 
@@ -31,27 +33,13 @@ Cytoscape.use(CytoscapeSupportImages);
 
 class Graph extends Component {
   constructor(props) {
-    super(props);
-    
-    if(props.isDemo){
+      super(props);
       this.state = {
-        token: this.props.token,
-        server: this.props.server,
-        communityId: this.props.communityId,
-        viewId: this.props.viewId,
-        elements: {nodes: [], edges: []},
+          elements: {nodes: [], edges: []},
       };
-    } else {
-      this.state = {
-        token: this.props.location.state.token,
-        server: this.props.location.state.server,
-        communityId: this.props.location.state.communityId,
-        viewId: this.props.location.state.viewId,
-        elements: {nodes: [], edges: []},
-      };
-    }
-
-    this.loadElements = this.loadElements.bind(this);
+      this.loadElements = this.loadElements.bind(this);
+      this.componentDidMount = this.componentDidMount.bind(this);
+      this.refreshElements = this.refreshElements.bind(this);
   };
 
   loadElements(cy, si) {
@@ -62,37 +50,40 @@ class Graph extends Component {
     var ref = this;
 
     Promise.all([promise, promise1, promise2, promise3]).then((result) => {
-
-      // we keep a map with (key, value) of (kfId, count) in order to create duplicate notes with unique ids
-      // simply append the count to the end of their note id
-      var nodes = new Map();
-
-      // clear the support images extension
-      si._private.supportImages = [];
-      si._private.renderer.imageCache = {};
-
-      var graph_nodes = addNodesToGraph(ref.state.server, ref.state.token, si, nodes, result[0], result[2], result[3]);
-      var graph_edges = addEdgesToGraph(nodes, result[1]);
-      var self = this;
-
-      Promise.all(graph_nodes.concat(graph_edges)).then((graph_results) => {
-        var cy_elements = {nodes: [], edges: []};
-        for(let i = 0; i < graph_results.length; i++){
-          if(graph_results[i].group === "nodes"){
-            cy_elements.nodes.push(graph_results[i]);
-          } else if(graph_results[i].group === "edges"){
-            cy_elements.edges.push(graph_results[i]);
-          } else if(graph_results[i].url){
-            si.addSupportImage(graph_results[i]);
-          }
-        }
-
-        si.notify({type: 'render'});
-        self.setState({elements: cy_elements});
-      });
-
+        ref.refreshElements(...result)
     });
   }
+
+    refreshElements(viewLinks, buildsons, reads, authors){
+        if (this.cy){
+            console.log("refresh elements")
+            var nodes = new Map();
+            var si = this.cy.supportimages();
+            // clear the support images extension
+            si._private.supportImages = [];
+            si._private.renderer.imageCache = {};
+
+            const graph_nodes = addNodesToGraph(this, this.state.token, si, nodes, viewLinks, reads, authors);
+            const graph_edges = addEdgesToGraph(nodes, buildsons);
+
+            const self = this;
+            Promise.all(graph_nodes.concat(graph_edges)).then((graph_results) => {
+                var cy_elements = {nodes: [], edges: []};
+                for(let i = 0; i < graph_results.length; i++){
+                    if(graph_results[i].group === "nodes"){
+                        cy_elements.nodes.push(graph_results[i]);
+                    } else if(graph_results[i].group === "edges"){
+                        cy_elements.edges.push(graph_results[i]);
+                    } else if(graph_results[i].url){
+                        si.addSupportImage(graph_results[i]);
+                    }
+                }
+
+                si.notify({type: 'render'});
+                self.setState({elements: cy_elements});
+            });
+        }
+    }
 
   componentDidMount() {
     var cy = this.cy;
@@ -149,45 +140,70 @@ class Graph extends Component {
     ]);
 
     // CYTOSCAPE SUPPORTIMAGES EXTENSION
-    var si = cy.supportimages();
+      /* var si = cy.supportimages(); */
 
-    this.loadElements(cy, si);
+      /* this.loadElements(cy, si); */
 
     var ref = this;
     // on single click of node log its kf id and mark it as read
     cy.on('tap', 'node', function(event){
       var kfId = this.data('kfId');
       var type = this.data('type');
-      console.log(this);
-      console.log(kfId);
 
       if(this.hasClass("image")){
         console.log("image");
       } else if(this.hasClass("attachment")){
         console.log("attachment");
       } else if(this.hasClass("view")){
-        ref.setState({viewId: kfId});
-        ref.loadElements(cy, si);
+          ref.setState({viewId: kfId});
+          ref.props.setViewId(kfId)
+          /* ref.loadElements(cy); */
       } else {
         if(type === "riseabove"){
           this.removeClass("unread-riseabove");
           this.addClass("read-riseabove");
         } else if(type === "note"){
+          ref.props.openContribution(kfId,"write")
           this.removeClass("unread-note");
           this.addClass("read-note");
         }
-        postReadStatus(ref.state.token, ref.state.server, ref.state.communityId, kfId);
+        postReadStatus(ref.props.communityId, kfId);
       }
     });
 
   }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.viewLinks.length !== prevProps.viewLinks.length ||
+            this.props.buildsOn.length !== prevProps.buildsOn.length ||
+            this.props.reads.length !== prevProps.reads.length ||
+            this.props.authors !== prevProps.authors
+        ) {
+            /* if (this.props.viewLinks.length !== prevProps.viewLinks.length ){
+             *     console.log("view links updated")
+             * }else if (
+             *     this.props.buildsOn.length !== prevProps.buildsOn.length 
+             * ){
+             *     console.log("buildson updated")
+             * }else if (this.props.reads.length !== prevProps.reads.length){
+             *     console.log("reads updated")
+             * }else{
+             *     console.log("authors updated")
+             * } */
+            if(this.props.reads.length > 0){
+                this.refreshElements(this.props.viewLinks, this.props.buildsOn, this.props.reads, Object.values(this.props.authors));
+            }
+        }
+
+    }
+
   render() {
+
     return(
-          <CytoscapeComponent
+           <CytoscapeComponent
           cy={(cy) => { this.cy = cy }}
           style={ { width: '100%', height: '100vh' } }
-          elements={CytoscapeComponent.normalizeElements(this.state.elements)}
+               elements={CytoscapeComponent.normalizeElements(this.state.elements)}
           stylesheet={ [
             {
               selector: 'node',
@@ -240,8 +256,29 @@ class Graph extends Component {
           wheelSensitivity={ 0.15 }
           minZoom={ MINZOOM }
           maxZoom={ MAXZOOM }
-          />);
+          />
+          );
   }
 }
 
-export default Graph
+const mapStateToProps = (state, ownProps) => {
+    return {
+        author: state.globals.author,
+        authors: state.users,
+        viewLinks: state.notes.viewLinks,
+        buildsOn: state.notes.buildsOn,
+        reads: state.notes.readLinks,
+        viewId: state.globals.viewId,
+        communityId: state.globals.communityId
+    }
+}
+
+const mapDispatchToProps = {
+    setViewId,
+    openContribution,
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Graph)

@@ -1,0 +1,46 @@
+.dlg-button {
+    float: right;
+    font-size: 0.8rem !important;
+    padding: 0 !important;
+    height: 1.5rem;
+    margin-left: 0.5rem;
+}
+
+.dlg-card {
+    width: 100%;
+    font-size: 0.8rem;
+}
+
+.dlg-card-header {
+    padding: 0 1.25rem;
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+    height: 25px;
+}
+
+.dlg-card-body {
+    padding: 0 0.5rem !important;
+}
+
+.dlg-card-body > div{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.dlg-card-footer {
+    padding: 0 1.25rem;
+    background-color: white;
+}
+.form-control-sm {
+    height: calc(1.5em + .1rem + 2px);
+    padding: .25rem .5rem;
+    font-size: .8rem;
+    line-height: 1.5;
+    border-radius: .2rem;
+}
+
+.nav-tabs .nav-link {
+    padding: .3rem 1rem;
+}

@@ -63,6 +63,8 @@ class Login extends Component {
     var demoTokenPromise = getUserToken("demo1", "demo1", this.state.demoServer);
     demoTokenPromise.then(function(result) {
       ref.setState({demoToken: result.token});
+        /* var demoGraph = (<Graph style={{width: '100%', height: '100%'}} isDemo={true} token={ref.state.demoToken} server={ref.state.demoServer} communityId={ref.state.demoCommunityId} viewId={ref.state.demoViewId}/>); */
+      //ref.setState({demoComponent: demoGraph});
     });
 
   }
@@ -92,10 +94,10 @@ class Login extends Component {
 
                     <div className = "login-checkbox-wrapper">
                       <input type="checkbox" id="refreshCheckbox" name="refreshCheckbox"></input>
-                      <label for="refreshCheckbox">Refresh my servers on login?</label>
-                      <a id="popover" tabindex="0" role="button" data-toggle="popover"
+                      <label htmlFor="refreshCheckbox">Refresh my servers on login?</label>
+                      <span id="popover" tabIndex="0" role="button" data-toggle="popover"
                         data-trigger="hover" data-content="Check this box if you have registered to any new knowledge forums servers since your last login.">
-                      <i className="far fa-question-circle"></i></a>
+                      <i className="far fa-question-circle"></i></span>
                     </div>
 
                     <div>
