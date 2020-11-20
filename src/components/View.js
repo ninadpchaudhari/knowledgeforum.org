@@ -23,9 +23,9 @@ class View extends Component {
         setToken(token);
 
         this.props.fetchLoggedUser()
-        if (this.props.viewId) {
-            this.props.fetchViewCommunityData(this.props.viewId)
-        }
+        /* if (this.props.viewId) {
+         *     this.props.fetchViewCommunityData(this.props.viewId)
+         * } */
         /* const viewId = this.props.match.params.viewId //Get viewId from url param */
         this.props.setViewId(viewId)
         this.setState(this.props.location.state);

@@ -15,9 +15,9 @@ const SideBar = props => {
                         New Note
                     </Dropdown.Item>
 
-                    <Dropdown.Item onClick={() => console.log("new view")}>
+                    {/* <Dropdown.Item onClick={() => console.log("new view")}>
                         new View
-                    </Dropdown.Item>
+                        </Dropdown.Item> */}
                 </DropdownButton>
             </Col>
         </div>
