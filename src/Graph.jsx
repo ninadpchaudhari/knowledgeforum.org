@@ -12,9 +12,9 @@ import {getApiLinksReadStatus} from './api/link.js';
 import {getCommunityAuthors} from './api/community.js';
 import {addNodesToGraph} from './helper/Graph_helper.js';
 import {addEdgesToGraph} from './helper/Graph_helper.js';
-import {postReadStatus} from './store/api.js'
-import { openContribution } from './store/noteReducer.js'
-import { setViewId } from './store/globalsReducer.js'
+import {postReadStatus} from './store/api.js';
+import { openContribution } from './store/noteReducer.js';
+import { setViewId } from './store/globalsReducer.js';
 import './css/cytoscape.js-panzoom.css';
 import './css/Graph.css';
 
@@ -54,36 +54,36 @@ class Graph extends Component {
     });
   }
 
-    refreshElements(viewLinks, buildsons, reads, authors){
-        if (this.cy){
-            console.log("refresh elements")
-            var nodes = new Map();
-            var si = this.cy.supportimages();
-            // clear the support images extension
-            si._private.supportImages = [];
-            si._private.renderer.imageCache = {};
+  refreshElements(viewLinks, buildsons, reads, authors){
+      if (this.cy){
+          console.log("refresh elements")
+          var nodes = new Map();
+          var si = this.cy.supportimages();
+          // clear the support images extension
+          si._private.supportImages = [];
+          si._private.renderer.imageCache = {};
 
-            const graph_nodes = addNodesToGraph(this, this.state.token, si, nodes, viewLinks, reads, authors);
-            const graph_edges = addEdgesToGraph(nodes, buildsons);
+          const graph_nodes = addNodesToGraph(this, this.state.token, si, nodes, viewLinks, reads, authors);
+          const graph_edges = addEdgesToGraph(nodes, buildsons);
 
-            const self = this;
-            Promise.all(graph_nodes.concat(graph_edges)).then((graph_results) => {
-                var cy_elements = {nodes: [], edges: []};
-                for(let i = 0; i < graph_results.length; i++){
-                    if(graph_results[i].group === "nodes"){
-                        cy_elements.nodes.push(graph_results[i]);
-                    } else if(graph_results[i].group === "edges"){
-                        cy_elements.edges.push(graph_results[i]);
-                    } else if(graph_results[i].url){
-                        si.addSupportImage(graph_results[i]);
-                    }
-                }
+          const self = this;
+          Promise.all(graph_nodes.concat(graph_edges)).then((graph_results) => {
+              var cy_elements = {nodes: [], edges: []};
+              for(let i = 0; i < graph_results.length; i++){
+                  if(graph_results[i].group === "nodes"){
+                      cy_elements.nodes.push(graph_results[i]);
+                  } else if(graph_results[i].group === "edges"){
+                      cy_elements.edges.push(graph_results[i]);
+                  } else if(graph_results[i].url){
+                      si.addSupportImage(graph_results[i]);
+                  }
+              }
 
-                si.notify({type: 'render'});
-                self.setState({elements: cy_elements});
-            });
-        }
-    }
+              si.notify({type: 'render'});
+              self.setState({elements: cy_elements});
+          });
+      }
+  }
 
   componentDidMount() {
     var cy = this.cy;
@@ -140,9 +140,9 @@ class Graph extends Component {
     ]);
 
     // CYTOSCAPE SUPPORTIMAGES EXTENSION
-      /* var si = cy.supportimages(); */
+    var si = cy.supportimages();
 
-      /* this.loadElements(cy, si); */
+    //this.loadElements(cy, si);
 
     var ref = this;
     // on single click of node log its kf id and mark it as read
@@ -173,29 +173,28 @@ class Graph extends Component {
 
   }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.viewLinks.length !== prevProps.viewLinks.length ||
-            this.props.buildsOn.length !== prevProps.buildsOn.length ||
-            this.props.reads.length !== prevProps.reads.length ||
-            this.props.authors !== prevProps.authors
-        ) {
-            /* if (this.props.viewLinks.length !== prevProps.viewLinks.length ){
-             *     console.log("view links updated")
-             * }else if (
-             *     this.props.buildsOn.length !== prevProps.buildsOn.length 
-             * ){
-             *     console.log("buildson updated")
-             * }else if (this.props.reads.length !== prevProps.reads.length){
-             *     console.log("reads updated")
-             * }else{
-             *     console.log("authors updated")
-             * } */
-            if(this.props.reads.length > 0){
-                this.refreshElements(this.props.viewLinks, this.props.buildsOn, this.props.reads, Object.values(this.props.authors));
-            }
-        }
-
-    }
+  componentDidUpdate(prevProps, prevState) {
+      if (this.props.viewLinks.length !== prevProps.viewLinks.length ||
+          this.props.buildsOn.length !== prevProps.buildsOn.length ||
+          this.props.reads.length !== prevProps.reads.length ||
+          this.props.authors !== prevProps.authors
+      ) {
+          /* if (this.props.viewLinks.length !== prevProps.viewLinks.length ){
+           *     console.log("view links updated")
+           * }else if (
+           *     this.props.buildsOn.length !== prevProps.buildsOn.length
+           * ){
+           *     console.log("buildson updated")
+           * }else if (this.props.reads.length !== prevProps.reads.length){
+           *     console.log("reads updated")
+           * }else{
+           *     console.log("authors updated")
+           * } */
+          if(this.props.reads.length > 0){
+              this.refreshElements(this.props.viewLinks, this.props.buildsOn, this.props.reads, Object.values(this.props.authors));
+          }
+      }
+  }
 
   render() {
 
@@ -203,7 +202,7 @@ class Graph extends Component {
            <CytoscapeComponent
           cy={(cy) => { this.cy = cy }}
           style={ { width: '100%', height: '100vh' } }
-               elements={CytoscapeComponent.normalizeElements(this.state.elements)}
+          elements={CytoscapeComponent.normalizeElements(this.state.elements)}
           stylesheet={ [
             {
               selector: 'node',

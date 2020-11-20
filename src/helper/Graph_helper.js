@@ -1,4 +1,4 @@
-import {getApiObjectsObjectId} from '../api/object.js';
+import {getObject} from '../store/api.js';
 
 // adds the notes to the cytoscape graph
 // parameters are token, cytoscape instance, cytoscape-supportimage instance, notes map, getApiLinksFromViewId, getApiLinksReadStatus, and getCommunityAuthors results
@@ -95,7 +95,7 @@ function handleAttachment(server, token, si, nodes, nodeData, authorData){
   var date = parseDate(nodeData.created);
   var id = createCytoscapeId(nodes, nodeData.to);
 
-  return getApiObjectsObjectId(token, server, nodeData.to).then(function(result){
+  return getObject(token, server, nodeData.to).then(function(result){
     if(String(result.data.type).substring(0,5) === "image"){
       var imageUrl =  (server + String(result.data.url).substring(1,)).replace(/\s/g,"%20");
 
@@ -143,7 +143,7 @@ function handleAttachment(server, token, si, nodes, nodeData, authorData){
 // handles adding drawings to the cytoscape instance
 function handleDrawing(server, token, si, nodes, nodeData, authorData){
 
-  return getApiObjectsObjectId(token, server, nodeData.to).then(function(result){
+  return getObject(nodeData.to).then(function(result){
     var parser = new DOMParser();
     var doc = parser.parseFromString(result.data.svg, "image/svg+xml");
 
