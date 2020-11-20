@@ -271,7 +271,12 @@ const USERNAME = "demo1";
 const PASSWORD = "demo1";
 const SERVER = getServerURL("IKIT Stage");
 const COMMUNITYID = "5f95b3702123f08ccf5edd84"
-var viewId = document.referrer.includes("light") ? window.location.search.split("=")[1] : sessionStorage.getItem("viewId");
+var viewId = "5f95b3702123f08ccf5edd87";
+if(document.referrer.includes("light")){
+  viewId = window.location.search.split("=")[1];
+} else {
+  viewId = sessionStorage.getItem("viewId") === null ? "5f95b3702123f08ccf5edd87" : sessionStorage.getItem("viewId");
+}
 
 $(document).ready(function() {
   var cytoscape = require('cytoscape');
