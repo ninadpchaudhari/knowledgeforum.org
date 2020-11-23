@@ -1,13 +1,12 @@
 import React, {Component} from 'react';
+import { connect } from 'react-redux'
 import Select from 'react-select';
 import { Link } from 'react-router-dom';
 
+import { setGlobalToken, setCurrentServer, setCommunityId, setViewId } from './store/globalsReducer.js';
+
 import $ from 'jquery';
-import {appendUserServers} from './helper/Dashboard_helper.js';
-import {loadServer} from './helper/Dashboard_helper.js';
-import {joinCommunity} from './helper/Dashboard_helper.js';
-import {toggleSidebar} from './helper/Dashboard_helper.js';
-import {logout} from './helper/Dashboard_helper.js';
+import {appendUserServers, loadServer, joinCommunity, toggleSidebar, logout} from './helper/Dashboard_helper.js';
 import {getServerURL} from './config.js';
 
 import './css/Dashboard.css';
@@ -30,7 +29,8 @@ class Dashboard extends Component {
       joinCommunityErrorMessage: null,
       viewType: {value: 'Classic', label: 'Classic'}
     }
-      this.enterCommunity = this.enterCommunity.bind(this);
+
+    this.enterCommunity = this.enterCommunity.bind(this);
   }
 
   inputChangeHandler = (event) => {
@@ -75,43 +75,41 @@ class Dashboard extends Component {
     this.setState({selectedCommunityToJoin: {value: event.value, label: event.label}});
   }
 
+  enterCommunity(c){
+    this.props.setGlobalToken(c.token);
+    this.props.setCurrentServer(c.server);
+    this.props.setCommunityId(c.communityId);
+    this.props.setViewId(c.welcomeViewId);
+
+    this.props.history.push({
+      pathname: '/graph',
+      state: {
+        token: c.token,
+        server: c.server,
+        communityId: c.communityId,
+        viewId: c.welcomeViewId
+      }});
+  }
+
   componentDidMount() {
     appendUserServers(this);
   }
-    enterCommunity(c){
-        localStorage.setItem("cToken", c.token)
-        localStorage.setItem("cServer", c.server)
-        localStorage.setItem("cCommunityId", c.communityId)
-        localStorage.setItem("cViewId", c.welcomeViewId)
-        this.props.history.push("/graph")
-    }
-
 
   render(){
     let viewToRender;
     if(this.state.viewType.value === "Classic"){
       viewToRender = this.state.userCommunityData.map((c) =>
-      <li>
+      <li key={c.communityId}>
         <p>{c.title}</p>
         <a href={c.server + 'auth/jwt?token=' + c.token + '&redirectUrl=/view/' + c.welcomeViewId} target="_blank">
         <button className="dashboard-enterButton" type="button"><i className="far fa-arrow-alt-circle-right"></i></button></a>
       </li>);
     } else if(this.state.viewType.value === "Enhanced"){
       viewToRender = this.state.userCommunityData.map((c) =>
-        <li>
+        <li key={c.communityId}>
             <p>{c.title}</p>
-
             <button className="dashboard-enterButton" type="button" onClick={() => this.enterCommunity(c)}>
-                <i className="far fa-arrow-alt-circle-right"></i></button>
-            {/* <Link style={{ color: 'inherit', textDecoration: 'inherit'}} to={{
-                pathname: '/graph',
-                state: {
-                token: c.token,
-                server: c.server,
-                communityId: c.communityId,
-                viewId: c.welcomeViewId
-                }}} target="_blank">
-                </Link> */}
+            <i className="far fa-arrow-alt-circle-right"></i></button>
         </li>);
     }
 
@@ -204,4 +202,14 @@ class Dashboard extends Component {
   }
 }
 
-export default Dashboard;
+const mapDispatchToProps = {
+    setGlobalToken,
+    setCurrentServer,
+    setCommunityId,
+    setViewId,
+}
+
+export default connect(
+    null,
+    mapDispatchToProps
+)(Dashboard)

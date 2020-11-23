@@ -6,6 +6,7 @@ import { fetchViewNotes, fetchBuildsOn, setCheckedNotes, fetchSupports, fetchRea
 export const setGlobalToken = createAction('SET_TOKEN')
 export const setCommunity = createAction('SET_COMMUNITY')
 export const setCommunityId = createAction('SET_COMMUNITY_ID')
+export const setCurrentServer = createAction('SET_CURRENT_SERVER')
 export const setViewId = createAction('SET_VIEW_ID')
 export const setLoggedUser = createAction('SET_AUTHOR')
 export const setView = createAction('SET_VIEW')
@@ -25,6 +26,7 @@ export const dateFormatOptions = {
 const initState = {
     token: sessionStorage.getItem("token"),
     communityId: null,
+    currentServer: null,
     viewId: null,
     contextId: '',
     user: null,
@@ -85,6 +87,9 @@ export const globalsReducer = createReducer(initState, {
     },
     [setCommunityId]: (state, action) => {
         state.communityId = action.payload
+    },
+    [setCurrentServer]: (state, action) => {
+        state.currentServer = action.payload
     },
     [setViewId]: (state, action) => {
         state.viewId = action.payload
