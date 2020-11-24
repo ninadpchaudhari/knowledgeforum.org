@@ -10,6 +10,10 @@ export function getUserToken(username, password, server){
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(body),
   }).then(function(response) {
+      if(response.status !== 200){
+        console.log("Error: " + server + 'auth/local');
+        console.log(response);
+      }
       return response.json();
   }).then(function(body) {
       return body;
@@ -32,6 +36,10 @@ export function getUserTokenServerPair(username, password, server){
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(body),
   }).then(function(response) {
+      if(response.status !== 200){
+        console.log("Error: " + server + 'auth/local');
+        console.log(response);
+      }
       return response.json();
   }).then(function(body) {
       return [body, server];
@@ -51,11 +59,12 @@ export function getUserInfo(token, server){
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
-      if(response.status === 200){
-        return response.json();
-      } else {
+      if(response.status !== 200 && response.status !== 304){
+        console.log("Error: " + server + "api/users/me");
+        console.log(response);
         return {error: true};
       }
+      return response.json();
   }).then(function(body) {
       return (body);
   }).catch(function(error) {
@@ -74,6 +83,10 @@ export function getUserCommunities(token, server){
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+    if(response.status !== 200){
+      console.log("Error: " + server + 'api/users/myRegistrations');
+      console.log(response);
+    }
     return response.json();
   }).then(function(body) {
       return (body);

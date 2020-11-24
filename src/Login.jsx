@@ -63,8 +63,6 @@ class Login extends Component {
     var demoTokenPromise = getUserToken("demo1", "demo1", this.state.demoServer);
     demoTokenPromise.then(function(result) {
       ref.setState({demoToken: result.token});
-        /* var demoGraph = (<Graph style={{width: '100%', height: '100%'}} isDemo={true} token={ref.state.demoToken} server={ref.state.demoServer} communityId={ref.state.demoCommunityId} viewId={ref.state.demoViewId}/>); */
-      //ref.setState({demoComponent: demoGraph});
     });
 
   }
@@ -133,7 +131,7 @@ class Login extends Component {
                       <Modal.Title>Knowledge Forum Demo</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                      <Graph style={{width: '100%', height: '100%'}} isDemo={true} token={this.state.demoToken} server={this.state.demoServer} communityId={this.state.demoCommunityId} viewId={this.state.demoViewId}/>
+                      <Graph style={{width: '100%', height: '100%'}} token={this.state.demoToken} server={this.state.demoServer} communityId={this.state.demoCommunityId} viewId={this.state.demoViewId}/>
                     </Modal.Body>
                     <Modal.Footer>
                       <Button variant="primary" onClick={this.handleClose}>

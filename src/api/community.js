@@ -7,6 +7,10 @@ export function getCommunities(token, server) {
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+      if(response.status !== 200){
+        console.log("Error: " + server + 'api/communities');
+        console.log(response);
+      }
       return response.json();
   }).then(function(body) {
       return (body);
@@ -25,7 +29,11 @@ export function getCommunityViews(token, communityId, server){
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
-    return response.json();
+      if(response.status !== 200){
+        console.log("Error: " + server + 'api/communities/' + communityId + '/views');
+        console.log(response);
+      }
+      return response.json();
   }).then(function(body) {
       return (body);
   }).catch(function(error) {
@@ -43,7 +51,11 @@ export function getCommunityWelcomeView(token, communityId, server){
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
-    return response.json();
+      if(response.status !== 200){
+        console.log("Error: " + server + 'api/communities/' + communityId + '/views');
+        console.log(response);
+      }
+      return response.json();
   }).then(function(body) {
       return (body[0]);
   }).catch(function(error) {
@@ -61,6 +73,10 @@ export function getCommunityAuthors(token, communityId, server){
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+    if(response.status !== 200){
+      console.log("Error: " + server + 'api/communities/' + communityId + '/authors');
+      console.log(response);
+    }
     return response.json();
   }).then(function(body) {
     return (body);
@@ -86,11 +102,11 @@ export function postCommunityRegistration(token, communityId, server, userId, re
     },
     body: JSON.stringify(body),
   }).then(function(response) {
-      if(response.status === 201){
-        return response.json();
-      } else {
-        return {error: true};
+      if(response.status !== 200){
+        console.log("Error: " + server + 'api/authors');
+        console.log(response);
       }
+      return response.json();
   }).then(function(body) {
       return ("Success:", [body, server]);
   }).catch(function(error) {

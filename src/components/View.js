@@ -10,17 +10,7 @@ import SideBar from "./SideBar.js"
 import DialogHandler from './dialogHandler/DialogHandler.js'
 
 class View extends Component {
-  // constructor(props) {
-  //   super(props);
-  //
-  //   this.state = {
-  //     token: localStorage.getItem("cToken"),
-  //     server: localStorage.getItem("cServer"),
-  //     communityId: localStorage.getItem("cCommunityId"),
-  //     viewId: localStorage.getItem("cViewId"),
-  //   };
-  // };
-
+  
     componentDidMount() {
 
       // const token = localStorage.getItem("cToken")//this.props.location.state.token;

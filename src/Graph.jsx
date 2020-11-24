@@ -31,8 +31,6 @@ class Graph extends Component {
   constructor(props) {
     super(props);
 
-    console.log(this.props);
-
     this.state = {
       token: this.props.token,
       server: this.props.server,

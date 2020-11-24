@@ -7,6 +7,10 @@ export function getApiLinksFromViewId(token, server, viewId) {
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+    if(response.status !== 200){
+      console.log("Error: " + server + 'api/links/from/' + viewId);
+      console.log(response);
+    }
     return response.json();
   }).then(function(body) {
     return (body);
@@ -25,6 +29,10 @@ export function getApiLinksViewIdToObjectId(token, server, viewId, objectId) {
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+    if(response.status !== 200){
+      console.log("Error: " + server + 'api/links/from/' + viewId + '/to/' + objectId);
+      console.log(response);
+    }
     return response.json();
   }).then(function(body) {
     return (body);
@@ -42,6 +50,10 @@ export function getApiLinksReadStatus(token, server, communityId, welcomeViewId)
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+    if(response.status !== 200){
+      console.log("Error: " + server + 'api/records/myreadstatusview/' + communityId + '/' + welcomeViewId);
+      console.log(response);
+    }
     return response.json();
   }).then(function(body) {
     var results = [];
@@ -64,6 +76,10 @@ export function postReadStatus(token, server, communityId, contributionId){
       'Authorization': 'Bearer ' + token
     },
   }).then(function(response) {
+    if(response.status !== 201){
+      console.log("Error: " + server + 'api/records/read/' + communityId + '/' + contributionId);
+      console.log(response);
+    }
     return response.json();
   }).then(function(body) {
     return body
@@ -87,6 +103,10 @@ export function postApiLinksCommunityIdSearch(token, server, communityId, query)
     },
     body: JSON.stringify(body),
   }).then(function(response) {
+    if(response.status !== 200 && response.status !== 201){
+      console.log("Error: " + server + 'api/links/' + communityId + '/search');
+      console.log(response);
+    }
     return response.json();
   }).then(function(body) {
     return (body);

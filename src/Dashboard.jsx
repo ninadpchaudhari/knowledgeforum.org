@@ -87,12 +87,6 @@ class Dashboard extends Component {
     this.props.setViewId(c.welcomeViewId);
     this.props.history.push({
       pathname: '/graph',
-      // state: {
-      //   token: c.token,
-      //   server: c.server,
-      //   communityId: c.communityId,
-      //   viewId: c.welcomeViewId
-      // }
     });
   }
 
