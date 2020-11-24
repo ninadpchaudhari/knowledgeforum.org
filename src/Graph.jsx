@@ -31,11 +31,13 @@ class Graph extends Component {
   constructor(props) {
     super(props);
 
+    console.log(this.props);
+
     this.state = {
-      token: this.props.location.state.token,
-      server: this.props.location.state.server,
-      communityId: this.props.location.state.communityId,
-      viewId: this.props.location.state.viewId,
+      token: this.props.token,
+      server: this.props.server,
+      communityId: this.props.communityId,
+      viewId: this.props.viewId,
       elements: {nodes: [], edges: []},
     };
 
