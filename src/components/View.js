@@ -10,37 +10,42 @@ import SideBar from "./SideBar.js"
 import DialogHandler from './dialogHandler/DialogHandler.js'
 
 class View extends Component {
-    constructor(props) {
-      super(props);
-
-      this.state = {
-        token: this.props.location.state.token,
-        server: this.props.location.state.currentServer,
-        communityId: this.props.location.state.communityId,
-        viewId: this.props.location.state.viewId,
-      };
-    };
-
+  // constructor(props) {
+  //   super(props);
+  //
+  //   this.state = {
+  //     token: localStorage.getItem("cToken"),
+  //     server: localStorage.getItem("cServer"),
+  //     communityId: localStorage.getItem("cCommunityId"),
+  //     viewId: localStorage.getItem("cViewId"),
+  //   };
+  // };
 
     componentDidMount() {
 
-        //setServer(server);
-        //setToken(token);
-        //this.props.fetchLoggedUser()
-        /* if (this.props.viewId) {
-         *     this.props.fetchViewCommunityData(this.props.viewId)
-         * } */
-        /* const viewId = this.props.match.params.viewId //Get viewId from url param */
-        //this.props.setViewId(viewId);
-        //this.setState(this.props.location.state);
+      // const token = localStorage.getItem("cToken")//this.props.location.state.token;
+      // const server= localStorage.getItem("cServer")//this.props.location.state.server;
+      // const communityId= localStorage.getItem("cCommunityId")//this.props.location.state.communityId;
+      // const viewId= localStorage.getItem("cViewId")//this.props.location.state.viewId;
+
+      //setServer(server);
+      //setToken(token);
+
+      //this.props.fetchLoggedUser()
+      /* if (this.props.viewId) {
+       *     this.props.fetchViewCommunityData(this.props.viewId)
+       * } */
+      /* const viewId = this.props.match.params.viewId //Get viewId from url param */
+      // this.props.setViewId(viewId)
+      // this.setState(this.props.location.state);
     }
 
 
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.viewId && this.props.viewId !== prevProps.viewId) {
-            //this.props.fetchViewCommunityData(this.props.viewId)
-        }
-    }
+    // componentDidUpdate(prevProps, prevState) {
+    //     if (this.props.viewId && this.props.viewId !== prevProps.viewId) {
+    //
+    //     }
+    // }
 
     render(){
       return(
@@ -54,7 +59,7 @@ class View extends Component {
                       />
                   </div>
                   <div className="col" id="main-canvas">
-                      <Graph token={this.state.token} server={this.state.currentServer} communityId={this.state.communityId} viewId={this.state.viewId}/>
+                      <Graph token={this.props.token} server={this.props.currentServer} communityId={this.props.communityId} viewId={this.props.viewId}/>
                   </div>
               </div>
           </div>
@@ -63,18 +68,18 @@ class View extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-    // return {
-    //     token: state.globals.token,
-    //     currentServer: state.globals.currentServer,
-    //     communityId: state.globals.communityId,
-    //     viewId: state.globals.viewId,
-    //     view: state.globals.view,
-    //     author: state.globals.author,
-    // }
+    return {
+        token: state.globals.token,
+        currentServer: state.globals.currentServer,
+        communityId: state.globals.communityId,
+        viewId: state.globals.viewId,
+        view: state.globals.view,
+        author: state.globals.author,
+    }
 }
 
 const mapDispatchToProps = {
-    // setViewId,
+    setViewId,
     // fetchViewCommunityData,
     // fetchLoggedUser
 };

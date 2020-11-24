@@ -76,19 +76,24 @@ class Dashboard extends Component {
   }
 
   enterCommunity(c){
+    // localStorage.setItem("cToken", c.token);
+    // localStorage.setItem("cServer", c.server);
+    // localStorage.setItem("cCommunityId", c.communityId);
+    // localStorage.setItem("cViewId", c.welcomeViewId);
+
     this.props.setGlobalToken(c.token);
     this.props.setCurrentServer(c.server);
     this.props.setCommunityId(c.communityId);
     this.props.setViewId(c.welcomeViewId);
-
     this.props.history.push({
       pathname: '/graph',
-      state: {
-        token: c.token,
-        server: c.server,
-        communityId: c.communityId,
-        viewId: c.welcomeViewId
-      }});
+      // state: {
+      //   token: c.token,
+      //   server: c.server,
+      //   communityId: c.communityId,
+      //   viewId: c.welcomeViewId
+      // }
+    });
   }
 
   componentDidMount() {
@@ -211,5 +216,5 @@ const mapDispatchToProps = {
 
 export default connect(
     null,
-    mapDispatchToProps
+    mapDispatchToProps,
 )(Dashboard)

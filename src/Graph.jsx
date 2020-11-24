@@ -153,6 +153,7 @@ class Graph extends Component {
         console.log("attachment");
       } else if(this.hasClass("view")){
           ref.setState({viewId: kfId});
+          ref.props.setViewId(kfId);
           ref.loadElements(cy, si);
       } else {
         if(type === "riseabove"){
@@ -232,4 +233,12 @@ class Graph extends Component {
   }
 }
 
-export default Graph;
+const mapDispatchToProps = {
+    setViewId,
+    openContribution
+};
+
+export default connect(
+    null,
+    mapDispatchToProps
+)(Graph)
