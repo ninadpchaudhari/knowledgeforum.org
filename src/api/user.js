@@ -44,7 +44,9 @@ export function getUserTokenServerPair(username, password, server){
   }).then(function(body) {
       return [body, server];
   }).catch(function(error) {
-      return ("Error:", error);
+      console.log("Error: " + server + 'auth/local');
+      console.log(error);
+      return [{error: "Error: server unavailable"}, server];
   });
 }
 

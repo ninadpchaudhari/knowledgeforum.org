@@ -29,6 +29,7 @@ export function executePromises(uname, pwd, login_component){
 
   // execute all the login promises
   Promise.all(promises).then(function(data){
+    console.log(data)
     responseHandler(uname, data, login_component);
   }).catch(function(error){
     console.log(error);
@@ -84,6 +85,8 @@ export function responseHandler(uname, data, login_component){
       errorMessage = data[i][0].message;
     } else if(errorMessage === "This userName is not registered." && data[i][0].message === "This password is not correct.") {
       errorMessage = data[i][0].message;
+    } else if(data[i][0].error !== undefined && errorMessage === "") {
+      errorMessage = data[i][0].error;
     }
   }
 
