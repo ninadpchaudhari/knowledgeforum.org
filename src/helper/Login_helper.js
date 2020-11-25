@@ -29,7 +29,6 @@ export function executePromises(uname, pwd, login_component){
 
   // execute all the login promises
   Promise.all(promises).then(function(data){
-    console.log(data)
     responseHandler(uname, data, login_component);
   }).catch(function(error){
     console.log(error);
