@@ -103,10 +103,13 @@ export function responseHandler(uname, data, login_component){
 
 export function getLoginData(){
     const uname = localStorage.getItem("Username");
-    const servers = JSON.parse(localStorage.getItem(uname));
-    for(let server_data of servers){
-        if (server_data[2] === 'active'){
-            return server_data;
+    if (uname){
+        const servers = JSON.parse(localStorage.getItem(uname));
+        for(let server_data of servers){
+            if (server_data[2] === 'active'){
+                return server_data;
+            }
         }
     }
+    return [null,null,null]
 }

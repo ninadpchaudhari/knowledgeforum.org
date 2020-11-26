@@ -33,7 +33,6 @@ class Graph extends Component {
          * server: this.props.server,
          * communityId: this.props.communityId,
          * viewId: this.props.viewId, */
-        graph_loaded: false,
       elements: {nodes: [], edges: []},
     };
 
@@ -78,7 +77,7 @@ class Graph extends Component {
                   }
 
                   si.notify({type: 'render'});
-                  self.setState({elements: cy_elements, loaded_graph: true});
+                  self.setState({elements: cy_elements});
               });
 
           });

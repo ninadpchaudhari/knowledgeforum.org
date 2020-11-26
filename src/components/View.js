@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-
 import { setViewId, fetchViewCommunityData } from '../store/globalsReducer.js'
 import {openContribution}from '../store/noteReducer.js'
 import Graph from '../Graph';
