@@ -4,6 +4,7 @@ import { fetchAuthors } from './userReducer.js';
 import { fetchScaffolds } from './scaffoldReducer.js'
 import { fetchViewNotes, fetchBuildsOn, setCheckedNotes, fetchSupports, fetchReadLinks } from './noteReducer.js'
 export const setGlobalToken = createAction('SET_TOKEN')
+export const setCurrentLoginForm = createAction('SET_CURRENT_LOGIN_FORM')
 export const setCommunity = createAction('SET_COMMUNITY')
 export const setCommunityId = createAction('SET_COMMUNITY_ID')
 export const setCurrentServer = createAction('SET_CURRENT_SERVER')
@@ -25,6 +26,7 @@ export const dateFormatOptions = {
 
 const initState = {
     token: sessionStorage.getItem("token"),
+    currentLoginForm: "Login",
     communityId: null,
     currentServer: null,
     viewId: null,
@@ -84,6 +86,9 @@ export const globalsReducer = createReducer(initState, {
     },
     [setIsAuthenticated]: (state, action) => {
         state.isAuthenticated = state.token ? true : false
+    },
+    [setCurrentLoginForm]: (state, action) => {
+        state.currentLoginForm = action.payload
     },
     [setCommunityId]: (state, action) => {
         state.communityId = action.payload

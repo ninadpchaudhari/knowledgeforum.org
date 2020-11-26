@@ -5,6 +5,7 @@ import Login from './Login';
 import Dashboard from './Dashboard';
 import Graph from './Graph';
 import View from './components/View.js'
+import SignUpForm from './SignUpForm';
 import { setToken } from './store/api.js';
 import { useDispatch } from 'react-redux';
 import { fetchLoggedUser } from './store/globalsReducer.js'
@@ -28,6 +29,7 @@ function App() {
           <Route exact path="/" component={Login}></Route>
           <Route exact path="/dashboard" component={Dashboard}></Route>
           <Route exact path="/graph" component={View}></Route>
+          <Route exact path="/signup" component={SignUpForm}></Route>
         </Switch>
       </Router>
     </div>

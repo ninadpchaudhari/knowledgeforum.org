@@ -1,0 +1,40 @@
+.signup-select-server {
+  padding-top: 1px;
+  padding-bottom: 2px;
+}
+
+.fa-server {
+  float: left;
+  width: 5%;
+  margin-top: 10px;
+}
+
+.select-container {
+  float: left;
+  width: 95%;
+}
+
+.clearFix {
+  clear: both;
+}
+
+.basic-multi-select {
+
+}
+
+.select__value-container, .select__value-container--is-multi, .css-g1d714-ValueContainer {
+  padding: none !important;
+}
+
+.select__control {
+  border: none !important;
+}
+
+.select__control:focus, .select__control--is-focused, .select__control--menu-is-open {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.select__indicator, .select__indicator-separator {
+  color: black !important;
+}
