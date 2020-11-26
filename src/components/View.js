@@ -1,41 +1,40 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 
-import { setServer, setToken } from '../store/api.js';
 import { setViewId, fetchViewCommunityData } from '../store/globalsReducer.js'
-import { fetchLoggedUser } from '../store/globalsReducer.js'
+import {openContribution}from '../store/noteReducer.js'
 import Graph from '../Graph';
 import "./View.css";
 import SideBar from "./SideBar.js"
 import DialogHandler from './dialogHandler/DialogHandler.js'
 
 class View extends Component {
-  
+
+    constructor(props){
+        super(props)
+        this.onViewClick = this.onViewClick.bind(this);
+    }
     componentDidMount() {
 
-      // const token = localStorage.getItem("cToken")//this.props.location.state.token;
-      // const server= localStorage.getItem("cServer")//this.props.location.state.server;
-      // const communityId= localStorage.getItem("cCommunityId")//this.props.location.state.communityId;
-      // const viewId= localStorage.getItem("cViewId")//this.props.location.state.viewId;
+        if (this.props.viewId) {
+            this.props.fetchViewCommunityData(this.props.viewId)
+        }else{
+            const viewId = this.props.match.params.viewId //Get viewId from url param
+            this.props.setViewId(viewId)
+        }
 
-      //setServer(server);
-      //setToken(token);
-
-      //this.props.fetchLoggedUser()
-      /* if (this.props.viewId) {
-       *     this.props.fetchViewCommunityData(this.props.viewId)
-       * } */
-      /* const viewId = this.props.match.params.viewId //Get viewId from url param */
-      // this.props.setViewId(viewId)
-      // this.setState(this.props.location.state);
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.viewId && this.props.viewId !== prevProps.viewId) {
+            this.props.fetchViewCommunityData(this.props.viewId)
+        }
+    }
 
-    // componentDidUpdate(prevProps, prevState) {
-    //     if (this.props.viewId && this.props.viewId !== prevProps.viewId) {
-    //
-    //     }
-    // }
+    onViewClick(viewId){
+        this.props.setViewId(viewId);
+        this.props.history.push({pathname: `/view/${viewId}`})
+    }
 
     render(){
       return(
@@ -49,7 +48,13 @@ class View extends Component {
                       />
                   </div>
                   <div className="col" id="main-canvas">
-                      <Graph token={this.props.token} server={this.props.currentServer} communityId={this.props.communityId} viewId={this.props.viewId}/>
+                      <Graph token={this.props.token}
+                             server={this.props.currentServer}
+                             communityId={this.props.communityId}
+                             viewId={this.props.viewId}
+                             onViewClick={this.onViewClick}
+                             onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}
+                      />
                   </div>
               </div>
           </div>
@@ -70,8 +75,8 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
     setViewId,
-    // fetchViewCommunityData,
-    // fetchLoggedUser
+    fetchViewCommunityData,
+    openContribution
 };
 
 export default connect(

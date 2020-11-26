@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux'
 import Select from 'react-select';
-import { Link } from 'react-router-dom';
 
 import { setGlobalToken, setCurrentServer, setCommunityId, setViewId } from './store/globalsReducer.js';
 
@@ -86,7 +85,7 @@ class Dashboard extends Component {
     this.props.setCommunityId(c.communityId);
     this.props.setViewId(c.welcomeViewId);
     this.props.history.push({
-      pathname: '/graph',
+      pathname: `/view/${c.welcomeViewId}`,
     });
   }
 
