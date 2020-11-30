@@ -67,6 +67,7 @@ class SignUpForm extends Component {
       var serverTokenPair = [];
 
       for(var j = 0; j < result.length; j++){
+          console.log(result[j][0].error);
           if(result[j][0].token !== undefined && !successfulLogin){
             serverTokenPair.push([result[j][1], result[j][0].token, "active"]);
             successfulLogin = true;
@@ -100,7 +101,7 @@ class SignUpForm extends Component {
       <div className = "row login-form-row">
         <div className = {"col-lg-8 col-md-10 col-sm-12 login-form-wrapper"}>
           <h1>knowledgeforum.org</h1>
-          <form onSubmit={this.formSubmitHandler} className = "loginForm" id = "loginForm">
+          <form onSubmit={this.formSubmitHandler} className = "loginForm" id = "loginForm" autoComplete="on">
 
             <div className="login-input-wrapper signup-select-server">
               <i className="fas fa-server"></i>
@@ -155,7 +156,7 @@ class SignUpForm extends Component {
 
           </form>
 
-          <p className="login-create-account-p" onClick={this.openLoginForm}>Already have an account? Login <i class="far fa-arrow-alt-circle-right"></i></p>
+          <p className="login-create-account-p" onClick={this.openLoginForm}>Already have an account? Login <i className="far fa-arrow-alt-circle-right"></i></p>
         </div>
       </div>
     )

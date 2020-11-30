@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {withRouter} from 'react-router';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { setCurrentLoginForm } from './store/globalsReducer.js'
 import { Modal, Button } from 'react-bootstrap';
 import LoginForm from './LoginForm';
 import SignUpForm from './SignUpForm';

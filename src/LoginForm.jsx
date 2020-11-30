@@ -54,7 +54,7 @@ class LoginForm extends Component {
       <div className = "row login-form-row">
         <div className = {"col-lg-8 col-md-10 col-sm-12 login-form-wrapper"}>
           <h1>knowledgeforum.org</h1>
-          <form onSubmit={this.formSubmitHandler} className = "loginForm" id = "loginForm">
+          <form onSubmit={this.formSubmitHandler} className = "loginForm" id = "loginForm" autoComplete="on">
 
             <div className = "login-input-wrapper">
               <i className="fas fa-user"></i>
@@ -82,7 +82,7 @@ class LoginForm extends Component {
 
           </form>
 
-          <p className="login-create-account-p" onClick={this.openSignUpForm}>Don't have an account? Sign up <i class="far fa-arrow-alt-circle-right"></i></p>
+          <p className="login-create-account-p" onClick={this.openSignUpForm}>Don't have an account? Sign up <i className="far fa-arrow-alt-circle-right"></i></p>
         </div>
       </div>
     )
