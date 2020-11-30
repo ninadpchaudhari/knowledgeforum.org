@@ -8,11 +8,12 @@ import View from './components/View.js'
 import { setGlobalToken, setCurrentServer, fetchLoggedUser } from './store/globalsReducer.js'
 import { getLoginData } from './helper/Login_helper.js'
 import ProtectedRoute from './ProtectedRoute.jsx'
+import SignUpForm from './SignUpForm';
 import 'react-notifications-component/dist/theme.css'
 function App() {
 
     const dispatch = useDispatch();
-
+    //Check if user loged in, if logged in set token,server and user info in store
     const [server, token, ] = getLoginData();
     if (token) {
         dispatch(setGlobalToken(token))
@@ -21,16 +22,17 @@ function App() {
     }
 
     return (
-    <div>
-      <ReactNotification />
-      <Router>
-        <Switch>
-            <Route exact path="/" component={Login}/>
-            <ProtectedRoute exact path="/dashboard" component={Dashboard}></ProtectedRoute>
-          <ProtectedRoute path="/view/:viewId" component={View}></ProtectedRoute>
-        </Switch>
-      </Router>
-    </div>
+        <div>
+            <ReactNotification />
+            <Router>
+                <Switch>
+                    <Route exact path="/" component={Login}/>
+                    <Route exact path="/signup" component={SignUpForm}></Route>
+                    <ProtectedRoute exact path="/dashboard" component={Dashboard}></ProtectedRoute>
+                    <ProtectedRoute path="/view/:viewId" component={View}></ProtectedRoute>
+                </Switch>
+            </Router>
+        </div>
   );
 }
 

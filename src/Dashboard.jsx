@@ -99,7 +99,7 @@ class Dashboard extends Component {
       viewToRender = this.state.userCommunityData.map((c) =>
       <li key={c.communityId}>
         <p>{c.title}</p>
-        <a href={c.server + 'auth/jwt?token=' + c.token + '&redirectUrl=/view/' + c.welcomeViewId} target="_blank">
+        <a href={c.server + 'auth/jwt?token=' + c.token + '&redirectUrl=/view/' + c.welcomeViewId} target="_blank" rel="noopener noreferrer">
         <button className="dashboard-enterButton" type="button"><i className="far fa-arrow-alt-circle-right"></i></button></a>
       </li>);
     } else if(this.state.viewType.value === "Enhanced"){
@@ -165,7 +165,7 @@ class Dashboard extends Component {
 
               <div className = "col-md-6 dashboard-mainContentCol">
                 <h1>Join Community</h1>
-                <form className="col-lg-8 col-md-10 col-sm-12 dashboard-joinCommunityForm" id = "joinCommunityForm">
+                <form className="col-lg-8 col-md-10 col-sm-12 dashboard-joinCommunityForm" id = "joinCommunityForm" autoComplete="off">
 
                   <label htmlFor="server">Community:</label><br></br>
                   <Select value={this.state.selectedCommunityToJoin}

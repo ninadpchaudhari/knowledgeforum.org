@@ -1,9 +1,13 @@
 import React, {Component} from 'react';
+import {withRouter} from 'react-router';
+import { connect } from 'react-redux';
+import { compose } from 'redux';
 import { Modal, Button } from 'react-bootstrap';
+import LoginForm from './LoginForm';
+import SignUpForm from './SignUpForm';
 import Graph from './Graph';
 import $ from 'jquery';
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
-import {executePromises} from './helper/Login_helper.js';
 import {getUserToken} from './api/user.js';
 
 import './css/Login.css';
@@ -13,9 +17,6 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      uname: null,
-      pwd: null,
-      errorMessage: null,
       demoToken: null,
       demoServer: "https://kf6-stage.ikit.org/",
       demoCommunityId: "5ea995a6cbdc04a6f53a1b5c",
@@ -25,22 +26,6 @@ class Login extends Component {
 
     this.handleShow = this.handleShow.bind(this);
     this.handleClose = this.handleClose.bind(this);
-  }
-
-  inputChangeHandler = (event) => {
-    let name = event.target.name;
-    let val = event.target.value;
-
-    this.setState({[name] : val});
-  }
-
-  formSubmitHandler = (event) => {
-    event.preventDefault();
-    var uname = document.getElementById("uname").value;
-    var pwd = document.getElementById("pwd").value;
-    document.getElementById("errorMessage").style.display = "hidden";
-    executePromises(uname, pwd, this);
-    return false;
   }
 
   handleShow(){
@@ -64,49 +49,23 @@ class Login extends Component {
     demoTokenPromise.then(function(result) {
       ref.setState({demoToken: result.token});
     });
-
   }
 
   render() {
+    let formToRender;
+    if(this.props.currentLoginForm === "Login"){
+      formToRender = <LoginForm></LoginForm>;
+    } else if(this.props.currentLoginForm === "SignUp"){
+      formToRender = <SignUpForm></SignUpForm>;
+    }
+
     return(
       <div className='container-fluid login-main'>
 
         <div className = "row login-row">
 
             <div className = "col-md-6 login-col login" id = "login">
-
-              <div className = "row login-form-row">
-                <div className = {"col-lg-8 col-md-10 col-sm-12 login-form-wrapper"}>
-                  <h1>knowledgeforum.org</h1>
-                  <form onSubmit={this.formSubmitHandler} className = "loginForm" id = "loginForm">
-
-                    <div className = "login-input-wrapper">
-                      <i className="fas fa-user"></i>
-                      <input type="text" id="uname" name="uname" placeholder="Username" required onChange={this.inputChangeHandler}></input>
-                    </div>
-
-                    <div className = "login-input-wrapper">
-                      <i className="fas fa-lock"></i>
-                      <input type="password" id="pwd" name="pwd" placeholder="Password" required onChange={this.inputChangeHandler}></input>
-                    </div>
-
-                    <div className = "login-checkbox-wrapper">
-                      <input type="checkbox" id="refreshCheckbox" name="refreshCheckbox"></input>
-                      <label htmlFor="refreshCheckbox">Refresh my servers on login?</label>
-                      <span id="popover" tabIndex="0" role="button" data-toggle="popover"
-                        data-trigger="hover" data-content="Check this box if you have registered to any new knowledge forums servers since your last login.">
-                      <i className="far fa-question-circle"></i></span>
-                    </div>
-
-                    <div>
-                      <p style={{display:'hidden',color:'red'}} id = "errorMessage" name="errorMessage">{this.state.errorMessage}</p>
-                    </div>
-
-                    <input className = "login-button" type="submit" value="Login"></input>
-
-                  </form>
-                </div>
-              </div>
+              {formToRender}
             </div>
 
 
@@ -150,4 +109,13 @@ class Login extends Component {
   }
 }
 
-export default Login;
+const mapStateToProps = (state, ownProps) => {
+    return {
+        currentLoginForm: state.globals.currentLoginForm,
+    }
+}
+
+export default compose(
+    withRouter,
+    connect(mapStateToProps, null)
+)(Login)

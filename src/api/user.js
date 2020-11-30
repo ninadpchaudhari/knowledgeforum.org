@@ -96,3 +96,31 @@ export function getUserCommunities(token, server){
       return ("Error:", error);
   });
 }
+
+export function postNewUser(server, firstname, lastname, email, username, password){
+  var body = {
+    'email': email,
+    'firstName': firstname,
+    'lastName': lastname,
+    'password': password,
+    'userName': username
+  };
+
+  return fetch(server + 'api/users', {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  }).then(function(response) {
+    if(response.status !== 200){
+      console.log("Error: " + server + 'api/users');
+      console.log(response);
+    }
+    return response.json();
+  }).then(function(body) {
+    return [body, server];
+  }).catch(function(error) {
+    return [{error: "Error: server unavailable"}, server];
+  });
+}

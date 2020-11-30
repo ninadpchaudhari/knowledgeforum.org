@@ -6,7 +6,7 @@ import {SERVERS} from '../config.js';
 
 
 // Executes all promises to get user token for each server at once
-export function executePromises(uname, pwd, login_component){
+export function executePromises(uname, pwd, login_form_component){
   const promises = [];
 
   // if the checkbox on login page is checked clear the local storage
@@ -29,7 +29,7 @@ export function executePromises(uname, pwd, login_component){
 
   // execute all the login promises
   Promise.all(promises).then(function(data){
-    responseHandler(uname, data, login_component);
+    responseHandler(uname, data, login_form_component);
   }).catch(function(error){
     console.log(error);
   });
@@ -40,7 +40,7 @@ export function executePromises(uname, pwd, login_component){
 // If no succesful logins then displays error message to user
 // Otherwise redirects to next page
 // each item in data is [response body, server]
-export function responseHandler(uname, data, login_component){
+export function responseHandler(uname, data, login_form_component){
   var successfulLogin = false;
   var errorMessage = "";
   var serverTokenPair = [];
@@ -78,7 +78,7 @@ export function responseHandler(uname, data, login_component){
       var username = document.getElementById("uname").value;
       var password = document.getElementById("pwd").value;
       localStorage.removeItem(username);
-      executePromises(username, password, login_component);
+      executePromises(username, password, login_form_component);
       break;
     } else if(data[i][0].message !== undefined && errorMessage === "") {
       errorMessage = data[i][0].message;
@@ -91,12 +91,12 @@ export function responseHandler(uname, data, login_component){
 
   if(!successfulLogin){
     document.getElementById("errorMessage").style.display = "visible";
-    login_component.setState({errorMessage: errorMessage});
+    login_form_component.setState({errorMessage: errorMessage});
   } else {
     localStorage.setItem("Username", uname);
     localStorage.setItem(uname, JSON.stringify(serverTokenPair));
-    login_component.setState({response: JSON.stringify(serverTokenPair)});
-    login_component.props.history.push('/dashboard');
+    login_form_component.setState({response: JSON.stringify(serverTokenPair)});
+    login_form_component.props.history.push('/dashboard');
   }
 
 }
