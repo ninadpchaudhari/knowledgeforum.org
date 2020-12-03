@@ -6,8 +6,8 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { setCurrentLoginForm } from './store/globalsReducer.js'
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
-import {SERVERS} from './config.js';
-import {postNewUser} from './api/user.js';
+import {SERVERS, getServerURL} from './config.js';
+import {postNewUser, postNewSingaporeUser} from './api/user.js';
 
 import './css/Login.css';
 import './css/SignUpForm.css';
@@ -24,7 +24,9 @@ class SignUpForm extends Component {
       username: null,
       password: null,
       confirmPassword: null,
+      registrationKey: null,
       errorMessage: null,
+      singaporeSelected: false,
     }
   }
 
@@ -38,11 +40,13 @@ class SignUpForm extends Component {
   serverSelectHandler = (event) => {
     if(event === null) {
       this.setState({servers: null});
+      this.setState({singaporeSelected:  false});
     } else {
       var selected_Servers = [];
       for(var i = 0; i < event.length; i++){
         selected_Servers.push(event[i].value);
       }
+      selected_Servers.includes(getServerURL("Singapore")) ? this.setState({singaporeSelected: true}) : this.setState({singaporeSelected: false});
       this.setState({servers: selected_Servers});
     }
   }
@@ -58,7 +62,11 @@ class SignUpForm extends Component {
     var promises = [];
 
     for(var i = 0; i < servers.length; i++){
-      promises.push(postNewUser(servers[i], this.state.firstname, this.state.lastname, this.state.email, this.state.username, this.state.password));
+      if(servers[i] === getServerURL("Singapore")){
+        promises.push(postNewSingaporeUser(servers[i], this.state.firstname, this.state.lastname, this.state.email, this.state.username, this.state.password, this.state.registrationKey));
+      } else {
+        promises.push(postNewUser(servers[i], this.state.firstname, this.state.lastname, this.state.email, this.state.username, this.state.password));
+      }
     }
 
     var self = this;
@@ -67,7 +75,6 @@ class SignUpForm extends Component {
       var serverTokenPair = [];
 
       for(var j = 0; j < result.length; j++){
-          console.log(result[j][0].error);
           if(result[j][0].token !== undefined && !successfulLogin){
             serverTokenPair.push([result[j][1], result[j][0].token, "active"]);
             successfulLogin = true;
@@ -97,6 +104,13 @@ class SignUpForm extends Component {
   }
 
   render() {
+    let registrationKeyInput;
+    if(this.state.singaporeSelected){
+      registrationKeyInput = <div className = "login-input-wrapper"><i className="fas fa-lock"></i><input type="text" id="registrationKey" name="registrationKey" placeholder="Account Creation Key" required onChange={this.inputChangeHandler}></input></div>;
+    } else {
+      registrationKeyInput = null;
+    }
+
     return(
       <div className = "row login-form-row">
         <div className = {"col-lg-8 col-md-10 col-sm-12 login-form-wrapper"}>
@@ -147,6 +161,8 @@ class SignUpForm extends Component {
               <i className="fas fa-lock"></i>
               <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required onChange={this.inputChangeHandler}></input>
             </div>
+
+            {registrationKeyInput}
 
             <div>
               <p style={{display:'hidden',color:'red'}} id = "errorMessage" name="errorMessage">{this.state.errorMessage}</p>

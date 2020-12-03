@@ -60,7 +60,7 @@ class Graph extends Component {
               si._private.supportImages = [];
               si._private.renderer.imageCache = {};
 
-              var graph_nodes = addNodesToGraph(ref.state.server, ref.state.token, si, nodes, result[0], result[2], result[3]);
+              var graph_nodes = addNodesToGraph(ref.props.server, ref.props.token, si, nodes, result[0], result[2], result[3]);
               var graph_edges = addEdgesToGraph(nodes, result[1]);
               var self = this;
 
