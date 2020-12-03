@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { setCurrentLoginForm } from './store/globalsReducer.js'
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
-import {SERVERS, getServerURL} from './config.js';
+import {SERVERS, getServerURL, getServerName} from './config.js';
 import {postNewUser, postNewSingaporeUser} from './api/user.js';
 
 import './css/Login.css';
@@ -75,7 +75,10 @@ class SignUpForm extends Component {
       var serverTokenPair = [];
 
       for(var j = 0; j < result.length; j++){
-          if(result[j][0].token !== undefined && !successfulLogin){
+          // if singapore is selected and failed we must show the error as it can fail due to the account creation key
+          if(getServerName(result[j][1]) === "Singapore" && result[j][0].errorCode !== undefined){
+
+          } else if(result[j][0].token !== undefined && !successfulLogin){
             serverTokenPair.push([result[j][1], result[j][0].token, "active"]);
             successfulLogin = true;
           } else if(result[j][0].token !== undefined && successfulLogin){
@@ -84,6 +87,8 @@ class SignUpForm extends Component {
             self.setState({errorMessage: result[j][0].message});
           } else if(result[j][0].error !== undefined && this.state.errorMessage === "") {
             self.setState({errorMessage: result[j][0].error});
+          } else if(result[j][0].errorCode !== undefined && this.state.errorMessage === "") {
+            self.setState({errorMessage: result[j][0].errorCode});
           }
       }
 
@@ -106,7 +111,7 @@ class SignUpForm extends Component {
   render() {
     let registrationKeyInput;
     if(this.state.singaporeSelected){
-      registrationKeyInput = <div className = "login-input-wrapper"><i className="fas fa-lock"></i><input type="text" id="registrationKey" name="registrationKey" placeholder="Account Creation Key" required onChange={this.inputChangeHandler}></input></div>;
+      registrationKeyInput = <div className = "login-input-wrapper"><i className="fas fa-lock"></i><input type="text" id="registrationKey" name="registrationKey" placeholder="Singapore Account Creation Key" required onChange={this.inputChangeHandler}></input></div>;
     } else {
       registrationKeyInput = null;
     }

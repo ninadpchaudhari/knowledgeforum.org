@@ -28,8 +28,8 @@ function App() {
                 <Switch>
                     <Route exact path="/" component={Login}/>
                     <Route exact path="/signup" component={SignUpForm}></Route>
-                    <ProtectedRoute exact path="/dashboard" component={Dashboard}></ProtectedRoute>
-                    <ProtectedRoute path="/view/:viewId" component={View}></ProtectedRoute>
+                    <Route exact path="/dashboard" component={Dashboard}></Route>
+                    <Route path="/view/:viewId" component={View}></Route>
                 </Switch>
             </Router>
         </div>
