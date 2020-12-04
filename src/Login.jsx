@@ -30,6 +30,11 @@ class Login extends Component {
 
   handleShow(){
     this.setState({showModal: true});
+    var ref = this;
+    var demoTokenPromise = getUserToken("demo1", "demo1", this.state.demoServer);
+    demoTokenPromise.then(function(result) {
+      ref.setState({demoToken: result.token});
+    });
   }
 
   handleClose(){
@@ -43,12 +48,6 @@ class Login extends Component {
     if($(window).width() <= 768) {
       document.getElementById("popover").setAttribute("data-trigger", "focus");
     }
-
-    var ref = this;
-    var demoTokenPromise = getUserToken("demo1", "demo1", this.state.demoServer);
-    demoTokenPromise.then(function(result) {
-      ref.setState({demoToken: result.token});
-    });
   }
 
   render() {
@@ -85,15 +84,15 @@ class Login extends Component {
                     </div>
                   </div>
 
-                  <Modal show={this.state.showModal} onHide={this.handleClose}>
+                  <Modal dialogClassName="login-modal-dialog" show={this.state.showModal} onHide={this.handleClose}>
                     <Modal.Header closeButton>
                       <Modal.Title>Knowledge Forum Demo</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body>
+                    <Modal.Body className="login-modal-body">
                       <Graph style={{width: '100%', height: '100%'}} token={this.state.demoToken} server={this.state.demoServer} communityId={this.state.demoCommunityId} viewId={this.state.demoViewId}/>
                     </Modal.Body>
                     <Modal.Footer>
-                      <Button variant="primary" onClick={this.handleClose}>
+                      <Button variant="primary" onClick={this.handleClose} className="login-modal-btn">
                         Close
                       </Button>
                     </Modal.Footer>

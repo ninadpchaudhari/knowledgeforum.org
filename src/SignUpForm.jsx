@@ -4,6 +4,7 @@ import makeAnimated from 'react-select/animated';
 import {withRouter} from 'react-router';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
+import { Modal, Button } from 'react-bootstrap';
 import { setCurrentLoginForm } from './store/globalsReducer.js'
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
 import {SERVERS, getServerURL, getServerName} from './config.js';
@@ -24,10 +25,18 @@ class SignUpForm extends Component {
       username: null,
       password: null,
       confirmPassword: null,
+      passwordError: null,
       registrationKey: null,
-      errorMessage: null,
+      errorMessage: [],
       singaporeSelected: false,
+      showModal: false,
     }
+
+    this.handleClose = this.handleClose.bind(this);
+  }
+
+  handleClose(){
+    this.setState({showModal: false});
   }
 
   inputChangeHandler = (event) => {
@@ -54,7 +63,8 @@ class SignUpForm extends Component {
   formSubmitHandler = (event) => {
     event.preventDefault();
     if(this.state.password !== this.state.confirmPassword){
-      this.setState({errorMessage: "Passwords do not match."});
+      this.setState({passwordError: "Passwords do not match."});
+      document.getElementById("passwordError").style.display = "visible";
       return false;
     }
 
@@ -71,34 +81,42 @@ class SignUpForm extends Component {
 
     var self = this;
     Promise.all(promises).then((result) => {
-      var successfulLogin = false;
+      var activeServerSet = false;
+      var successfulSignUp = true;
       var serverTokenPair = [];
 
       for(var j = 0; j < result.length; j++){
-          // if singapore is selected and failed we must show the error as it can fail due to the account creation key
-          if(getServerName(result[j][1]) === "Singapore" && result[j][0].errorCode !== undefined){
-
-          } else if(result[j][0].token !== undefined && !successfulLogin){
+          if(result[j][0].token !== undefined && !activeServerSet){
             serverTokenPair.push([result[j][1], result[j][0].token, "active"]);
-            successfulLogin = true;
-          } else if(result[j][0].token !== undefined && successfulLogin){
+            activeServerSet = true;
+          } else if(result[j][0].token !== undefined && activeServerSet){
             serverTokenPair.push([result[j][1], result[j][0].token, "inactive"]);
-          } else if(result[j][0].message !== undefined) {
-            self.setState({errorMessage: result[j][0].message});
-          } else if(result[j][0].error !== undefined && this.state.errorMessage === "") {
-            self.setState({errorMessage: result[j][0].error});
-          } else if(result[j][0].errorCode !== undefined && this.state.errorMessage === "") {
-            self.setState({errorMessage: result[j][0].errorCode});
+          } else {
+            var errorMessages = self.state.errorMessage;
+
+            if(result[j][0].message){
+              errorMessages.push(getServerName(result[j][1]) + ": " + result[j][0].message);
+            } else if(result[j][0].error) {
+              errorMessages.push(getServerName(result[j][1]) + ": " + result[j][0].error);
+            } else if(result[j][0].errorCode) {
+              errorMessages.push(getServerName(result[j][1]) + ": " + result[j][0].errorCode);
+            } else {
+              errorMessages.push(getServerName(result[j][1]) + ": " + result[j][0]);
+            }
+
+            self.setState({errorMessage: errorMessages});
+            successfulSignUp = false;
           }
       }
 
-      if(!successfulLogin){
-        document.getElementById("errorMessage").style.display = "visible";
-      } else {
+      if(successfulSignUp){
         localStorage.setItem("Username", this.state.username);
         localStorage.setItem(this.state.username, JSON.stringify(serverTokenPair));
         self.props.history.push('/dashboard');
+      } else {
+        self.setState({showModal: true});
       }
+
     });
 
     return false;
@@ -170,10 +188,24 @@ class SignUpForm extends Component {
             {registrationKeyInput}
 
             <div>
-              <p style={{display:'hidden',color:'red'}} id = "errorMessage" name="errorMessage">{this.state.errorMessage}</p>
+              <p style={{display:'hidden',color:'red'}} id = "passwordError" name="passwordError">{this.state.passwordError}</p>
             </div>
 
             <input className = "login-button" type="submit" value="Create Account"></input>
+
+            <Modal show={this.state.showModal} onHide={this.handleClose} centered>
+              <Modal.Header closeButton>
+                <Modal.Title>Server error(s) creating account:</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <ul>{this.state.errorMessage.map((s) => <li>{s}</li>)}</ul>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="primary" onClick={this.handleClose}>
+                  Close
+                </Button>
+              </Modal.Footer>
+            </Modal>
 
           </form>
 

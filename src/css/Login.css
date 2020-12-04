@@ -204,17 +204,16 @@ body {
   margin-right: auto;
 }
 
-.modal-dialog {
-  max-width: 90%;
-  margin: 5vh auto;
+.login-modal-dialog {
+  max-width: 90% !important;
 }
 
-.modal-body {
+.login-modal-body {
   height: 75vh;
   overflow: hidden;
 }
 
-.modal-btn {
+.login-modal-btn {
   width: auto;
 }
 
