@@ -83,37 +83,54 @@ class SignUpForm extends Component {
     Promise.all(promises).then((result) => {
       var activeServerSet = false;
       var successfulSignUp = true;
-      var serverTokenPair = [];
+      var errorMessages = [];
+      var serverTokenPair = localStorage.getItem(this.state.username) || [];
 
+      // if a server is successfull we add it to the users list in local storage for when we
+      // redirect to the dashboard AND remove it from the list of selected servers in the case that
+      // there is a failure with another server and the form needs to be resubmit (do not want to resubmit a server that was successful)
+
+      // we add the result of every server into the error message to let the user decide whether to ignore the errors
+      // or resubmit the form based on which servers failed
+
+      // if ANY server has an error the error message will pop up
       for(var j = 0; j < result.length; j++){
-          if(result[j][0].token !== undefined && !activeServerSet){
-            serverTokenPair.push([result[j][1], result[j][0].token, "active"]);
-            activeServerSet = true;
-          } else if(result[j][0].token !== undefined && activeServerSet){
-            serverTokenPair.push([result[j][1], result[j][0].token, "inactive"]);
-          } else {
-            var errorMessages = self.state.errorMessage;
+          if(result[j][0].token !== undefined){
 
-            if(result[j][0].message){
-              errorMessages.push(getServerName(result[j][1]) + ": " + result[j][0].message);
-            } else if(result[j][0].error) {
-              errorMessages.push(getServerName(result[j][1]) + ": " + result[j][0].error);
-            } else if(result[j][0].errorCode) {
-              errorMessages.push(getServerName(result[j][1]) + ": " + result[j][0].errorCode);
+            if(!activeServerSet){
+              serverTokenPair.push([result[j][1], result[j][0].token, "active"]);
+              activeServerSet = true;
             } else {
-              errorMessages.push(getServerName(result[j][1]) + ": " + result[j][0]);
+              serverTokenPair.push([result[j][1], result[j][0].token, "inactive"]);
             }
 
-            self.setState({errorMessage: errorMessages});
+            var selected_servers = this.state.servers;
+            selected_servers = selected_servers.filter(s => s !== result[j][1]);
+            this.setState({servers: selected_servers});
+
+            errorMessages.push(<li className='signup-server-success'>{getServerName(result[j][1]) + ": Success "}<i className='far fa-check-square'></i></li>);
+          } else {
+            if(result[j][0].message){
+              errorMessages.push(<li className='signup-server-failure'>{getServerName(result[j][1]) + ": " + result[j][0].message + " "}<i className='far fa-times-circle'></i></li>);
+            } else if(result[j][0].error) {
+              errorMessages.push(<li className='signup-server-failure'>{getServerName(result[j][1]) + ": " + result[j][0].error + " "}<i className='far fa-times-circle'></i></li>);
+            } else if(result[j][0].errorCode) {
+              errorMessages.push(<li className='signup-server-failure'>{getServerName(result[j][1]) + ": " + result[j][0].errorCode + " "}<i className='far fa-times-circle'></i></li>);
+            } else {
+              errorMessages.push(<li className='signup-server-failure'>{getServerName(result[j][1]) + ": " + result[j][0] + " "}<i className='far fa-times-circle'></i></li>);
+            }
+
             successfulSignUp = false;
           }
       }
 
+      localStorage.setItem("Username", this.state.username);
+      localStorage.setItem(this.state.username, JSON.stringify(serverTokenPair));
+
       if(successfulSignUp){
-        localStorage.setItem("Username", this.state.username);
-        localStorage.setItem(this.state.username, JSON.stringify(serverTokenPair));
         self.props.history.push('/dashboard');
       } else {
+        self.setState({errorMessage: errorMessages});
         self.setState({showModal: true});
       }
 
@@ -195,14 +212,17 @@ class SignUpForm extends Component {
 
             <Modal show={this.state.showModal} onHide={this.handleClose} centered>
               <Modal.Header closeButton>
-                <Modal.Title>Server error(s) creating account:</Modal.Title>
+                <Modal.Title>Account Creation Status:</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                <ul>{this.state.errorMessage.map((s) => <li>{s}</li>)}</ul>
+                <ul>{this.state.errorMessage}</ul>
               </Modal.Body>
               <Modal.Footer>
-                <Button variant="primary" onClick={this.handleClose}>
-                  Close
+                <Button className="signup-ignore-btn" variant="primary" onClick={() => {this.props.history.push('/dashboard')}}>
+                  Ignore Error(s)
+                </Button>
+                <Button className="signup-resubmit-btn" variant="primary" onClick={this.handleClose}>
+                  Resubmit Form
                 </Button>
               </Modal.Footer>
             </Modal>
