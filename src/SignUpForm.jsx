@@ -18,25 +18,17 @@ class SignUpForm extends Component {
     super(props);
 
     this.state = {
-      servers: null,
+      server: null,
       firstname: null,
       lastname: null,
       email: null,
       username: null,
       password: null,
       confirmPassword: null,
-      passwordError: null,
       registrationKey: null,
-      errorMessage: [],
+      errorMessage: null,
       singaporeSelected: false,
-      showModal: false,
     }
-
-    this.handleClose = this.handleClose.bind(this);
-  }
-
-  handleClose(){
-    this.setState({showModal: false});
   }
 
   inputChangeHandler = (event) => {
@@ -47,94 +39,26 @@ class SignUpForm extends Component {
   }
 
   serverSelectHandler = (event) => {
-    if(event === null) {
-      this.setState({servers: null});
-      this.setState({singaporeSelected:  false});
-    } else {
-      var selected_Servers = [];
-      for(var i = 0; i < event.length; i++){
-        selected_Servers.push(event[i].value);
-      }
-      selected_Servers.includes(getServerURL("Singapore")) ? this.setState({singaporeSelected: true}) : this.setState({singaporeSelected: false});
-      this.setState({servers: selected_Servers});
-    }
+    event.value === getServerURL("Singapore") ? this.setState({singaporeSelected: true}) : this.setState({singaporeSelected: false});
+    this.setState({server: event.value});
   }
 
   formSubmitHandler = (event) => {
     event.preventDefault();
     if(this.state.password !== this.state.confirmPassword){
-      this.setState({passwordError: "Passwords do not match."});
-      document.getElementById("passwordError").style.display = "visible";
-      return false;
+      this.setState({errorMessage: "Passwords do not match."});
+    } else {
+      postNewUser(this.state.server, this.state.firstname, this.state.lastname, this.state.email, this.state.username, this.state.password, this.state.registrationKey).then((result) => {
+        if(result[0] && result[0].token !== undefined) {
+          localStorage.setItem("Username", this.state.username);
+          localStorage.setItem(this.state.username, JSON.stringify([[result[1], result[0].token, "active"]]));
+          this.props.history.push('/dashboard');
+        } else {
+          var resultErrorMessage = result[0].message || result[0].error || result[0].errorCode || result[0];
+          this.setState({errorMessage: resultErrorMessage});
+        }
+      });
     }
-
-    var servers = this.state.servers;
-    var promises = [];
-
-    for(var i = 0; i < servers.length; i++){
-      if(servers[i] === getServerURL("Singapore")){
-        promises.push(postNewSingaporeUser(servers[i], this.state.firstname, this.state.lastname, this.state.email, this.state.username, this.state.password, this.state.registrationKey));
-      } else {
-        promises.push(postNewUser(servers[i], this.state.firstname, this.state.lastname, this.state.email, this.state.username, this.state.password));
-      }
-    }
-
-    var self = this;
-    Promise.all(promises).then((result) => {
-      var activeServerSet = false;
-      var successfulSignUp = true;
-      var errorMessages = [];
-      var serverTokenPair = localStorage.getItem(this.state.username) || [];
-
-      // if a server is successfull we add it to the users list in local storage for when we
-      // redirect to the dashboard AND remove it from the list of selected servers in the case that
-      // there is a failure with another server and the form needs to be resubmit (do not want to resubmit a server that was successful)
-
-      // we add the result of every server into the error message to let the user decide whether to ignore the errors
-      // or resubmit the form based on which servers failed
-
-      // if ANY server has an error the error message will pop up
-      for(var j = 0; j < result.length; j++){
-          if(result[j][0].token !== undefined){
-
-            if(!activeServerSet){
-              serverTokenPair.push([result[j][1], result[j][0].token, "active"]);
-              activeServerSet = true;
-            } else {
-              serverTokenPair.push([result[j][1], result[j][0].token, "inactive"]);
-            }
-
-            var selected_servers = this.state.servers;
-            selected_servers = selected_servers.filter(s => s !== result[j][1]);
-            this.setState({servers: selected_servers});
-
-            errorMessages.push(<li className='signup-server-success'>{getServerName(result[j][1]) + ": Success "}<i className='far fa-check-square'></i></li>);
-          } else {
-            if(result[j][0].message){
-              errorMessages.push(<li className='signup-server-failure'>{getServerName(result[j][1]) + ": " + result[j][0].message + " "}<i className='far fa-times-circle'></i></li>);
-            } else if(result[j][0].error) {
-              errorMessages.push(<li className='signup-server-failure'>{getServerName(result[j][1]) + ": " + result[j][0].error + " "}<i className='far fa-times-circle'></i></li>);
-            } else if(result[j][0].errorCode) {
-              errorMessages.push(<li className='signup-server-failure'>{getServerName(result[j][1]) + ": " + result[j][0].errorCode + " "}<i className='far fa-times-circle'></i></li>);
-            } else {
-              errorMessages.push(<li className='signup-server-failure'>{getServerName(result[j][1]) + ": " + result[j][0] + " "}<i className='far fa-times-circle'></i></li>);
-            }
-
-            successfulSignUp = false;
-          }
-      }
-
-      localStorage.setItem("Username", this.state.username);
-      localStorage.setItem(this.state.username, JSON.stringify(serverTokenPair));
-
-      if(successfulSignUp){
-        self.props.history.push('/dashboard');
-      } else {
-        self.setState({errorMessage: errorMessages});
-        self.setState({showModal: true});
-      }
-
-    });
 
     return false;
   }
@@ -161,10 +85,8 @@ class SignUpForm extends Component {
               <i className="fas fa-server"></i>
               <div className="select-container">
                 <Select
-                  isMulti
                   options={SERVERS.map((s) => ({value: s.url, label: s.name}))}
                   onChange = {this.serverSelectHandler}
-                  components={makeAnimated()}
                   className="basic-multi-select"
                   classNamePrefix="select"
                 />
@@ -189,12 +111,12 @@ class SignUpForm extends Component {
 
             <div className = "login-input-wrapper">
               <i className="fas fa-user"></i>
-              <input type="text" id="username" name="username" placeholder="Username" required onChange={this.inputChangeHandler}></input>
+              <input type="text" id="username" name="username" placeholder="Username" minLength="3" maxLength="49" pattern="^[a-zA-Z][.0-9a-zA-Z@_-]{1,100}$" required onChange={this.inputChangeHandler}></input>
             </div>
 
             <div className = "login-input-wrapper">
               <i className="fas fa-lock"></i>
-              <input type="password" id="password" name="password" placeholder="Password" required onChange={this.inputChangeHandler}></input>
+              <input type="password" id="password" name="password" placeholder="Password" minLength="4" required onChange={this.inputChangeHandler}></input>
             </div>
 
             <div className = "login-input-wrapper">
@@ -205,27 +127,10 @@ class SignUpForm extends Component {
             {registrationKeyInput}
 
             <div>
-              <p style={{display:'hidden',color:'red'}} id = "passwordError" name="passwordError">{this.state.passwordError}</p>
+              <p style={{color:'red'}} id = "errorMessage" name="errorMessage">{this.state.errorMessage}</p>
             </div>
 
             <input className = "login-button" type="submit" value="Create Account"></input>
-
-            <Modal show={this.state.showModal} onHide={this.handleClose} centered>
-              <Modal.Header closeButton>
-                <Modal.Title>Account Creation Status:</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <ul>{this.state.errorMessage}</ul>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button className="signup-ignore-btn" variant="primary" onClick={() => {this.props.history.push('/dashboard')}}>
-                  Ignore Error(s)
-                </Button>
-                <Button className="signup-resubmit-btn" variant="primary" onClick={this.handleClose}>
-                  Resubmit Form
-                </Button>
-              </Modal.Footer>
-            </Modal>
 
           </form>
 

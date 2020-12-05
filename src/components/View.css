@@ -7,3 +7,11 @@
     flex: 0 0 96%;
     max-width: 96%;
 }
+
+.view-dashboard-return-button {
+  margin: 15px;
+  padding: 5px;
+  font-size: 0.75rem;
+  background-color: #203c66;
+  float: right;
+}

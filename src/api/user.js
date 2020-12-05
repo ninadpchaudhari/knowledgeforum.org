@@ -97,43 +97,27 @@ export function getUserCommunities(token, server){
   });
 }
 
-export function postNewUser(server, firstname, lastname, email, username, password){
-  var body = {
-    'email': email,
-    'firstName': firstname,
-    'lastName': lastname,
-    'password': password,
-    'userName': username
-  };
-
-  return fetch(server + 'api/users', {
-    method: "POST",
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  }).then(function(response) {
-    if(response.status !== 200){
-      console.log("Error: " + server + 'api/users');
-      console.log(response);
+export function postNewUser(server, firstname, lastname, email, username, password, registrationKey){
+  var body;
+  if(registrationKey === null){
+    body = {
+      'email': email,
+      'firstName': firstname,
+      'lastName': lastname,
+      'password': password,
+      'userName': username
     }
-    return response.json();
-  }).then(function(body) {
-    return [body, server];
-  }).catch(function(error) {
-    return [{error: "Error: server unavailable"}, server];
-  });
-}
+  } else {
+    body = {
+      'email': email,
+      'firstName': firstname,
+      'lastName': lastname,
+      'password': password,
+      'registrationKey': registrationKey,
+      'userName': username
+    };
+  }
 
-export function postNewSingaporeUser(server, firstname, lastname, email, username, password, registrationKey){
-  var body = {
-    'email': email,
-    'firstName': firstname,
-    'lastName': lastname,
-    'password': password,
-    'registrationKey': registrationKey,
-    'userName': username
-  };
 
   return fetch(server + 'api/users', {
     method: "POST",

@@ -38,21 +38,3 @@
 .select__indicator, .select__indicator-separator {
   color: black !important;
 }
-
-.signup-server-success {
-  color: #2aa850;
-}
-
-.signup-server-failure {
-  color: #ff5145;
-}
-
-.signup-ignore-btn, .signup-ignore-btn:hover {
-  border: none;
-  background-color: #ff5145;
-}
-
-.signup-resubmit-btn, .signup-resubmit-btn:hover {
-  border: none;
-  background-color: #2aa850;
-}

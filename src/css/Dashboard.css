@@ -204,6 +204,7 @@ body {
 .dashboard-enterButton {
   margin-top: 0px;
   margin-left: 10px;
+  float: right;
 }
 
 .loader {
@@ -222,22 +223,24 @@ body {
 }
 
 .dashboard-userCommunities {
+  width: 80%;
   padding-left: 10px;
-}
-
-.dashboard-userCommunities > li {
-  list-style-type: none;
-}
-
-.dashboard-userCommunities > li > p {
   font-size: 1.25rem;
   font-weight: 500;
-  display: inline-block;
   color: #203c66 !important;
 }
 
 @media (max-width: 768px){
-  .dashboard-userCommunities > li > p {
+  .dashboard-userCommunities {
     font-size: 1rem;
   }
+}
+
+.dashboard-userCommunities > tbody > tr:hover {
+  background-color: rgba(255, 255, 255);
+  cursor: pointer;
+}
+
+.dashboard-userCommunities-row {
+  padding: 10px;
 }

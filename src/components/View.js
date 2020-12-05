@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
+import { Button } from 'react-bootstrap';
 import { setViewId, fetchViewCommunityData } from '../store/globalsReducer.js'
 import {openContribution}from '../store/noteReducer.js'
 import Graph from '../Graph';
@@ -38,6 +39,9 @@ class View extends Component {
     render(){
       return(
           <div className="container-fluid">
+              <div className="row view-top-nav-bar">
+                <Button className="view-dashboard-return-button" onClick={() => this.props.history.push("/dashboard")}>Return to Dashboard <i className="fas fa-sign-out-alt"></i></Button>
+              </div>
               <DialogHandler />
               <div className="row" >
                   <div className="col" id="sticky-sidebar">

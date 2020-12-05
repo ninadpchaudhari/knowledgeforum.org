@@ -75,18 +75,21 @@ class Dashboard extends Component {
   }
 
   enterCommunity(c){
-    // localStorage.setItem("cToken", c.token);
-    // localStorage.setItem("cServer", c.server);
-    // localStorage.setItem("cCommunityId", c.communityId);
-    // localStorage.setItem("cViewId", c.welcomeViewId);
-
-    this.props.setGlobalToken(c.token);
-    this.props.setCurrentServer(c.server);
-    this.props.setCommunityId(c.communityId);
-    this.props.setViewId(c.welcomeViewId);
-    this.props.history.push({
-      pathname: `/view/${c.welcomeViewId}`,
-    });
+    if(this.state.viewType.value === "Classic") {
+      var aTag = document.createElement('a');
+      aTag.href = c.server + 'auth/jwt?token=' + c.token + '&redirectUrl=/view/' + c.welcomeViewId;
+      aTag.target = "_blank";
+      document.body.appendChild(aTag);
+      aTag.click();
+    } else if(this.state.viewType.value === "Enhanced") {
+      this.props.setGlobalToken(c.token);
+      this.props.setCurrentServer(c.server);
+      this.props.setCommunityId(c.communityId);
+      this.props.setViewId(c.welcomeViewId);
+      this.props.history.push({
+        pathname: `/view/${c.welcomeViewId}`,
+      });
+    }
   }
 
   componentDidMount() {
@@ -94,24 +97,6 @@ class Dashboard extends Component {
   }
 
   render(){
-    let viewToRender;
-    if(this.state.viewType.value === "Classic"){
-      viewToRender = this.state.userCommunityData.map((c) =>
-      <li key={c.communityId}>
-        <p>{c.title}</p>
-        <a href={c.server + 'auth/jwt?token=' + c.token + '&redirectUrl=/view/' + c.welcomeViewId} target="_blank" rel="noopener noreferrer">
-        <button className="dashboard-enterButton" type="button"><i className="far fa-arrow-alt-circle-right"></i></button></a>
-      </li>);
-    } else if(this.state.viewType.value === "Enhanced"){
-      viewToRender = this.state.userCommunityData.map((c) =>
-        <li key={c.communityId}>
-            <p>{c.title}</p>
-            <button className="dashboard-enterButton" type="button" onClick={() => this.enterCommunity(c)}>
-            <i className="far fa-arrow-alt-circle-right"></i></button>
-        </li>);
-    }
-
-
     return (
       <div className="d-flex" id="wrapper">
 
@@ -158,9 +143,18 @@ class Dashboard extends Component {
 
               <div className = "col-md-6 dashboard-mainContentCol">
                 <h1>My Knowledge Building Communities</h1>
-                <ul className="dashboard-userCommunities" id = "userCommunities">
-                  {viewToRender}
-                </ul>
+                <table className="dashboard-userCommunities table" id = "userCommunities">
+                  <tbody>
+                    {this.state.userCommunityData.map((c) => {
+                        return(
+                          <tr key={c.communityId} onClick={() => this.enterCommunity(c)}>
+                            <td className="dashboard-userCommunities-row">
+                              {c.title}<button className="dashboard-enterButton" type="button"><i className="fas fa-door-open"></i></button>
+                            </td>
+                          </tr>)
+                    })}
+                  </tbody>
+                </table>
               </div>
 
               <div className = "col-md-6 dashboard-mainContentCol">
