@@ -2,10 +2,10 @@ import React, {Component} from 'react';
 import {withRouter} from 'react-router';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { setCurrentLoginForm } from './store/globalsReducer.js'
+import { setCurrentLoginForm, setGlobalToken } from './store/globalsReducer.js'
 import $ from 'jquery';
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
-import {executePromises} from './helper/Login_helper.js';
+import {executePromises, getLoginData} from './helper/Login_helper.js';
 
 import './css/Login.css';
 
@@ -32,7 +32,12 @@ class LoginForm extends Component {
     var uname = this.state.uname;
     var pwd = this.state.pwd;
     document.getElementById("errorMessage").style.display = "hidden";
-    executePromises(uname, pwd, this);
+    executePromises(uname, pwd, this).then((result) => {
+      if(result === 1){
+        this.props.setGlobalToken(getLoginData()[1]);
+        this.props.history.push("/dashboard");
+      }
+    });
     return false;
   }
 
@@ -91,6 +96,7 @@ class LoginForm extends Component {
 
 
 const mapDispatchToProps = {
+    setGlobalToken,
     setCurrentLoginForm
 };
 

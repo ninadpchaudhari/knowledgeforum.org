@@ -8,7 +8,6 @@ import View from './components/View.js'
 import { setGlobalToken, setCurrentServer, fetchLoggedUser } from './store/globalsReducer.js'
 import { getLoginData } from './helper/Login_helper.js'
 import ProtectedRoute from './ProtectedRoute.jsx'
-import SignUpForm from './SignUpForm';
 import 'react-notifications-component/dist/theme.css'
 function App() {
 
@@ -27,9 +26,9 @@ function App() {
             <Router>
                 <Switch>
                     <Route exact path="/" component={Login}/>
-                    <Route exact path="/signup" component={SignUpForm}></Route>
-                    <Route exact path="/dashboard" component={Dashboard}></Route>
-                    <Route path="/view/:viewId" component={View}></Route>
+                    <ProtectedRoute exact path="/dashboard" component={Dashboard}></ProtectedRoute>
+                    <ProtectedRoute path="/view/:viewId" component={View}></ProtectedRoute>
+                    <ProtectedRoute component={Dashboard}></ProtectedRoute>
                 </Switch>
             </Router>
         </div>

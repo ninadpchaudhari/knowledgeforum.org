@@ -28,8 +28,8 @@ export function executePromises(uname, pwd, login_form_component){
   }
 
   // execute all the login promises
-  Promise.all(promises).then(function(data){
-    responseHandler(uname, data, login_form_component);
+  return Promise.all(promises).then(function(data){
+    return responseHandler(uname, data, login_form_component);
   }).catch(function(error){
     console.log(error);
   });
@@ -54,17 +54,7 @@ export function responseHandler(uname, data, login_form_component){
       var token = data[i][0].token;
       var server = data[i][1];
 
-      // if its the first login we set first server as the default active server
-
-      // and all other servers as inactive
-      if(userStorage === null && successfulLogin === false){
-        serverTokenPair.push([server, token, "active"]);
-      } else if(userStorage == null){
-        serverTokenPair.push([server, token, "inactive"]);
-      }
-
-      // if it is not the first login then we retrieve last active server from localStorage
-      else if(userStorage[i][2] === "active"){
+      if((userStorage === null && successfulLogin === false) || (userStorage !== null && userStorage[i][2] === "active")){
         serverTokenPair.push([server, token, "active"]);
       } else {
         serverTokenPair.push([server, token, "inactive"]);
@@ -72,14 +62,12 @@ export function responseHandler(uname, data, login_form_component){
 
       successfulLogin = true;
 
-
       // this else if case handles a user having the same username on multiple servers but with different passwords
     } else if(data[i][0].message !== undefined && userStorage !== null){
       var username = document.getElementById("uname").value;
       var password = document.getElementById("pwd").value;
       localStorage.removeItem(username);
-      executePromises(username, password, login_form_component);
-      break;
+      return executePromises(username, password, login_form_component);
     } else if(data[i][0].message !== undefined && errorMessage === "") {
       errorMessage = data[i][0].message;
     } else if(errorMessage === "This userName is not registered." && data[i][0].message === "This password is not correct.") {
@@ -92,13 +80,12 @@ export function responseHandler(uname, data, login_form_component){
   if(!successfulLogin){
     document.getElementById("errorMessage").style.display = "visible";
     login_form_component.setState({errorMessage: errorMessage});
+    return 0;
   } else {
     localStorage.setItem("Username", uname);
     localStorage.setItem(uname, JSON.stringify(serverTokenPair));
-    login_form_component.setState({response: JSON.stringify(serverTokenPair)});
-    login_form_component.props.history.push('/dashboard');
+    return 1;
   }
-
 }
 
 export function getLoginData(){
@@ -106,7 +93,7 @@ export function getLoginData(){
     if (uname){
         const servers = JSON.parse(localStorage.getItem(uname));
         for(let server_data of servers){
-            if (server_data[2] === 'active'){
+            if (server_data[2] === 'active' && server_data[1] !== ""){
                 return server_data;
             }
         }

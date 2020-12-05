@@ -1,14 +1,12 @@
 import React, {Component} from 'react';
 import Select from 'react-select';
-import makeAnimated from 'react-select/animated';
 import {withRouter} from 'react-router';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { Modal, Button } from 'react-bootstrap';
-import { setCurrentLoginForm } from './store/globalsReducer.js'
+import { setCurrentLoginForm, setGlobalToken } from './store/globalsReducer.js'
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
-import {SERVERS, getServerURL, getServerName} from './config.js';
-import {postNewUser, postNewSingaporeUser} from './api/user.js';
+import {SERVERS, getServerURL} from './config.js';
+import {postNewUser} from './api/user.js';
 
 import './css/Login.css';
 import './css/SignUpForm.css';
@@ -52,6 +50,7 @@ class SignUpForm extends Component {
         if(result[0] && result[0].token !== undefined) {
           localStorage.setItem("Username", this.state.username);
           localStorage.setItem(this.state.username, JSON.stringify([[result[1], result[0].token, "active"]]));
+          this.props.setGlobalToken(result[0].token);
           this.props.history.push('/dashboard');
         } else {
           var resultErrorMessage = result[0].message || result[0].error || result[0].errorCode || result[0];
@@ -142,6 +141,7 @@ class SignUpForm extends Component {
 }
 
 const mapDispatchToProps = {
+    setGlobalToken,
     setCurrentLoginForm
 };
 
