@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
 import Select from 'react-select';
-import {withRouter} from 'react-router';
+import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { setCurrentLoginForm, setGlobalToken } from './store/globalsReducer.js'
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
-import {SERVERS, getServerURL} from './config.js';
+import {SERVERS, getServerURL, siteKey} from './config.js';
 import {postNewUser} from './api/user.js';
 
 import './css/Login.css';
@@ -26,7 +27,9 @@ class SignUpForm extends Component {
       registrationKey: null,
       errorMessage: null,
       singaporeSelected: false,
+      recaptchaVerified: false,
     }
+
   }
 
   inputChangeHandler = (event) => {
@@ -43,7 +46,12 @@ class SignUpForm extends Component {
 
   formSubmitHandler = (event) => {
     event.preventDefault();
-    if(this.state.password !== this.state.confirmPassword){
+    if(this.state.server === null) {
+      this.setState({errorMessage: "Please select a server."});
+    } else if(/^[a-zA-Z][.0-9a-zA-Z@_-]{1,100}$/.test(this.state.username) === false) {
+      this.setState({errorMessage: ["Username must meet the following requirements:", <br />, "1. Start with a letter", <br />,
+      "2. Not contain any white spaces", <br />, "3. Can only contain the special characters @._-"]});
+    } else if(this.state.password !== this.state.confirmPassword){
       this.setState({errorMessage: "Passwords do not match."});
     } else {
       postNewUser(this.state.server, this.state.firstname, this.state.lastname, this.state.email, this.state.username, this.state.password, this.state.registrationKey).then((result) => {
@@ -66,12 +74,23 @@ class SignUpForm extends Component {
     this.props.setCurrentLoginForm("Login");
   }
 
+  verifyRecaptcha = (event) => {
+    event === null ? this.setState({recaptchaVerified: false}) : this.setState({recaptchaVerified: true})
+  }
+
   render() {
-    let registrationKeyInput;
+    let userAuthenticationMethod;
     if(this.state.singaporeSelected){
-      registrationKeyInput = <div className = "login-input-wrapper"><i className="fas fa-lock"></i><input type="text" id="registrationKey" name="registrationKey" placeholder="Singapore Account Creation Key" required onChange={this.inputChangeHandler}></input></div>;
+      userAuthenticationMethod = <div className = "login-input-wrapper"><i className="fas fa-lock"></i><input type="text" id="registrationKey" name="registrationKey" placeholder="Singapore Account Creation Key" required onChange={this.inputChangeHandler}></input></div>;
     } else {
-      registrationKeyInput = null;
+      userAuthenticationMethod = <ReCAPTCHA sitekey={siteKey} onChange={this.verifyRecaptcha}/>;
+    }
+
+    let signUpButton;
+    if((this.state.recaptchaVerified === true && !this.state.singaporeSelected) || (this.state.singaporeSelected && this.state.registrationKey !== null)){
+      signUpButton = <input className = "login-button" type="submit" value="Create Account"></input>;
+    } else {
+      signUpButton = <input className = "login-button login-disabled" type="submit" value="Create Account" disabled></input>;
     }
 
     return(
@@ -84,6 +103,7 @@ class SignUpForm extends Component {
               <i className="fas fa-server"></i>
               <div className="select-container">
                 <Select
+                  placeholder={"Select a Server"}
                   options={SERVERS.map((s) => ({value: s.url, label: s.name}))}
                   onChange = {this.serverSelectHandler}
                   className="basic-multi-select"
@@ -110,7 +130,7 @@ class SignUpForm extends Component {
 
             <div className = "login-input-wrapper">
               <i className="fas fa-user"></i>
-              <input type="text" id="username" name="username" placeholder="Username" minLength="3" maxLength="49" pattern="^[a-zA-Z][.0-9a-zA-Z@_-]{1,100}$" required onChange={this.inputChangeHandler}></input>
+              <input type="text" id="username" name="username" placeholder="Username" minLength="3" maxLength="49" required onChange={this.inputChangeHandler}></input>
             </div>
 
             <div className = "login-input-wrapper">
@@ -123,13 +143,13 @@ class SignUpForm extends Component {
               <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required onChange={this.inputChangeHandler}></input>
             </div>
 
-            {registrationKeyInput}
+            {userAuthenticationMethod}
 
             <div>
               <p style={{color:'red'}} id = "errorMessage" name="errorMessage">{this.state.errorMessage}</p>
             </div>
 
-            <input className = "login-button" type="submit" value="Create Account"></input>
+            {signUpButton}
 
           </form>
 

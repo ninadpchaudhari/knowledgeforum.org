@@ -84,7 +84,7 @@ class Login extends Component {
                     </div>
                   </div>
 
-                  <Modal dialogClassName="login-modal-dialog" show={this.state.showModal} onHide={this.handleClose}>
+                  <Modal dialogClassName="login-modal-dialog" /*show={this.state.showModal}*/ onHide={this.handleClose}>
                     <Modal.Header closeButton>
                       <Modal.Title>Knowledge Forum Demo</Modal.Title>
                     </Modal.Header>

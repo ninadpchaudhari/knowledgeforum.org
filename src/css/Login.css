@@ -7,6 +7,7 @@ body {
 }
 .login-row {
   height: inherit;
+  overflow: auto;
 }
 
 .login-col {
@@ -21,12 +22,13 @@ body {
 }
 
 .login-form-wrapper {
-  margin-top: 15%;
+  margin-top: 10%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 15px;
   background-color: white;
   border: 1px solid #48535c;
   border-radius: 3px;
-  margin-left: auto;
-  margin-right: auto;
   padding: 5%;
   padding-bottom: 10px;
   max-width: inherit;
@@ -35,6 +37,7 @@ body {
  @media (max-width: 768px){
    .login-form-wrapper {
      margin-top: 0;
+     margin-bottom: 0;
      border: none;
      border-radius: 0px;
    }
@@ -102,6 +105,14 @@ body {
   cursor: pointer;
   border: 2px solid black;
   padding: 6px;
+}
+
+.login-disabled {
+  background-color: #95999c;
+}
+
+.login-disabled:hover {
+  cursor: not-allowed;
 }
 
 .login-create-account-p {

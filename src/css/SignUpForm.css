@@ -5,7 +5,6 @@
 
 .fa-server {
   float: left;
-  width: 5%;
   margin-top: 10px;
 }
 
@@ -18,12 +17,8 @@
   clear: both;
 }
 
-.basic-multi-select {
-
-}
-
 .select__value-container, .select__value-container--is-multi, .css-g1d714-ValueContainer {
-  padding: none !important;
+  padding: 0 !important;
 }
 
 .select__control {

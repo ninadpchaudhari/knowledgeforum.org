@@ -138,9 +138,6 @@ class Graph extends Component {
       },
     ]);
 
-    // CYTOSCAPE SUPPORTIMAGES EXTENSION
-      /* var si = cy.supportimages(); */
-
     this.loadElements();
 
     var ref = this;
@@ -170,13 +167,13 @@ class Graph extends Component {
 
   }
 
+  componentDidUpdate(prevProps, prevState) {
+      //If any prop is updated, re-load elements
+      if (this.props.viewId !== prevProps.viewId || this.props.communityId !== prevProps.communityId || this.props.token !== prevProps.token || this.props.server !== prevProps.server){
+          this.loadElements();
+      }
+  }
 
-    componentDidUpdate(prevProps, prevState) {
-        //If any prop is updated, re-load elements
-        if (this.props.viewId !== prevProps.viewId || this.props.communityId !== prevProps.communityId || this.props.token !== prevProps.token || this.props.server !== prevProps.server){
-            this.loadElements();
-        }
-    }
   render() {
     return(
           <CytoscapeComponent
