@@ -6,7 +6,6 @@ import {extractTokenFromStorage} from '../config.js';
 import {getUserInfo} from '../api/user.js';
 import {getUserCommunities} from '../api/user.js';
 import {getCommunities} from '../api/community.js';
-import {getCommunityWelcomeView} from '../api/community.js';
 import {postCommunityRegistration} from '../api/community.js';
 
 // adds the users servers to the side bar
@@ -97,36 +96,21 @@ function updateCommunities(result, dashboard_component){
 
 // updates the user community data react state
 function updateUserCommunities(data, server, dashboard_component) {
-  var token = extractTokenFromStorage(server);
-  var promises = [];
+  var userCommunityData = [];
 
-  // for loop to create promises to get welcome view IDs for each community
+  // for loop to append the users communities
   for(var i = 0; i < data.length; i++){
-    var id = data[i].communityId;
-    var p = getCommunityWelcomeView(token, id, server);
-    promises.push(p);
+    if(data[i] && data[i]._id){
+      userCommunityData.push({
+          title: data[i]._community.title,
+          server: dashboard_component.state.currentServerURL,
+          token: dashboard_component.state.token,
+          communityId: data[i].communityId
+      });
+    }
   }
 
-  // execute all promises and append the users communities
-  Promise.all(promises).then(function(responses) {
-    var userCommunityData = [];
-    for(var i = 0; i < responses.length; i++){
-      if(responses[i]){
-        if(responses[i]._id){
-          userCommunityData.push({
-            title: data[i]._community.title,
-            server: dashboard_component.state.currentServerURL,
-            token: dashboard_component.state.token,
-            communityId: responses[i].communityId,
-            welcomeViewId: responses[i]._id,
-          });
-        }
-      }
-    }
-    dashboard_component.setState({userCommunityData: userCommunityData});
-  }).catch(function(error) {
-    console.log(error);
-  });
+  dashboard_component.setState({userCommunityData: userCommunityData});
 }
 
 

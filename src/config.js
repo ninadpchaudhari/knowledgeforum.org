@@ -16,7 +16,7 @@ export const MINZOOM = 0.75;
 export const MAXZOOM = 2;
 
 // GOOGLE RECAPTCHA SITE KEY FOR SIGN UP PAGE
-export const siteKey = "6LfcR60ZAAAAALR4zc7tMUf8g_et0e1LIVM8oEv_";
+export const siteKey = "6LdTo2oaAAAAALKB-WW7km7SabLVsBXSg4NAaX_K";
 
 // Helper function to retrieve a servers name from its URL
 export function getServerName(url){

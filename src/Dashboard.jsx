@@ -2,11 +2,13 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux'
 import Select from 'react-select';
 
-import { setGlobalToken, setCurrentServer, setCommunityId, setViewId } from './store/globalsReducer.js';
+import { setGlobalToken, setCurrentServer, setCommunityId, setViewId, fetchLoggedUser } from './store/globalsReducer.js';
 
 import $ from 'jquery';
-import {appendUserServers, loadServer, joinCommunity, toggleSidebar, logout} from './helper/Dashboard_helper.js';
-import {getServerURL} from './config.js';
+import { setToken, setServer } from './store/api';
+import { getCommunityWelcomeView } from './api/community.js';
+import { appendUserServers, loadServer, joinCommunity, toggleSidebar, logout } from './helper/Dashboard_helper.js';
+import { getServerURL } from './config.js';
 
 import './css/Dashboard.css';
 
@@ -75,21 +77,35 @@ class Dashboard extends Component {
   }
 
   enterCommunity(c){
-    if(this.state.viewType.value === "Classic") {
-      var aTag = document.createElement('a');
-      aTag.href = c.server + 'auth/jwt?token=' + c.token + '&redirectUrl=/view/' + c.welcomeViewId;
-      aTag.target = "_blank";
-      document.body.appendChild(aTag);
-      aTag.click();
-    } else if(this.state.viewType.value === "Enhanced") {
-      this.props.setGlobalToken(c.token);
-      this.props.setCurrentServer(c.server);
-      this.props.setCommunityId(c.communityId);
-      this.props.setViewId(c.welcomeViewId);
-      this.props.history.push({
-        pathname: `/view/${c.welcomeViewId}`,
-      });
-    }
+    var welcomeViewId = getCommunityWelcomeView(c.token, c.communityId, c.server);
+    var self = this;
+
+    welcomeViewId.then(function(response){
+      if(self.state.viewType.value === "Classic") {
+        var aTag = document.createElement('a');
+        aTag.href = c.server + 'auth/jwt?token=' + c.token + '&redirectUrl=/view/' + response._id;
+        aTag.target = "_blank";
+        document.body.appendChild(aTag);
+        aTag.click();
+      } else if(self.state.viewType.value === "Enhanced") {
+        sessionStorage.setItem('token', c.token);
+        sessionStorage.setItem('communityId', c.communityId);
+        sessionStorage.setItem('viewId', response._id);
+        setServer(c.server);
+        self.props.setCurrentServer(c.server);
+        setToken(c.token);
+        self.props.fetchLoggedUser();
+        self.props.setGlobalToken(c.token);
+        self.props.setCommunityId(c.communityId);
+        self.props.setViewId(response._id);
+        self.props.history.push({
+          pathname: `/view/${response._id}`,
+        });
+      }
+
+    }).catch(function(error){
+      console.log(error);
+    });
   }
 
   componentDidMount() {
@@ -199,6 +215,7 @@ const mapDispatchToProps = {
     setCurrentServer,
     setCommunityId,
     setViewId,
+    fetchLoggedUser,
 }
 
 export default connect(
