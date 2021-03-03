@@ -6,6 +6,7 @@ import Axios from 'axios';
 import { apiUrl, getCommunity, putCommunity, postLink, getViews } from '../store/api.js';
 import { newNote, openContribution, setCheckedNotes } from '../store/noteReducer.js'
 import { connect } from 'react-redux'
+import TopNavBar from '../TopNavBar/TopNavbar.js'
 import DialogHandler from '../components/dialogHandler/DialogHandler.js'
 import NoteContent from '../components/NoteContent/NoteContent'
 import ScaffoldSelect from '../components/scaffold/ScaffoldSelect'
@@ -13,6 +14,7 @@ import ListOfNotes from './ListOfNotes/ListOfNotes'
 import { fetchView, fetchCommunity, setCommunityId, setViewId, fetchViewCommunityData } from '../store/globalsReducer.js'
 import { fetchAuthors } from '../store/userReducer.js'
 import { Breakpoint } from 'react-socks'
+import '../css/index.css';
 import './View.css';
 
 class View extends Component {
@@ -300,6 +302,7 @@ class View extends Component {
         return (
             <>
                 <DialogHandler />
+                <TopNavBar></TopNavBar>
                 <Breakpoint medium up>
 
                     <div className="row min-width">
