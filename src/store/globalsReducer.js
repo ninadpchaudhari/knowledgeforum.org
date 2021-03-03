@@ -1,5 +1,5 @@
 import { createAction, createReducer } from '@reduxjs/toolkit'
-import { getObject, getCommunity, getGroups, getUser, getAuthor, getCommunityViews, getCommunities, getUserCommunities, setServer, setToken } from './api.js'
+import { getObject, getCommunity, getGroups, getUser, getAuthor, getCommunityViews, getCommunities, getUserCommunities } from './api.js'
 import { fetchAuthors } from './userReducer.js';
 import { fetchScaffolds } from './scaffoldReducer.js'
 export const setGlobalToken = createAction('SET_TOKEN')
@@ -82,7 +82,6 @@ export const globalsReducer = createReducer(initState, {
     [setGlobalToken]: (state, action) => {
         state.token = action.payload
         state.isAuthenticated = state.token ? true : false
-        setToken(action.payload)
     },
     [setIsAuthenticated]: (state, action) => {
         state.isAuthenticated = state.token ? true : false
@@ -95,7 +94,6 @@ export const globalsReducer = createReducer(initState, {
     },
     [setCurrentServer]: (state, action) => {
         state.currentServer = action.payload
-        setServer(action.payload)
     },
     [setViewId]: (state, action) => {
         state.viewId = action.payload

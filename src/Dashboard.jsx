@@ -88,16 +88,16 @@ class Dashboard extends Component {
         document.body.appendChild(aTag);
         aTag.click();
       } else if(self.state.viewType.value === "Enhanced") {
-        sessionStorage.setItem('token', c.token);
-        sessionStorage.setItem('communityId', c.communityId);
-        sessionStorage.setItem('viewId', response._id);
         setServer(c.server);
-        self.props.setCurrentServer(c.server);
+        sessionStorage.setItem('token', c.token);
+        self.props.setGlobalToken(c.token);
         setToken(c.token);
         self.props.fetchLoggedUser();
-        self.props.setGlobalToken(c.token);
+        sessionStorage.setItem('communityId', c.communityId);
         self.props.setCommunityId(c.communityId);
+        sessionStorage.setItem('viewId', response._id);
         self.props.setViewId(response._id);
+        self.props.setCurrentServer(c.server);
         self.props.history.push({
           pathname: `/view/${response._id}`,
         });
