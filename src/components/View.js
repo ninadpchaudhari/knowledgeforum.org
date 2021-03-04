@@ -51,11 +51,7 @@ class View extends Component {
                       />
                   </div>
                   <div className="col" id="main-canvas">
-                      <Graph token={this.props.token}
-                             server={this.props.currentServer}
-                             communityId={this.props.communityId}
-                             viewId={this.props.viewId}
-                             onViewClick={this.onViewClick}
+                      <Graph onViewClick={this.onViewClick}
                              onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}
                       />
                   </div>

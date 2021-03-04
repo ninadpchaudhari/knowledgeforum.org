@@ -87,7 +87,7 @@ class Dashboard extends Component {
         aTag.target = "_blank";
         document.body.appendChild(aTag);
         aTag.click();
-      } else if(self.state.viewType.value === "Enhanced") {
+      } else if(self.state.viewType.value === "Enhanced" || self.state.viewType.value === "Light") {
         setServer(c.server);
         sessionStorage.setItem('token', c.token);
         self.props.setGlobalToken(c.token);
@@ -129,6 +129,7 @@ class Dashboard extends Component {
                       options={[
                         { value: 'Classic', label: 'Classic' },
                         { value: 'Enhanced', label: 'Enhanced' },
+                        { value: 'Light', label: 'Light' },
                       ]} />
             </div>
           </div>

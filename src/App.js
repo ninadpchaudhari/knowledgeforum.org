@@ -4,8 +4,8 @@ import { useDispatch } from 'react-redux';
 import ReactNotification from 'react-notifications-component';
 import Login from './Login';
 import Dashboard from './Dashboard';
-//import View from './components/View.js'
-import View from './View/View.js';
+import View from './components/View.js'
+//import View from './View/View.js';
 import { setGlobalToken, setCurrentServer, fetchLoggedUser } from './store/globalsReducer.js'
 import { setToken, setServer } from './store/api.js'
 import { getLoginData } from './helper/Login_helper.js'

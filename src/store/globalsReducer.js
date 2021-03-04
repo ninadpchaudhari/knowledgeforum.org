@@ -2,6 +2,7 @@ import { createAction, createReducer } from '@reduxjs/toolkit'
 import { getObject, getCommunity, getGroups, getUser, getAuthor, getCommunityViews, getCommunities, getUserCommunities } from './api.js'
 import { fetchAuthors } from './userReducer.js';
 import { fetchScaffolds } from './scaffoldReducer.js'
+import { fetchViewNotes, fetchBuildsOn, setCheckedNotes, fetchSupports, fetchReadLinks } from './noteReducer.js'
 export const setGlobalToken = createAction('SET_TOKEN')
 export const setCurrentLoginForm = createAction('SET_CURRENT_LOGIN_FORM')
 export const setCommunity = createAction('SET_COMMUNITY')
@@ -187,24 +188,24 @@ export const fetchCommunityViews = (communityId) => async (dispatch) => {
 export const fetchViewCommunityData = (viewId) => async (dispatch) => {
 
     //GET LIST OF ALL COMMUNITIES
-    dispatch(fetchCommunities())
+    //dispatch(fetchCommunities())
     //GET USER'S REGISTERED COMMUNITIES
-    // dispatch(fetchUserCommunities())
-    // dispatch(setCheckedNotes([]))
+    //dispatch(fetchUserCommunities())
+    dispatch(setCheckedNotes([]))
     const view = await getObject(viewId)
     const commId = view.communityId
     dispatch(setView(view))
     dispatch(setViewId(view._id))
-    // dispatch(fetchViewNotes(view._id))
+    dispatch(fetchViewNotes(view._id))
     const community = (await getCommunity(commId)).data
     dispatch(setCommunity(
         { groups: [], ...community }
     ))
-    // dispatch(fetchBuildsOn(commId))
+    dispatch(fetchBuildsOn(commId))
     dispatch(fetchAuthor(commId))
-    // dispatch(fetchCommunityViews(commId))
+    dispatch(fetchCommunityViews(commId))
     dispatch(fetchAuthors(commId))
-    // dispatch(fetchReadLinks(commId, view._id))
+    dispatch(fetchReadLinks(commId, view._id))
     dispatch(fetchScaffolds(commId, community.rootContextId))
-    // dispatch(fetchSupports(commId))
+    dispatch(fetchSupports(commId))
 }
