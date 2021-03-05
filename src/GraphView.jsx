@@ -148,12 +148,15 @@ class Graph extends Component {
       }
     });
 
+    if(this.props.currentView === "Enhanced"){
+      this.loadElements();
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
       //If any prop is updated, re-load elements
-      if (this.props.viewId !== prevProps.viewId || this.props.buildsOn !== prevProps.buildsOn || this.props.authors !== prevProps.authors ||
-        this.props.viewLinks !== prevProps.viewLinks || this.props.readLinks !== prevProps.readLinks){
+      if (this.props.currentView === "Enhanced" && (this.props.viewId !== prevProps.viewId || this.props.buildsOn !== prevProps.buildsOn || this.props.authors !== prevProps.authors ||
+        this.props.viewLinks !== prevProps.viewLinks || this.props.readLinks !== prevProps.readLinks)){
           this.loadElements();
       }
   }

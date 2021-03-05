@@ -1,19 +1,29 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import { Button } from 'react-bootstrap';
+import { DropdownButton, Dropdown, Button, Row, Col, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { setViewId, fetchViewCommunityData } from '../store/globalsReducer.js'
-import {openContribution}from '../store/noteReducer.js'
-import Graph from '../Graph';
+import { newNote, openContribution, setCheckedNotes } from '../store/noteReducer.js'
+import TopNavBar from '../TopNavBar/TopNavbar';
+import GraphView from '../GraphView.jsx';
+import LightView from '../View/LightView.js';
+import '../css/index.css';
 import "./View.css";
-import SideBar from "./SideBar.js"
 import DialogHandler from './dialogHandler/DialogHandler.js'
 
 class View extends Component {
 
     constructor(props){
         super(props)
+        this.state = {
+          currentView: this.props.location.state.currentView,
+          showModal: false,
+        }
+
         this.onViewClick = this.onViewClick.bind(this);
+        this.newView = this.newView.bind(this);
+        this.handleShow = this.handleShow.bind(this);
     }
+
     componentDidMount() {
 
         if (this.props.viewId) {
@@ -36,26 +46,92 @@ class View extends Component {
         this.props.history.push({pathname: `/view/${viewId}`})
     }
 
+    newView() {
+        this.setState({
+            showView: true,
+            showModel: true,
+        })
+    }
+
+    handleShow(value) {
+        this.setState({
+            showModel: value,
+        });
+    }
+
+    goToDashboard = () => {
+        this.props.history.push("/dashboard");
+    }
+
+    switchView = () => {
+      if(this.state.currentView === "Enhanced"){
+        this.setState({ currentView: "Light" });
+      } else if(this.state.currentView === "Light"){
+        this.setState({ currentView: "Enhanced" });
+      }
+    }
+
+    renderTooltip = (props) => (
+        <Tooltip id="button-tooltip" {...props}>
+            {props.message}
+        </Tooltip>
+    );
+
     render(){
+
+      let viewToRender;
+      if(this.state.currentView === "Enhanced"){
+        viewToRender = <GraphView currentView={this.state.currentView} onViewClick={this.onViewClick} onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")} />;
+      } else if(this.state.currentView === "Light"){
+        viewToRender = <LightView currentView={this.state.currentView}/>;
+      }
+
       return(
           <div className="container-fluid">
               <div className="row view-top-nav-bar">
-                <Button className="view-dashboard-return-button" onClick={() => this.props.history.push("/dashboard")}>Return to Dashboard <i className="fas fa-sign-out-alt"></i></Button>
+                  {/*<TopNavBar></TopNavBar>*/}
               </div>
               <DialogHandler />
               <div className="row" >
+
+                  {/* SIDEBAR */}
                   <div className="col" id="sticky-sidebar">
-                      <SideBar communityId={this.props.communityId}
-                               view={this.props.view}
-                          author={this.props.author}
-                      />
+                    <DropdownButton drop="right" variant="outline-info" title={<i className="fas fa-plus-circle"></i>}>
+
+                        <Dropdown.Item onClick={() => this.props.newNote(this.props.view, this.props.communityId, this.props.author._id)}>
+                            New Note
+                        </Dropdown.Item>
+
+                        <Dropdown.Item onClick={() => this.newView()}>
+                            new View
+                        </Dropdown.Item>
+                    </DropdownButton>
+
+                    <OverlayTrigger
+                        placement="right"
+                        delay={{ show: 250, hide: 400 }}
+                        overlay={this.renderTooltip({ message: "Exit Community" })}>
+                        <Button onClick={this.goToDashboard} className="circle-button" variant="outline-info"><i className="fa fa-arrow-left"></i></Button>
+                    </OverlayTrigger>
+
+                    <OverlayTrigger
+                        placement="right"
+                        delay={{ show: 250, hide: 400 }}
+                        overlay={this.renderTooltip({ message: "Change View" })}>
+                        <Button onClick={this.switchView} className="circle-button pad" variant="outline-info">
+                            <i className="fa fa-globe"></i>
+                        </Button>
+                    </OverlayTrigger>
                   </div>
+                  {/* END SIDEBAR */}
+
+                  {/* MAIN CANVAS */}
                   <div className="col" id="main-canvas">
-                      <Graph onViewClick={this.onViewClick}
-                             onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}
-                      />
+                      {viewToRender}
                   </div>
+                  {/* END MAIN CANVAS */}
               </div>
+
           </div>
       )
     }
@@ -75,7 +151,8 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = {
     setViewId,
     fetchViewCommunityData,
-    openContribution
+    openContribution,
+    newNote
 };
 
 export default connect(

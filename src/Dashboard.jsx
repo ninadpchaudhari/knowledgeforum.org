@@ -89,17 +89,18 @@ class Dashboard extends Component {
         aTag.click();
       } else if(self.state.viewType.value === "Enhanced" || self.state.viewType.value === "Light") {
         setServer(c.server);
-        sessionStorage.setItem('token', c.token);
-        self.props.setGlobalToken(c.token);
         setToken(c.token);
-        self.props.fetchLoggedUser();
+        sessionStorage.setItem('token', c.token);
         sessionStorage.setItem('communityId', c.communityId);
-        self.props.setCommunityId(c.communityId);
         sessionStorage.setItem('viewId', response._id);
+        self.props.setGlobalToken(c.token);
+        self.props.fetchLoggedUser();
+        self.props.setCommunityId(c.communityId);
         self.props.setViewId(response._id);
         self.props.setCurrentServer(c.server);
         self.props.history.push({
           pathname: `/view/${response._id}`,
+          state: { currentView: self.state.viewType.value }
         });
       }
 
