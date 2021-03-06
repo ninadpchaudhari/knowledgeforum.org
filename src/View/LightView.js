@@ -289,7 +289,7 @@ class View extends Component {
                     <div className="row min-width">
 
                         {/* NOTES */}
-                        <Col md="5" sm="12" className="mrg-6-top pd-2-right v-scroll">
+                        <Col md="5" sm="12" className="mrg-1-top pd-2-right v-scroll">
                             <Form className="mrg-1-bot">
                                 <Row>
                                     <Col>

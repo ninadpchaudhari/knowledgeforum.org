@@ -1,17 +1,37 @@
-#sticky-sidebar{
-    padding-top: 1rem;
-    flex: 0 0 4%;
-    max-width: 4%;
-}
-#main-canvas{
-    flex: 0 0 96%;
-    max-width: 96%;
+.viewNavBar{
+  width: 100%;
 }
 
-.view-dashboard-return-button {
-  margin: 15px;
-  padding: 5px;
-  font-size: 0.75rem;
-  background-color: #203c66;
-  float: right;
+#sticky-sidebar{
+    /* position: fixed !important;     Fixed Sidebar (stay in place on scroll and position relative to viewport) */
+    height: 100vh !important;
+    z-index: 1 !important;      /* Stay on top of everything */
+    overflow-x: hidden;     /* Disable horizontal scroll */
+    padding-top: 10px;
+}
+
+@media(max-width: 600px) {
+    #sticky-sidebar{
+        margin-top: 4rem !important;
+        height: 75vh !important;
+        width: 100% !important;    /* Set the width of the sidebar*/
+        z-index: 1 !important;      /* Stay on top of everything */
+        overflow-y: hidden;     /* Disable horizontal scroll */
+        padding-top: 10px;
+    }
+
+}
+
+.dropright .dropdown-toggle{
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
+}
+
+#main-canvas{
+    padding-left: 0;
+    padding-right: 0;
 }

@@ -100,7 +100,7 @@ class Dashboard extends Component {
         self.props.setCurrentServer(c.server);
         self.props.history.push({
           pathname: `/view/${response._id}`,
-          state: { currentView: self.state.viewType.value }
+          state: { currentView: self.state.viewType.value, communityTitle: c.title }
         });
       }
 

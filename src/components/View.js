@@ -16,6 +16,7 @@ class View extends Component {
         super(props)
         this.state = {
           currentView: this.props.location.state.currentView,
+          communityTitle: this.props.location.state.communityTitle,
           showModal: false,
         }
 
@@ -88,14 +89,16 @@ class View extends Component {
 
       return(
           <div className="container-fluid">
-              <div className="row view-top-nav-bar">
-                  {/*<TopNavBar></TopNavBar>*/}
-              </div>
               <DialogHandler />
+
+              <div className="row">
+                  {<TopNavBar communityTitle={this.state.communityTitle}></TopNavBar>}
+              </div>
+
               <div className="row" >
 
                   {/* SIDEBAR */}
-                  <div className="col" id="sticky-sidebar">
+                  <div className="col-1" id="sticky-sidebar">
                     <DropdownButton drop="right" variant="outline-info" title={<i className="fas fa-plus-circle"></i>}>
 
                         <Dropdown.Item onClick={() => this.props.newNote(this.props.view, this.props.communityId, this.props.author._id)}>
@@ -126,7 +129,7 @@ class View extends Component {
                   {/* END SIDEBAR */}
 
                   {/* MAIN CANVAS */}
-                  <div className="col" id="main-canvas">
+                  <div className="col-11" id="main-canvas">
                       {viewToRender}
                   </div>
                   {/* END MAIN CANVAS */}

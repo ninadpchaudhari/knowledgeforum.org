@@ -38,8 +38,8 @@ class TopNavbar extends Component {
     const userName = this.props.user ? `${this.props.user.firstName} ${this.props.user.lastName}` : null
     const isViewUrl = this.props.location.pathname.startsWith('/view/')
     return (
-      <Navbar bg="dark" variant="dark" fixed="top">
-        <Navbar.Brand href="#community-manager">KF6 Light</Navbar.Brand>
+      <Navbar className="viewNavBar" bg="dark" variant="dark">
+        <Navbar.Brand>{this.props.communityTitle}</Navbar.Brand>
         {isViewUrl ?
           (
             <Nav className="mr-auto">
@@ -66,7 +66,6 @@ class TopNavbar extends Component {
         {isLoggedIn ? (
           <>
             <Nav className="ml-auto">
-              <Nav.Link href="/#/change-password"><i className="fas fa-cog white"></i></Nav.Link>
               <Nav.Link className="white mr-auto"> {userName} </Nav.Link>
               <Button variant="outline-secondary" className='ml-2' href="/" onClick={this.logout}>Logout</Button>
             </Nav>
