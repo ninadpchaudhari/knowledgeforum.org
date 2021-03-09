@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
-import { Link } from "react-router-dom";
-import { DropdownButton, Dropdown, Button, Row, Col, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { Form, FormGroup, Label, Input, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap';
-import Axios from 'axios';
-import { apiUrl, getCommunity, putCommunity, postLink, getViews } from '../store/api.js';
+import { Row, Col } from 'react-bootstrap';
+import { Form, Input, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap';
 import { newNote, openContribution, setCheckedNotes } from '../store/noteReducer.js'
 import { connect } from 'react-redux'
-import TopNavBar from '../TopNavBar/TopNavbar.js'
 import DialogHandler from '../components/dialogHandler/DialogHandler.js'
 import NoteContent from '../components/NoteContent/NoteContent'
 import ScaffoldSelect from '../components/scaffold/ScaffoldSelect'
@@ -19,17 +15,12 @@ import './View.css';
 
 class View extends Component {
 
-    //TOKEN
-    token = sessionStorage.getItem('token');
-
     constructor(props) {
         super(props);
 
         this.state = {
             showView: false,
-            addView: '',
             showRiseAbove: false,
-            showModel: false,
             query: "",
             filteredData: [],
             filter: 'title',
@@ -37,8 +28,6 @@ class View extends Component {
         };
 
         this.getBuildOnHierarchy = this.getBuildOnHierarchy.bind(this)
-        this.handleSubmitView = this.handleSubmitView.bind(this);
-        this.handleChangeView = this.handleChangeView.bind(this);
         this.onCloseDialog = this.onCloseDialog.bind(this);
         this.onConfirmDrawDialog = this.onConfirmDrawDialog.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -91,84 +80,11 @@ class View extends Component {
 
     }
 
-    // SET VALUES
-    handleChangeView = (e) => {
-        let target = e.target;
-        let name = target.name;
-        let value = target.value;
-
-        this.setState({
-            [name]: value
-        });
-    }
-
-    // SUBMIT VIEW
-    handleSubmitView(e) {
-        e.preventDefault();
-        var config = {
-            headers: { Authorization: `Bearer ${this.token}` }
-        };
-
-        var addViewUrl = `${apiUrl}/contributions/${this.props.communityId}`;
-
-        var query = {
-            "authors": [this.props.author._id],
-            "communityId": this.props.communityId,
-            "permission": "public",
-            "status": "active",
-            "title": this.state.addView,
-            "type": "View"
-        }
-        Axios.post(addViewUrl, query, config)
-            .then(result => {
-                //get new view Id
-                let newViewId = result.data._id
-                getCommunity(this.props.communityId).then(data => {
-                    data.data.views.push(newViewId)
-                    putCommunity(data.data, this.props.communityId).then(obj => {
-                        getViews(this.props.communityId).then(viewsObj => {
-                            let pos = {
-                                x: 1000,
-                                y: 1000
-                            }
-                            postLink(this.props.viewId, newViewId, 'contains', pos).then(linkObj => {
-                                alert("View Added")
-                                window.location.reload(false);
-                            })
-                        })
-                    })
-                }).catch(error => {
-                    console.log(error);
-                })
-            }
-            ).catch(
-                error => {
-                    console.log(error);
-
-                }
-            );
-    }
-
-    newView() {
-        this.setState({
-            showView: true,
-            showModel: true,
-        })
-    }
-
     newRiseAbove() {
         this.setState({
             showView: false,
             showModel: true,
         })
-    }
-
-    //HANDLE MODEL
-    handleShow(value) {
-        this.setState({
-            showModel: value,
-        });
-
     }
 
     // FILTER RESULTS ON SCAFFOLD SELECT
@@ -180,12 +96,10 @@ class View extends Component {
 
     // CHANGE VIEW
     changeView(viewObj) {
-
         let viewId = viewObj.obj._id;
         this.props.history.push(`/view/${viewId}`);
         this.handleShow(false);
         window.location.reload();
-
     }
 
     onConfirmDrawDialog(drawing) {
@@ -396,56 +310,7 @@ class View extends Component {
                             }
                         </Col>
                     </div>
-
-
-
                 </Breakpoint>
-
-                {/* MODEL */}
-                <Modal show={this.state.showModel} onHide={() => this.handleShow(false)}>
-
-                    {this.state.showView ? (
-                        <>
-                            <Modal.Header closeButton>
-                                <Modal.Title>
-                                    <Row>
-                                        <Col>Views</Col>
-                                    </Row>
-                                    <Row>
-                                        <Col>
-                                            <Row>
-                                                <Form onSubmit={this.handleSubmitView} className="form">
-                                                    <Col>
-                                                        <FormGroup>
-                                                            <Label htmlFor="addView" style={{ fontSize: "1rem" }}>Add View</Label>
-                                                            <Input type="text" id="addView" placeholder="Enter View Name" name="addView" value={this.state.addView} onChange={this.handleChangeView} />
-                                                        </FormGroup>
-                                                    </Col>
-                                                    <Col>
-                                                        <Button varient="secondary" onClick={this.handleSubmitView}>Add</Button>
-                                                    </Col>
-                                                </Form>
-                                            </Row>
-                                        </Col>
-                                    </Row>
-                                </Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body style={{ 'max-height': 'calc(100vh - 210px)', 'overflow-y': 'auto' }}>
-                                {this.props.myViews.map((obj, i) => {
-                                    return <Row key={i} value={obj.title} className="mrg-05-top">
-                                        <Col><Link onClick={() => this.changeView({ obj })}> {obj.title} </Link></Col>
-                                    </Row>
-                                })}
-                            </Modal.Body>
-                        </>) : null}
-
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => this.handleShow(false)}>
-                            Close
-                    </Button>
-                    </Modal.Footer>
-                </Modal>
-
             </>
         );
     }

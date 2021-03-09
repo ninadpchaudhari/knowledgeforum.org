@@ -535,7 +535,7 @@ class View extends Component {
                                                         </FormGroup>
                                                     </Col>
                                                     <Col>
-                                                        <Button varient="secondary" onClick={this.handleSubmitView}>Add</Button>
+                                                        <Button varient="secondary" type="submit">Add</Button>
                                                     </Col>
                                                 </Form>
                                             </Row>
@@ -543,7 +543,7 @@ class View extends Component {
                                     </Row>
                                 </Modal.Title>
                             </Modal.Header>
-                            <Modal.Body style={{ 'max-height': 'calc(100vh - 210px)', 'overflow-y': 'auto' }}>
+                            <Modal.Body style={{ 'maxHeight': 'calc(100vh - 210px)', 'overflowY': 'auto' }}>
                                 {this.props.myViews.map((obj, i) => {
                                     return <Row key={i} value={obj.title} className="mrg-05-top">
                                         <Col><Link onClick={() => this.changeView({ obj })}> {obj.title} </Link></Col>

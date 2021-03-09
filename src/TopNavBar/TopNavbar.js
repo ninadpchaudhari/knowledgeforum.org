@@ -38,12 +38,11 @@ class TopNavbar extends Component {
     const userName = this.props.user ? `${this.props.user.firstName} ${this.props.user.lastName}` : null
     const isViewUrl = this.props.location.pathname.startsWith('/view/')
     return (
-      <Navbar className="viewNavBar" bg="dark" variant="dark">
-        <Navbar.Brand>{this.props.communityTitle}</Navbar.Brand>
+      <Navbar className="viewNavBar">
+        <Navbar.Brand className="viewNavBar-brand">{this.props.communityTitle}</Navbar.Brand>
         {isViewUrl ?
           (
             <Nav className="mr-auto">
-              <span className="mrg-105-top white">{this.props.view ? this.props.view.title : ''}</span>
               {this.props.view ?
                 <Form className="mrg-1-top">
                   <Col>
@@ -67,7 +66,7 @@ class TopNavbar extends Component {
           <>
             <Nav className="ml-auto">
               <Nav.Link className="white mr-auto"> {userName} </Nav.Link>
-              <Button variant="outline-secondary" className='ml-2' href="/" onClick={this.logout}>Logout</Button>
+              <Button className='ml-2 viewNavBar-logout-btn' href="/" onClick={this.logout}>Logout</Button>
             </Nav>
           </>
         ) :
