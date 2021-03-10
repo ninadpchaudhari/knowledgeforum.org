@@ -6,6 +6,7 @@ import Login from './Login';
 import Dashboard from './Dashboard';
 import View from './components/View.js'
 import { setGlobalToken, setCurrentServer, fetchLoggedUser } from './store/globalsReducer.js'
+import { setToken, setServer } from './store/api.js'
 import { getLoginData } from './helper/Login_helper.js'
 import ProtectedRoute from './ProtectedRoute.jsx'
 import 'react-notifications-component/dist/theme.css'
@@ -15,6 +16,8 @@ function App() {
     //Check if user loged in, if logged in set token,server and user info in store
     const [server, token, ] = getLoginData();
     if (token) {
+        setToken(token);
+        setServer(server);
         dispatch(setGlobalToken(token))
         dispatch(setCurrentServer(server))
         dispatch(fetchLoggedUser())

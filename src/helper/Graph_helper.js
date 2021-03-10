@@ -197,7 +197,7 @@ function handleView(nodes, nodeData){
 
 // helper function to find an authors name from their author id using the getCommunityAuthors data
 function matchAuthorId(authorId, authorsInfo){
-    for(var i = 0; i < authorsInfo.length; i++){
+    for(let i in authorsInfo){
       if(authorId === authorsInfo[i]._id){
         return authorsInfo[i].firstName + " " + authorsInfo[i].lastName;
       }

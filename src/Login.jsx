@@ -5,7 +5,7 @@ import { compose } from 'redux';
 import { Modal, Button } from 'react-bootstrap';
 import LoginForm from './LoginForm';
 import SignUpForm from './SignUpForm';
-import Graph from './Graph';
+import Graph from './GraphView';
 import $ from 'jquery';
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
 import {getUserToken} from './api/user.js';

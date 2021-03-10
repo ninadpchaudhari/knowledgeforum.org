@@ -1,17 +1,66 @@
-#sticky-sidebar{
-    padding-top: 1rem;
-    flex: 0 0 4%;
-    max-width: 4%;
-}
-#main-canvas{
-    flex: 0 0 96%;
-    max-width: 96%;
+.viewNavBar{
+  width: 100%;
+  background-color: #2d5085;
 }
 
-.view-dashboard-return-button {
-  margin: 15px;
-  padding: 5px;
-  font-size: 0.75rem;
-  background-color: #203c66;
-  float: right;
+.viewNavBar-brand{
+  color: white !important;
+}
+
+.viewNavBar-logout-btn {
+  color: white;
+  border-color: white;
+  background-color: #2d5085;
+}
+
+.viewNavBar-logout-btn:hover {
+  border-color: white;
+  background-color: #5d98f0;
+}
+
+#sticky-sidebar{
+  padding-top: 10px;
+}
+
+@media(max-width: 768px) {
+    #sticky-sidebar{
+        padding-top: 10px;
+        width: 100% !important;    /* Set the width of the sidebar*/
+        overflow-y: hidden;     /* Disable horizontal scroll */
+    }
+}
+
+.dropright .dropdown-toggle{
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
+}
+
+.sidebar-list {
+  padding: 0;
+}
+
+@media(max-width: 768px) {
+    .sidebar-list-col {
+        text-align: center;
+    }
+}
+
+.sidebar-btn, .dropdown-btn-parent > button {
+  color: #2d5085;
+  border-color: #2d5085;
+  background-color: white;
+}
+
+.sidebar-btn:hover, .dropdown-btn-parent > button:hover {
+  background-color: #5d98f0;
+  cursor: pointer;
+}
+
+#main-canvas{
+    padding-left: 0;
+    padding-right: 0;
 }

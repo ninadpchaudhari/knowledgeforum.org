@@ -87,19 +87,20 @@ class Dashboard extends Component {
         aTag.target = "_blank";
         document.body.appendChild(aTag);
         aTag.click();
-      } else if(self.state.viewType.value === "Enhanced") {
+      } else if(self.state.viewType.value === "Enhanced" || self.state.viewType.value === "Light") {
+        setServer(c.server);
+        setToken(c.token);
         sessionStorage.setItem('token', c.token);
         sessionStorage.setItem('communityId', c.communityId);
         sessionStorage.setItem('viewId', response._id);
-        setServer(c.server);
-        self.props.setCurrentServer(c.server);
-        setToken(c.token);
-        self.props.fetchLoggedUser();
         self.props.setGlobalToken(c.token);
+        self.props.fetchLoggedUser();
         self.props.setCommunityId(c.communityId);
         self.props.setViewId(response._id);
+        self.props.setCurrentServer(c.server);
         self.props.history.push({
           pathname: `/view/${response._id}`,
+          state: { currentView: self.state.viewType.value, communityTitle: c.title }
         });
       }
 
@@ -129,6 +130,7 @@ class Dashboard extends Component {
                       options={[
                         { value: 'Classic', label: 'Classic' },
                         { value: 'Enhanced', label: 'Enhanced' },
+                        { value: 'Light', label: 'Light' },
                       ]} />
             </div>
           </div>

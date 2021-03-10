@@ -46,6 +46,10 @@ export const getCommunity = (communityId) => {
     return axios.get(`${apiUrl}/communities/${communityId}`);//, {mode: 'cors'});
 }
 
+export const putCommunity = async (object, communityId) => {
+    return (await axios.put(`${apiUrl}/communities/${communityId}`, object)).data
+}
+
 export const getCommunities = async () => {
     return (await axios.get(`${apiUrl}/communities/`)).data
 }
@@ -146,6 +150,14 @@ export const uploadFile = (file, onProgress) => {
 
 export const getLinkForObj = (objId) => {
     return axios.get(`${apiUrl}/links/either/${objId}`)
+}
+
+export const getViews = async (communityId) => {
+    return (await axios.get(`${apiUrl}/communities/${communityId}/views`)).data
+}
+
+export const postView = (query,communityId) => {
+    return axios.post(`${apiUrl}/contributions/${communityId}`,query);
 }
 
 // returns a promise that on fullfillment returns an array of the read note ids only
