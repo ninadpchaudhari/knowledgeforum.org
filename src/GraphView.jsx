@@ -123,6 +123,8 @@ class Graph extends Component {
       },
     ]);
 
+    this.loadElements();
+
     var ref = this;
     // on single click of node log its kf id and mark it as read
     cy.on('tap', 'node', function(event){
@@ -147,10 +149,6 @@ class Graph extends Component {
         postReadStatus(ref.props.token, ref.props.server, ref.props.communityId, kfId);
       }
     });
-
-    if(this.props.currentView === "Enhanced"){
-      this.loadElements();
-    }
   }
 
   componentDidUpdate(prevProps, prevState) {

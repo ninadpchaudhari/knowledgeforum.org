@@ -20,8 +20,8 @@ class View extends Component {
         super(props)
         this.state = {
           token: sessionStorage.getItem('token'),
-          currentView: this.props.location.state.currentView,
-          communityTitle: this.props.location.state.communityTitle,
+          currentView: this.props.location.state === undefined ? "Enhanced" : this.props.location.state.currentView,
+          communityTitle: this.props.location.state === undefined ? null : this.props.location.state.communityTitle,
           addView: '',
           showModal: false,
           showView: false,
@@ -31,12 +31,10 @@ class View extends Component {
         this.handleNewViewInput = this.handleNewViewInput.bind(this);
         this.handleNewViewSubmit = this.handleNewViewSubmit.bind(this);
         this.newView = this.newView.bind(this);
-        this.changeView = this.changeView.bind(this);
         this.handleShow = this.handleShow.bind(this);
     }
 
     componentDidMount() {
-        console.log(this.props)
         if (this.props.viewId) {
             this.props.fetchViewCommunityData(this.props.viewId)
         } else {
@@ -52,8 +50,12 @@ class View extends Component {
     }
 
     onViewClick(viewId){
+        this.handleShow(false);
         this.props.setViewId(viewId);
-        this.props.history.push({ pathname: `/view/${viewId}` })
+        this.props.history.push({
+          pathname: `/view/${viewId}`,
+          state: { currentView: this.state.currentView, communityTitle: this.state.communityTitle }
+        });
     }
 
     newView() {
@@ -61,16 +63,6 @@ class View extends Component {
             showView: true,
             showModel: true,
         })
-    }
-
-    changeView(viewObj) {
-        let viewId = viewObj.obj._id;
-        this.props.history.push({
-          pathname: `/view/${viewId}`,
-          state: { currentView: this.state.currentView, communityTitle: this.state.communityTitle }
-        });
-        this.handleShow(false);
-        window.location.reload();
     }
 
     // SET VALUES
@@ -141,11 +133,8 @@ class View extends Component {
     }
 
     switchView = () => {
-      if(this.state.currentView === "Enhanced"){
-        this.setState({ currentView: "Light" });
-      } else if(this.state.currentView === "Light"){
-        this.setState({ currentView: "Enhanced" });
-      }
+      var nextView = this.state.currentView === "Enhanced" ? "Light" : "Enhanced";
+      this.setState({ currentView: nextView });
     }
 
     renderTooltip = (props) => (
@@ -155,12 +144,11 @@ class View extends Component {
     );
 
     render(){
-
       let viewToRender;
       if(this.state.currentView === "Enhanced"){
-        viewToRender = <GraphView currentView={this.state.currentView} onViewClick={this.onViewClick} onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")} />;
+        viewToRender = <GraphView onViewClick={this.onViewClick} onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")} />;
       } else if(this.state.currentView === "Light"){
-        viewToRender = <LightView currentView={this.state.currentView}/>;
+        viewToRender = <LightView/>;
       }
 
       return(
@@ -252,7 +240,7 @@ class View extends Component {
                           <Modal.Body style={{ 'maxHeight': 'calc(100vh - 210px)', 'overflowY': 'auto' }}>
                               {this.props.myViews.map((obj, i) => {
                                   return <Row key={i} value={obj.title} className="mrg-05-top">
-                                      <Col><Link onClick={() => this.changeView({ obj })}> {obj.title} </Link></Col>
+                                      <Col><Link onClick={() => this.onViewClick(obj._id)}> {obj.title} </Link></Col>
                                   </Row>
                               })}
                           </Modal.Body>

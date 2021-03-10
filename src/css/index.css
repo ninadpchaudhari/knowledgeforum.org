@@ -10,7 +10,7 @@ body {
   padding: 0;
 }
 
-span { 
+span {
   word-wrap:break-word !important;
 }
 
@@ -190,6 +190,7 @@ span {
 
 .min-width{
   min-width: 400px !important;
+  margin-right: 0;
 }
 
 .visible-1{

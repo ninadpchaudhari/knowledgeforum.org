@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { Form, Input, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap';
-import { newNote, openContribution, setCheckedNotes } from '../store/noteReducer.js'
+import { newNote } from '../store/noteReducer.js'
 import { connect } from 'react-redux'
 import DialogHandler from '../components/dialogHandler/DialogHandler.js'
 import NoteContent from '../components/NoteContent/NoteContent'
 import ScaffoldSelect from '../components/scaffold/ScaffoldSelect'
 import ListOfNotes from './ListOfNotes/ListOfNotes'
-import { fetchView, fetchCommunity, setCommunityId, setViewId, fetchViewCommunityData } from '../store/globalsReducer.js'
-import { fetchAuthors } from '../store/userReducer.js'
 import { Breakpoint } from 'react-socks'
 import '../css/index.css';
 import './View.css';
@@ -92,14 +90,6 @@ class View extends Component {
         this.setState({
             filteredData: this.filterResults(support.to)
         });
-    }
-
-    // CHANGE VIEW
-    changeView(viewObj) {
-        let viewId = viewObj.obj._id;
-        this.props.history.push(`/view/${viewId}`);
-        this.handleShow(false);
-        window.location.reload();
     }
 
     onConfirmDrawDialog(drawing) {
@@ -337,15 +327,7 @@ const mapStateToProps = (state, ownProps) => {
 }
 
 const mapDispatchToProps = {
-    fetchView,
-    fetchCommunity,
-    fetchAuthors,
-    setCommunityId,
-    setViewId,
-    setCheckedNotes,
-    newNote,
-    openContribution,
-    fetchViewCommunityData
+    newNote
 }
 
 export default connect(
