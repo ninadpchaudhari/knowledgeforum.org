@@ -239,7 +239,7 @@ class View extends Component {
                         {/* NOTE CONTENT */}
                         {this.props.checkedNotes.length ?
                             (<>
-                                <Col md="5" sm="12" className="mrg-6-top v-scroll">
+                                <Col md="5" sm="12" className="mrg-1-top v-scroll">
                                     <NoteContent query={this.state.query} buildOn={this.buildOn} />
                                 </Col>
                             </>)

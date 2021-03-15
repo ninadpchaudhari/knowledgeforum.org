@@ -6,7 +6,8 @@ import { Form, FormGroup, Label, Input } from 'reactstrap';
 import Axios from 'axios';
 import { apiUrl, getCommunity, putCommunity, postLink, getViews } from '../store/api.js';
 import { setViewId, fetchViewCommunityData } from '../store/globalsReducer.js'
-import { newNote, openContribution } from '../store/noteReducer.js'
+import { setViewLinks, setBuildsOn, setReadLinks, newNote, openContribution } from '../store/noteReducer.js'
+import { addAuthors } from '../store/userReducer.js';
 import TopNavBar from '../TopNavBar/TopNavbar';
 import GraphView from '../GraphView.jsx';
 import LightView from '../View/LightView.js';
@@ -27,6 +28,7 @@ class View extends Component {
           showView: false,
         }
 
+        this.clearGraphViewProps = this.clearGraphViewProps.bind(this);
         this.onViewClick = this.onViewClick.bind(this);
         this.handleNewViewInput = this.handleNewViewInput.bind(this);
         this.handleNewViewSubmit = this.handleNewViewSubmit.bind(this);
@@ -36,7 +38,7 @@ class View extends Component {
 
     componentDidMount() {
         if (this.props.viewId) {
-            this.props.fetchViewCommunityData(this.props.viewId)
+            this.props.fetchViewCommunityData(this.props.viewId);
         } else {
             const viewId = this.props.match.params.viewId //Get viewId from url param
             this.props.setViewId(viewId)
@@ -45,8 +47,15 @@ class View extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (this.props.viewId && this.props.viewId !== prevProps.viewId) {
-            this.props.fetchViewCommunityData(this.props.viewId)
+          this.props.fetchViewCommunityData(this.props.viewId);
         }
+    }
+
+    clearGraphViewProps(){
+      this.props.setViewLinks([]);
+      this.props.setBuildsOn([]);
+      this.props.setReadLinks([]);
+      this.props.addAuthors([]);
     }
 
     onViewClick(viewId){
@@ -56,6 +65,7 @@ class View extends Component {
           pathname: `/view/${viewId}`,
           state: { currentView: this.state.currentView, communityTitle: this.state.communityTitle }
         });
+        window.location.reload();
     }
 
     newView() {
@@ -129,6 +139,7 @@ class View extends Component {
     }
 
     goToDashboard = () => {
+        this.clearGraphViewProps();
         this.props.history.push("/dashboard");
     }
 
@@ -144,19 +155,15 @@ class View extends Component {
     );
 
     render(){
-      let viewToRender;
-      if(this.state.currentView === "Enhanced"){
-        viewToRender = <GraphView onViewClick={this.onViewClick} onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")} />;
-      } else if(this.state.currentView === "Light"){
-        viewToRender = <LightView/>;
-      }
+      let viewToRender = this.state.currentView === "Enhanced" ?
+                <GraphView currentView={this.state.currentView} onViewClick={this.onViewClick} onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}/> : <LightView/>;
 
       return(
           <div className="container-fluid">
               <DialogHandler />
 
               <div className="row">
-                  {<TopNavBar communityTitle={this.state.communityTitle}></TopNavBar>}
+                  {<TopNavBar onViewClick={this.onViewClick} communityTitle={this.state.communityTitle}></TopNavBar>}
               </div>
 
               <div className="row" >
@@ -273,6 +280,10 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
     setViewId,
+    setViewLinks,
+    setBuildsOn,
+    setReadLinks,
+    addAuthors,
     fetchViewCommunityData,
     openContribution,
     newNote
