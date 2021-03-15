@@ -23,9 +23,10 @@ class TopNavbar extends Component {
   handleChange(e) {
     /* e.persist(); */
     const viewId = e.target.value;
-    this.props.setViewId(viewId);
-    //TODO EMPTY CHECKEDNOTES
-    this.props.history.push(`/view/${viewId}`)
+    this.props.onViewClick(viewId);
+    // this.props.setViewId(viewId);
+    // //TODO EMPTY CHECKEDNOTES
+    // this.props.history.push(`/view/${viewId}`)
   }
 
   signUp = (e) => {

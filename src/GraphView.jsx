@@ -36,7 +36,8 @@ class Graph extends Component {
   };
 
   loadElements() {
-      if (this.props.viewLinks.length !== 0 && this.props.buildsOn.length !== 0 && this.props.readLinks.length !== 0 && Object.keys(this.props.authors).length !== 0){
+      // ensure we have all the informationn needed to render the graph
+      if (this.props.viewLinks.length !== 0 && this.props.buildsOn.length !== 0 && Object.keys(this.props.authors).length !== 0){
           const cy = this.cy;
           const si = cy.supportimages();
 
@@ -153,8 +154,8 @@ class Graph extends Component {
 
   componentDidUpdate(prevProps, prevState) {
       //If any prop is updated, re-load elements
-      if (this.props.currentView !== prevProps.currentView || this.props.viewId !== prevProps.viewId || this.props.buildsOn !== prevProps.buildsOn || this.props.authors !== prevProps.authors ||
-        this.props.viewLinks !== prevProps.viewLinks || this.props.readLinks !== prevProps.readLinks){
+      if (this.props.viewId !== prevProps.viewId || this.props.buildsOn !== prevProps.buildsOn
+                          || this.props.authors !== prevProps.authors || this.props.viewLinks !== prevProps.viewLinks || this.props.readLinks !== prevProps.readLinks){
           this.loadElements();
       }
   }
