@@ -18,6 +18,7 @@ export const setUserId = createAction('SET_USERID')
 export const setIsAuthenticated = createAction('SET_ISAUTHENTICATED')
 export const setCommunities = createAction('SET_COMMUNITIES')
 export const setUserCommunities = createAction('SET_USER_COMMUNITIES')
+export const setSocketStatus = createAction('SET_SOCKET_STATUS')
 export const dateFormatOptions = {
     year: 'numeric', month: 'numeric', day: 'numeric',
     hour: 'numeric', minute: 'numeric', second: 'numeric',
@@ -76,7 +77,8 @@ const initState = {
         //     value: "http://localhost:9000"
 
         // },
-    ]
+    ],
+    socketStatus: false
 }
 
 export const globalsReducer = createReducer(initState, {
@@ -128,6 +130,9 @@ export const globalsReducer = createReducer(initState, {
     [setAuthor]: (state, action) => {
         state.author = action.payload
     },
+    [setSocketStatus]: (state, action) => {
+        state.socketStatus = action.payload
+    }
 });
 
 export const fetchAuthor = (communityId) => {

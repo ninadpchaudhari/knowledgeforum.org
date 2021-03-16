@@ -33,6 +33,7 @@ export const setSupports = createAction('SET_SUPPORTS')
 export const setRiseAboveViewNotes = createAction('SET_RISEABOVE_VIEW_NOTES')
 export const setRiseAboveNotes = createAction('SET_RISEABOVE_NOTES')
 export const setReadLinks = createAction('SET_READ_LINKS')
+export const removeViewLink = createAction('REMOVE_READ_LINKS')
 
 const initState = { drawing: '', attachments: {}, viewNotes: {}, checkedNotes: [], viewLinks: [], buildsOn: [], supports: [], riseAboveNotes: {}, riseAboveViewNotes: {}, readLinks: []}
 
@@ -133,8 +134,14 @@ export const noteReducer = createReducer(initState, {
     },
     [addViewLink]: (state, action) => {
         const matchLink = state.viewLinks.filter((link) => link._id === action.payload._id)
-        if (matchLink.length === 0)
+        if (matchLink.length === 0){
             state.viewLinks.push(action.payload)
+        } else {//update view link
+            state.viewLinks = state.viewLinks.map((link) => link._id === action.payload._id ? action.payload : link);
+        }
+    },
+    [removeViewLink]: (state, action) => {
+        state.viewLinks = state.viewLinks.filter((link) => link._id !== action.payload._id)
     },
     [setBuildsOn]: (state, action) => {
         state.buildsOn = action.payload
