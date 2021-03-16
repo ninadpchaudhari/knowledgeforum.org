@@ -33,6 +33,8 @@ class Graph extends Component {
     };
 
     this.loadElements = this.loadElements.bind(this);
+    this.supportImageIsDuplicate = this.supportImageIsDuplicate.bind(this);
+    this.compareSupportImages = this.compareSupportImages.bind(this);
   };
 
   loadElements() {
@@ -47,9 +49,8 @@ class Graph extends Component {
 
           // clear the support images extension
           si._private.supportImages = [];
-          si._private.renderer.imageCache = {};
 
-          var graph_nodes = addNodesToGraph(this.props.server, this.props.token, si, nodes, this.props.viewLinks, this.props.readLinks, this.props.authors);
+          var graph_nodes = addNodesToGraph(this.props.server, this.props.token, nodes, this.props.viewLinks, this.props.readLinks, this.props.authors);
           var graph_edges = addEdgesToGraph(nodes, this.props.buildsOn);
           var self = this;
 
@@ -60,7 +61,7 @@ class Graph extends Component {
                       cy_elements.nodes.push(graph_results[i]);
                   } else if(graph_results[i].group === "edges"){
                       cy_elements.edges.push(graph_results[i]);
-                  } else if(graph_results[i].url){
+                  } else if(graph_results[i].url && !this.supportImageIsDuplicate(si.images(), graph_results[i])){
                       si.addSupportImage(graph_results[i]);
                   }
               }
@@ -68,6 +69,20 @@ class Graph extends Component {
               self.setState({elements: cy_elements});
           });
       }
+  }
+
+  // checks if the given image a is already present in the list of support images
+  supportImageIsDuplicate(imgs, a){
+    for(var i in imgs){
+      if(this.compareSupportImages(imgs[i], a)) return true;
+    }
+    return false;
+  }
+
+  // returns a deep comparison of two support images
+  compareSupportImages(a, b){
+    return a.bounds.height === b.bounds.height && a.bounds.width === b.bounds.width && a.bounds.x === b.bounds.x && a.bounds.y === b.bounds.y
+        && a.name === b.name && a.url === b.url;
   }
 
   componentDidMount() {
