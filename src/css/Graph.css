@@ -1,3 +1,17 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+#root, #sub-root {
+  height: 100%
+}
+
+#container-fluid-for-view-js {
+  height: 100%;
+  overflow-y: hidden;
+}
+
 .__________cytoscape_container {
   background-image: none;
   background-color: white;

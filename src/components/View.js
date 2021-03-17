@@ -159,14 +159,14 @@ class View extends Component {
                 <GraphView currentView={this.state.currentView} onViewClick={this.onViewClick} onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}/> : <LightView/>;
 
       return(
-          <div className="container-fluid">
+          <div className="container-fluid d-flex flex-column" id="container-fluid-for-view-js">
               <DialogHandler />
 
               <div className="row">
                   {<TopNavBar onViewClick={this.onViewClick} communityTitle={this.state.communityTitle}></TopNavBar>}
               </div>
 
-              <div className="row" >
+              <div className="row flex-grow-1">
 
                   {/* SIDEBAR */}
                   <div className="col-md-1" id="sticky-sidebar">
