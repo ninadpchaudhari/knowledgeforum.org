@@ -3,10 +3,12 @@ import { connect } from 'react-redux'
 import Cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
 import CytoscapePanZoom from 'cytoscape-panzoom';
-import CytoscapeNodeHtmlLabel from 'cytoscape-node-html-label';
+/* import CytoscapeNodeHtmlLabel from 'cytoscape-node-html-label'; */
+import CytoscapeNodeHtmlLabel from './helper/cytoscape-node-html-label.js'
 import CytoscapeSupportImages from 'cytoscape-supportimages';
 
 import { postReadStatus } from './api/link.js';
+import { updateViewLink } from './store/async_actions.js'
 import {addNodesToGraph, addEdgesToGraph} from './helper/Graph_helper.js';
 import './css/cytoscape.js-panzoom.css';
 import './css/Graph.css';
@@ -150,6 +152,22 @@ class Graph extends Component {
         postReadStatus(ref.props.token, ref.props.server, ref.props.communityId, kfId);
       }
     });
+
+      cy.on('dragfree', 'node', (evt) => {
+          const {x, y} = evt.target.position();
+          console.log(x, y);
+
+          var kfId = evt.target.data().kfId;
+
+          let viewLink = this.props.viewLinks.filter((link) => link.to === kfId)
+          if (viewLink.length) {
+              viewLink = viewLink[0];
+              const data = {x, y}
+              const newViewLink = { ...viewLink }
+              newViewLink.data = { ...newViewLink.data, ...data };
+              this.props.updateViewLink(newViewLink)
+          }
+      })
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -239,7 +257,7 @@ const mapStateToProps = (state, ownProps) => {
 }
 
 const mapDispatchToProps = {
-
+    updateViewLink
 }
 
 export default connect(

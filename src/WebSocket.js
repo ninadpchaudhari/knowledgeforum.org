@@ -10,7 +10,6 @@ const WebSocketContext = createContext(null)
 export { WebSocketContext }
 
 export default (({ children }) => {
-    console.log("WebSocketContext");
     let socket;
     let ws;
 
@@ -26,8 +25,7 @@ export default (({ children }) => {
          * Syncs item creation/updates on 'model:save'
          */
         socket.on(modelName + ':save', (item) => {
-            console.log("Socket model save", modelName, item);
-            if (modelName === 'link' && item._to.status === 'active'){
+            if (modelName === 'link' && item.type === 'contains' && item._to.status === 'active'){
                 dispatch(addViewLink(item));
             }
         });
@@ -36,7 +34,6 @@ export default (({ children }) => {
          * Syncs removed items on 'model:remove'
          */
         socket.on(modelName + ':remove', function(item) {
-            console.log("Socket model remove", modelName, item);
             if (modelName === 'link' && item._to.status === 'active'){
                 dispatch(removeViewLink(item));
             }
@@ -67,7 +64,6 @@ export default (({ children }) => {
            , "heartbeat interval": 20
         });
         socket.on('connect', ()=>{
-            console.log("Socket connected!!");
             dispatch(setSocketStatus(true));
         });
         socket.on('error', function (data) {

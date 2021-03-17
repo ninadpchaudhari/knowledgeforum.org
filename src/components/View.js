@@ -56,6 +56,13 @@ class View extends Component {
         }
     }
 
+    componentWillUnmount(){
+        if (this.props.socketStatus){
+            this.context.unsyncUpdates('link');
+            this.context.emit('unsubscribe', `linkfrom:${this.props.viewId}`);
+        }
+    }
+
     clearGraphViewProps(){
       this.props.setViewLinks([]);
       this.props.setBuildsOn([]);
