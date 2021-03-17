@@ -3,8 +3,7 @@ import { connect } from 'react-redux'
 import Cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
 import CytoscapePanZoom from 'cytoscape-panzoom';
-/* import CytoscapeNodeHtmlLabel from 'cytoscape-node-html-label'; */
-import CytoscapeNodeHtmlLabel from './helper/cytoscape-node-html-label.js'
+import CytoscapeNodeHtmlLabel from 'cytoscape-node-html-label';
 import CytoscapeSupportImages from 'cytoscape-supportimages';
 
 import { postReadStatus } from './api/link.js';
