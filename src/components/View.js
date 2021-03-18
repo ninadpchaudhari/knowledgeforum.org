@@ -61,7 +61,6 @@ class View extends Component {
           pathname: `/view/${viewId}`,
           state: { currentView: this.state.currentView, communityTitle: this.state.communityTitle }
         });
-        //window.location.reload();
     }
 
     newView() {
