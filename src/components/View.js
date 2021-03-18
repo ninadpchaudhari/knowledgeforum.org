@@ -5,7 +5,7 @@ import { DropdownButton, Dropdown, Button, Row, Col, Modal, OverlayTrigger, Tool
 import { Form, FormGroup, Label, Input } from 'reactstrap';
 import Axios from 'axios';
 import { apiUrl, getCommunity, putCommunity, postLink, getViews } from '../store/api.js';
-import { setViewId, fetchViewCommunityData } from '../store/globalsReducer.js'
+import { setViewId, fetchViewCommunityData, fetchNewViewDifference } from '../store/globalsReducer.js'
 import { setViewLinks, setBuildsOn, setReadLinks, newNote, openContribution } from '../store/noteReducer.js'
 import { addAuthors } from '../store/userReducer.js';
 import TopNavBar from '../TopNavBar/TopNavbar';
@@ -37,17 +37,13 @@ class View extends Component {
     }
 
     componentDidMount() {
-        if (this.props.viewId) {
-            this.props.fetchViewCommunityData(this.props.viewId);
-        } else {
-            const viewId = this.props.match.params.viewId //Get viewId from url param
-            this.props.setViewId(viewId)
-        }
+        var viewId = this.props.viewId ? this.props.viewId : this.props.match.params.viewId;
+        this.props.fetchViewCommunityData(viewId);
     }
 
     componentDidUpdate(prevProps, prevState) {
         if (this.props.viewId && this.props.viewId !== prevProps.viewId) {
-          this.props.fetchViewCommunityData(this.props.viewId);
+          this.props.fetchNewViewDifference(this.props.viewId);
         }
     }
 
@@ -65,7 +61,7 @@ class View extends Component {
           pathname: `/view/${viewId}`,
           state: { currentView: this.state.currentView, communityTitle: this.state.communityTitle }
         });
-        window.location.reload();
+        //window.location.reload();
     }
 
     newView() {
@@ -285,6 +281,7 @@ const mapDispatchToProps = {
     setReadLinks,
     addAuthors,
     fetchViewCommunityData,
+    fetchNewViewDifference,
     openContribution,
     newNote
 };

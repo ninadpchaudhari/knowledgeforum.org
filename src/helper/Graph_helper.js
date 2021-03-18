@@ -104,10 +104,10 @@ function handleAttachment(server, token, nodes, nodeData, authorData){
       }
 
       var bounds = {
-        x: nodeData.data.x,
-        y: nodeData.data.y,
-        width: nodeData.data.width,
-        height: nodeData.data.height,
+        x: nodeData.data.x || 0,
+        y: nodeData.data.y || 0,
+        width: nodeData.data.width || 0,
+        height: nodeData.data.height || 0,
       };
 
       return {

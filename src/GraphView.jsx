@@ -35,15 +35,15 @@ class Graph extends Component {
     this.loadElements = this.loadElements.bind(this);
     this.supportImageIsDuplicate = this.supportImageIsDuplicate.bind(this);
     this.compareSupportImages = this.compareSupportImages.bind(this);
+    this.clearSupportImages = this.clearSupportImages.bind(this);
     this.findCyElemFromKfId = this.findCyElemFromKfId.bind(this);
     this.focusRecentAddition = this.focusRecentAddition.bind(this);
   };
 
   loadElements(prevViewLinksLength) {
-      //console.log(this.props);
-      //console.log(Object.keys(this.props.authors).length !== 0);
       // ensure we have all the informationn needed to render the graph
-      if (this.props.viewLinks.length !== 0 && this.props.buildsOn.length !== 0 && Object.keys(this.props.authors).length !== 0){
+      if ((this.props.viewLinks.length !== 0 || (this.props.viewLinks.length === 0 && prevViewLinksLength !== undefined))
+                                        && this.props.buildsOn.length !== 0 && Object.keys(this.props.authors).length !== 0){
           const cy = this.cy;
           const si = cy.supportimages();
 
@@ -92,6 +92,15 @@ class Graph extends Component {
   compareSupportImages(a, b){
     return a.bounds.height === b.bounds.height && a.bounds.width === b.bounds.width && a.bounds.x === b.bounds.x && a.bounds.y === b.bounds.y
         && a.name === b.name && a.url === b.url;
+  }
+
+  async clearSupportImages(){
+    var cy = this.cy;
+    var si = cy.supportimages();
+    var imgs = si.images();
+    for(var i in imgs){
+      si.removeSupportImage(imgs[i]);
+    }
   }
 
   findCyElemFromKfId(kfId){

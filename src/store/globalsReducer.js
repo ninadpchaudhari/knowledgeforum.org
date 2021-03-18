@@ -186,11 +186,6 @@ export const fetchCommunityViews = (communityId) => async (dispatch) => {
 }
 
 export const fetchViewCommunityData = (viewId) => async (dispatch) => {
-
-    //GET LIST OF ALL COMMUNITIES
-    //dispatch(fetchCommunities())
-    //GET USER'S REGISTERED COMMUNITIES
-    //dispatch(fetchUserCommunities())
     dispatch(setCheckedNotes([]))
     const view = await getObject(viewId)
     const commId = view.communityId
@@ -208,4 +203,14 @@ export const fetchViewCommunityData = (viewId) => async (dispatch) => {
     dispatch(fetchReadLinks(commId, view._id))
     dispatch(fetchScaffolds(commId, community.rootContextId))
     dispatch(fetchSupports(commId))
+}
+
+// A COMPACT VERSION OF fetchViewCommunityData - only retrieves what will be different between views within a community
+export const fetchNewViewDifference = (viewId) => async (dispatch) => {
+  dispatch(setCheckedNotes([]))
+  const view = await getObject(viewId)
+  const commId = view.communityId
+  dispatch(setView(view))
+  dispatch(fetchViewNotes(view._id))
+  dispatch(fetchReadLinks(commId, view._id))
 }
