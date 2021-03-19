@@ -190,7 +190,7 @@ export const fetchViewCommunityData = (viewId) => async (dispatch) => {
     const view = await getObject(viewId)
     const commId = view.communityId
     dispatch(setView(view))
-    dispatch(setViewId(view._id))
+    //dispatch(setViewId(view._id))
     dispatch(fetchViewNotes(view._id))
     const community = (await getCommunity(commId)).data
     dispatch(setCommunity(

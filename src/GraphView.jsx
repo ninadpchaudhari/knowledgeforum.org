@@ -52,7 +52,6 @@ class Graph extends Component {
 
           // clear the support images extension
           si._private.supportImages = [];
-          si._private.renderer.imageCache = {};
 
           var graph_nodes = addNodesToGraph(this.props.server, this.props.token, nodes, this.props.viewLinks, this.props.readLinks, this.props.authors);
           var graph_edges = addEdgesToGraph(nodes, this.props.buildsOn);

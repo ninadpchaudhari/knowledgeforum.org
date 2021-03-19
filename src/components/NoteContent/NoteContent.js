@@ -199,7 +199,9 @@ class NoteContent extends Component {
                             data = obj.data.English ? obj.data.English : obj.data.body;
                         }
 
+                        //eslint-disable-next-line
                         while (data && data.includes("src=\"\/attachments")) {
+                            //eslint-disable-next-line
                             data = data.replace("src=\"\/attachments", "src=\"" + url + "\/attachments");
                         }
 
