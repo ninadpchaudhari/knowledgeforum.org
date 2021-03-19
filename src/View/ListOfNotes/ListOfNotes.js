@@ -28,7 +28,7 @@ class ListOfNotes extends Component {
             {
                 notes.map((note, i) => {
                     const children = this.props.hierarchy && this.props.hierarchy[note._id].children
-                    return <div key={i} className="shadow p-3 mb-5 rounded">
+                    return <div key={i} className="shadow p-1 mb-1 rounded">
                         <Notes note={note} children={children} notes={this.props.notes} />
                     </div>
                 })

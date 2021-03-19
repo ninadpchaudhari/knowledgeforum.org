@@ -33,6 +33,8 @@ export const setSupports = createAction('SET_SUPPORTS')
 export const setRiseAboveViewNotes = createAction('SET_RISEABOVE_VIEW_NOTES')
 export const setRiseAboveNotes = createAction('SET_RISEABOVE_NOTES')
 export const setReadLinks = createAction('SET_READ_LINKS')
+export const removeViewLink = createAction('REMOVE_READ_LINKS')
+export const removeViewNote = createAction('REMOVE_VIEW_NOTE')
 
 const initState = { drawing: '', attachments: {}, viewNotes: {}, checkedNotes: [], viewLinks: [], buildsOn: [], supports: [], riseAboveNotes: {}, riseAboveViewNotes: {}, readLinks: []}
 
@@ -128,13 +130,22 @@ export const noteReducer = createReducer(initState, {
     [addViewNote]: (state, action) => {
         state.viewNotes[action.payload._id] = action.payload
     },
+    [removeViewNote]: (state, action) => {
+        delete state.viewNotes[action.payload._id]
+    },
     [setViewLinks]: (state, action) => {
         state.viewLinks = action.payload
     },
     [addViewLink]: (state, action) => {
         const matchLink = state.viewLinks.filter((link) => link._id === action.payload._id)
-        if (matchLink.length === 0)
+        if (matchLink.length === 0){
             state.viewLinks.push(action.payload)
+        } else {//update view link
+            state.viewLinks = state.viewLinks.map((link) => link._id === action.payload._id ? action.payload : link);
+        }
+    },
+    [removeViewLink]: (state, action) => {
+        state.viewLinks = state.viewLinks.filter((link) => link._id !== action.payload._id)
     },
     [setBuildsOn]: (state, action) => {
         state.buildsOn = action.payload
@@ -250,10 +261,12 @@ export const newNote = (view, communityId, authorId, buildson) => dispatch => {
     })
 
 }
+
 export const buildOnNote = (noteId) => (dispatch, getState )=> {
     const state = getState()
     dispatch(newNote(state.globals.view, state.globals.communityId, state.globals.author._id, noteId))
 }
+
 export const editSvgDialog = (noteId, svg) => dispatch => {
     dispatch(editSvg({ noteId, svg }))
     dispatch(openDrawDialog(noteId))
@@ -436,7 +449,6 @@ export const fetchViewNotes = (viewId) => async (dispatch) => {
         }
     })
 }
-
 
 export const fetchBuildsOn = (communityId) => async (dispatch) => {
     let buildOnResult = await api.linksSearch(communityId, { "type": "buildson" })

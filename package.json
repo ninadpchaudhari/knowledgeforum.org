@@ -11,7 +11,7 @@
     "axios": "^0.21.0",
     "bootstrap": "^4.5.3",
     "cytoscape": "^3.16.2",
-    "cytoscape-node-html-label": "^1.2.1",
+    "cytoscape-node-html-label": "^1.2.2",
     "cytoscape-panzoom": "^2.5.3",
     "cytoscape-supportimages": "^1.0.2",
     "jquery": "^3.5.1",
@@ -33,6 +33,7 @@
     "react-socks": "^2.1.0",
     "reactstrap": "^8.9.0",
     "redux": "^4.0.5",
+    "socket.io-client": "^1.7.4",
     "tinymce": "^5.5.1"
   },
   "scripts": {

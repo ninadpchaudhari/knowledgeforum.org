@@ -3,7 +3,6 @@ import { Row, Col } from 'react-bootstrap';
 import { Form, Input, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap';
 import { newNote } from '../store/noteReducer.js'
 import { connect } from 'react-redux'
-import DialogHandler from '../components/dialogHandler/DialogHandler.js'
 import NoteContent from '../components/NoteContent/NoteContent'
 import ScaffoldSelect from '../components/scaffold/ScaffoldSelect'
 import ListOfNotes from './ListOfNotes/ListOfNotes'
@@ -186,7 +185,6 @@ class View extends Component {
 
         return (
             <>
-                <DialogHandler />
                 {/*<TopNavBar></TopNavBar>*/}
                 <Breakpoint medium up>
 
