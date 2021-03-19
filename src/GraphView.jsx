@@ -154,7 +154,6 @@ class Graph extends Component {
 
       cy.on('dragfree', 'node', (evt) => {
           const {x, y} = evt.target.position();
-          console.log(x, y);
 
           var kfId = evt.target.data().kfId;
 

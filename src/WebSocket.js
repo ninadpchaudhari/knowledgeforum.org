@@ -4,7 +4,9 @@ import io from 'socket.io-client';
 import { WS_BASE } from './config.js'
 import { useDispatch } from 'react-redux';
 import {setSocketStatus } from './store/globalsReducer.js'
-import { addViewLink, removeViewLink } from './store/noteReducer.js'
+import { removeViewLink, removeViewNote } from './store/noteReducer.js'
+import { onViewLink } from './store/async_actions'
+import { url } from './store/api.js'
 const WebSocketContext = createContext(null)
 
 export { WebSocketContext }
@@ -26,7 +28,7 @@ export default (({ children }) => {
          */
         socket.on(modelName + ':save', (item) => {
             if (modelName === 'link' && item.type === 'contains' && item._to.status === 'active'){
-                dispatch(addViewLink(item));
+                dispatch(onViewLink(item));
             }
         });
 
@@ -36,6 +38,7 @@ export default (({ children }) => {
         socket.on(modelName + ':remove', function(item) {
             if (modelName === 'link' && item._to.status === 'active'){
                 dispatch(removeViewLink(item));
+                dispatch(removeViewNote({'_id': item.to}))
             }
         });
     };
@@ -54,34 +57,46 @@ export default (({ children }) => {
         socket.removeAllListeners(modelName + ':remove');
     }
 
-    if (!socket){
-        socket = io.connect(
-            'http://localhost:9000',
-            {path: WS_BASE,
-             log: true,
-             "close timeout": 60
-           , "heartbeat timeout": 60
-           , "heartbeat interval": 20
-        });
-        socket.on('connect', ()=>{
-            dispatch(setSocketStatus(true));
-        });
-        socket.on('error', function (data) {
-            console.log(data || 'error');
-            dispatch(setSocketStatus(false));
-        });
+    const openConnection = () => {
+        if (!socket){
+            socket = io.connect(
+                url,
+                {path: WS_BASE,
+                 log: true,
+                 "close timeout": 60
+                 , "heartbeat timeout": 60
+                 , "heartbeat interval": 20
+                });
+            socket.on('connect', ()=>{
+                console.log("connected")
+                dispatch(setSocketStatus(true));
+            });
+            socket.on('error', function (data) {
+                console.log(data || 'error');
+                dispatch(setSocketStatus(false));
+            });
 
-        socket.on('connect_failed', function (data) {
-            console.log(data || 'connect_failed');
-            dispatch(setSocketStatus(false));
-        });
-        ws = {
-            socket: socket,
-            emit: emit,
-            unsyncUpdates: unsyncUpdates,
-            syncUpdates: syncUpdates,
-            subscribeToView: subscribeToView
+            socket.on('connect_failed', function (data) {
+                console.log(data || 'connect_failed');
+                dispatch(setSocketStatus(false));
+            });
+
         }
+    }
+
+    const disconnect = () => {
+        if (socket)
+            socket.disconnect();
+    }
+
+    ws = {
+        socket: socket,
+        openConnection: openConnection,
+        emit: emit,
+        unsyncUpdates: unsyncUpdates,
+        syncUpdates: syncUpdates,
+        subscribeToView: subscribeToView,
+        disconnect: disconnect
     }
 
     return (

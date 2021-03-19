@@ -38,6 +38,7 @@ class View extends Component {
     }
 
     componentDidMount() {
+        this.context.openConnection();//Open websocket connection
         if (this.props.viewId) {
             this.props.fetchViewCommunityData(this.props.viewId);
         } else {
@@ -60,6 +61,7 @@ class View extends Component {
         if (this.props.socketStatus){
             this.context.unsyncUpdates('link');
             this.context.emit('unsubscribe', `linkfrom:${this.props.viewId}`);
+            this.context.disconnect();
         }
     }
 

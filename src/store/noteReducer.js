@@ -34,6 +34,7 @@ export const setRiseAboveViewNotes = createAction('SET_RISEABOVE_VIEW_NOTES')
 export const setRiseAboveNotes = createAction('SET_RISEABOVE_NOTES')
 export const setReadLinks = createAction('SET_READ_LINKS')
 export const removeViewLink = createAction('REMOVE_READ_LINKS')
+export const removeViewNote = createAction('REMOVE_VIEW_NOTE')
 
 const initState = { drawing: '', attachments: {}, viewNotes: {}, checkedNotes: [], viewLinks: [], buildsOn: [], supports: [], riseAboveNotes: {}, riseAboveViewNotes: {}, readLinks: []}
 
@@ -128,6 +129,9 @@ export const noteReducer = createReducer(initState, {
     },
     [addViewNote]: (state, action) => {
         state.viewNotes[action.payload._id] = action.payload
+    },
+    [removeViewNote]: (state, action) => {
+        delete state.viewNotes[action.payload._id]
     },
     [setViewLinks]: (state, action) => {
         state.viewLinks = action.payload
@@ -257,10 +261,12 @@ export const newNote = (view, communityId, authorId, buildson) => dispatch => {
     })
 
 }
+
 export const buildOnNote = (noteId) => (dispatch, getState )=> {
     const state = getState()
     dispatch(newNote(state.globals.view, state.globals.communityId, state.globals.author._id, noteId))
 }
+
 export const editSvgDialog = (noteId, svg) => dispatch => {
     dispatch(editSvg({ noteId, svg }))
     dispatch(openDrawDialog(noteId))
@@ -443,7 +449,6 @@ export const fetchViewNotes = (viewId) => async (dispatch) => {
         }
     })
 }
-
 
 export const fetchBuildsOn = (communityId) => async (dispatch) => {
     let buildOnResult = await api.linksSearch(communityId, { "type": "buildson" })
