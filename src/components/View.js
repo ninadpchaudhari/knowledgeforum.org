@@ -14,6 +14,7 @@ import LightView from '../View/LightView.js';
 import '../css/index.css';
 import "./View.css";
 import DialogHandler from './dialogHandler/DialogHandler.js'
+import { WebSocketContext } from '../WebSocket.js'
 
 class View extends Component {
 
@@ -37,6 +38,7 @@ class View extends Component {
     }
 
     componentDidMount() {
+        this.context.openConnection();//Open websocket connection
         var viewId = this.props.viewId ? this.props.viewId : this.props.match.params.viewId;
         this.props.fetchViewCommunityData(viewId);
     }
@@ -44,6 +46,19 @@ class View extends Component {
     componentDidUpdate(prevProps, prevState) {
         if (this.props.viewId && this.props.viewId !== prevProps.viewId) {
           this.props.fetchNewViewDifference(this.props.viewId);
+        }
+      
+        if (this.props.viewId && this.props.socketStatus && !prevProps.socketStatus){
+            this.context.subscribeToView(this.props.viewId);
+            this.context.syncUpdates('link');
+        }
+    }
+
+    componentWillUnmount(){
+        if (this.props.socketStatus){
+            this.context.unsyncUpdates('link');
+            this.context.emit('unsubscribe', `linkfrom:${this.props.viewId}`);
+            this.context.disconnect();
         }
     }
 
@@ -260,6 +275,7 @@ class View extends Component {
       )
     }
 }
+View.contextType = WebSocketContext;
 
 const mapStateToProps = (state, ownProps) => {
     return {
@@ -270,6 +286,7 @@ const mapStateToProps = (state, ownProps) => {
         view: state.globals.view,
         author: state.globals.author,
         myViews: state.globals.views,
+        socketStatus: state.globals.socketStatus
     }
 }
 

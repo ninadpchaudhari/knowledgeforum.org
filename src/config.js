@@ -49,3 +49,5 @@ export function extractTokenFromStorage(server) {
     }
   }
 }
+
+export const WS_BASE = '/socket.io-client';

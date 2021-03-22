@@ -78,6 +78,9 @@ export const getLinks = async (objectId, direction, type) => {
     return links
 }
 
+export const putLink = async (linkId, link) => {
+    return (await axios.put(`${apiUrl}/links/${linkId}`, link)).data
+}
 export const postLink = async (fromId, toId, type, data) => {
     return (await axios.post(`${apiUrl}/links`, { from: fromId, to: toId, type: type, data: data })).data
 }
