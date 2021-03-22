@@ -58,7 +58,9 @@ class Notes extends Component {
         const formatter = new Intl.DateTimeFormat('default', dateFormatOptions)
         let NoteMobile;
         let data = this.props.note.data.body;
+        //eslint-disable-next-line
         while (data.includes("src=\"\/attachments")) {
+            //eslint-disable-next-line
             data = data.replace("src=\"\/attachments", "src=\"" + url + "\/attachments");
         }
 

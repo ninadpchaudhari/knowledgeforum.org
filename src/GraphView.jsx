@@ -36,11 +36,14 @@ class Graph extends Component {
     this.loadElements = this.loadElements.bind(this);
     this.supportImageIsDuplicate = this.supportImageIsDuplicate.bind(this);
     this.compareSupportImages = this.compareSupportImages.bind(this);
+    this.findCyElemFromKfId = this.findCyElemFromKfId.bind(this);
+    this.focusRecentAddition = this.focusRecentAddition.bind(this);
   };
 
-  loadElements() {
+  loadElements(prevViewLinksLength) {
       // ensure we have all the informationn needed to render the graph
-      if (this.props.viewLinks.length !== 0 && this.props.buildsOn.length !== 0 && Object.keys(this.props.authors).length !== 0){
+      if ((this.props.viewLinks.length !== 0 || (this.props.viewLinks.length === 0 && prevViewLinksLength !== undefined))
+                                        && this.props.buildsOn.length !== 0 && Object.keys(this.props.authors).length !== 0){
           const cy = this.cy;
           const si = cy.supportimages();
 
@@ -68,6 +71,11 @@ class Graph extends Component {
               }
 
               self.setState({elements: cy_elements});
+
+              // if a single new element was added to the graph - highlight it
+              if(this.props.viewLinks.length === prevViewLinksLength + 1){
+                this.focusRecentAddition(this.props.viewLinks[this.props.viewLinks.length - 1]);
+              }
           });
       }
   }
@@ -84,6 +92,25 @@ class Graph extends Component {
   compareSupportImages(a, b){
     return a.bounds.height === b.bounds.height && a.bounds.width === b.bounds.width && a.bounds.x === b.bounds.x && a.bounds.y === b.bounds.y
         && a.name === b.name && a.url === b.url;
+  }
+
+  findCyElemFromKfId(kfId){
+    var cy_elements_nodes = this.state.elements.nodes;
+    for(let i = cy_elements_nodes.length - 1; i >= 0; i--){
+      if(cy_elements_nodes[i].data.kfId === kfId) return cy_elements_nodes[i];
+    }
+    return null;
+  }
+
+  focusRecentAddition(note){
+    var cy = this.cy;
+    var kfId = note.to;
+    var cyElem = this.findCyElemFromKfId(kfId);
+
+    if(cyElem !== null){
+      cy.center(cyElem);
+      cy.$('#'+cyElem.data.id).flashClass('recentAddition', 10000);
+    }
   }
 
   componentDidMount() {
@@ -187,7 +214,7 @@ class Graph extends Component {
       //If any prop is updated, re-load elements
       if (this.props.viewId !== prevProps.viewId || this.props.buildsOn !== prevProps.buildsOn
                           || this.props.authors !== prevProps.authors || this.props.viewLinks !== prevProps.viewLinks || this.props.readLinks !== prevProps.readLinks){
-          this.loadElements();
+          this.loadElements(prevProps.viewLinks.length);
       }
   }
 
@@ -195,7 +222,7 @@ class Graph extends Component {
     return(
           <CytoscapeComponent
           cy={(cy) => { this.cy = cy }}
-          style={ { width: '100%', height: '100vh' } }
+          style={ { width: '100%', height: '100%' } }
           elements={CytoscapeComponent.normalizeElements(this.state.elements)}
           stylesheet={ [
             {
@@ -210,7 +237,7 @@ class Graph extends Component {
                 'background-opacity': '0',
                 'background-clip': 'none',
                 'background-width': '15px',
-                'background-height': '15px'
+                'background-height': '15px',
               }
             },
             {
@@ -230,18 +257,16 @@ class Graph extends Component {
             {selector: '.read-riseabove', style: {'background-image': [read_riseabove_icon]}},
             {selector: '.attachment', style: {'background-image': [attachment_icon]}},
             {selector: '.view', style: {'background-image': [view_icon]}},
+            {selector: '.image', style: {'label': ''}},
+            {selector: '.drawing', style: {'label': ''}},
             {
-              selector: '.image',
+              selector: '.recentAddition',
               style: {
-                'label': ''
+                'border-style': 'solid',
+                'border-width': '2',
+                'border-color': 'red',
               }
             },
-            {
-              selector: '.drawing',
-              style: {
-                'label': ''
-              }
-            }
           ] }
           layout={ {name: 'grid'} }
           hideEdgesonViewport={ false }
