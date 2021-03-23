@@ -1,86 +1,28 @@
 import React, {useCallback} from 'react';
-import Dialog from '../dialog/Dialog.js';
-import Note from '../note/Note.js';
 import { useSelector, useDispatch } from 'react-redux';
-import {closeDialog, closeDrawDialog, focusDialog } from '../../store/dialogReducer.js'
-import {removeNote, addDrawing, postContribution, buildOnNote} from '../../store/noteReducer.js'
-import DrawDialog from '../drawDialog/DrawDialog.js'
+import {focusDialog } from '../../store/dialogReducer.js'
+import NoteDialog from '../dialog/NoteDialog.js'
 
 const DialogHandler = props => {
     const dialogs = useSelector(state => state.dialogs);
     const dispatch = useDispatch();
-    // Close dialog and remove dialog AND note from state
-
-    const onDialogClose = useCallback(
-        (dlg) => {
-            dispatch(closeDialog(dlg.id));
-            dispatch(removeNote(dlg.noteId));
-        },
-        [dispatch]
-    )
-
-    const onDialogConfirm = useCallback(
-        (dlg) => {
-            dispatch(postContribution(dlg.noteId, dlg.id));
-            /* dispatch(closeDialog(dlg.id)); */
-        },
-        [dispatch]
-    );
 
     const onFocusDialog = useCallback(
         (dlgId) => dispatch(focusDialog(dlgId)),
         [dispatch]
     );
 
-    const onCloseDrawDialog = useCallback(
-        () => {
-            dispatch(closeDrawDialog())
-        },
-        [dispatch]
-    );
-
-    const onConfirmDrawDialog = useCallback(
-        (drawing) => {
-            dispatch(addDrawing(drawing))
-            dispatch(closeDrawDialog())
-        },
-        [dispatch]
-    );
-
-    const onBuildOnClick = useCallback(
-        (noteId) => {
-            console.log("build on note" + noteId);
-            dispatch(buildOnNote(noteId));
-        },
-        [dispatch]
-    );
-
     return (
         <div>{
             dialogs.dialogs.map((elt, i) =>
-                <Dialog key={elt.id}
-                        id={elt.id}
-                        onMouseDown={() => onFocusDialog(elt.id)}
-                        title={elt.title}
-                        style={{zIndex: elt.zIndex}}
-                        onClose={()=>onDialogClose(elt)}
-                        onConfirm={()=> onDialogConfirm(elt)}
-                        confirmButton={elt.confirmButton}
-                        editable={elt.editable}
-                        buildon={elt.buildOn}
-                        onBuildOnClick={()=>onBuildOnClick(elt.noteId)}
+                <NoteDialog
+                    key={elt.id}
+                    dialog={elt}
+                    onMouseDown={() => onFocusDialog(elt.id)}
                 >
-
-                    <Note key={elt.noteId} dlgId={elt.id} noteId={elt.noteId} mode={elt.editable? "write": "read"}/>
-                </Dialog>
+                </NoteDialog>
             )
         }
-
-            {dialogs.drawTool!== null ?
-             <DrawDialog onClose={onCloseDrawDialog}
-                         onConfirm={onConfirmDrawDialog}
-                         noteId={dialogs.drawTool}
-             /> : null}
 
         </div>
     )

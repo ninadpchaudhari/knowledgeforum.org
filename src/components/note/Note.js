@@ -25,7 +25,6 @@ class Note extends React.Component {
             selectedTab: this.props.mode ? this.props.mode : "write",
         }
         this.onEditorSetup = this.onEditorSetup.bind(this)
-        this.onDrawingToolOpen = this.onDrawingToolOpen.bind(this)
         this.addDrawing = this.addDrawing.bind(this)
         this.onNoteChange = this.onNoteChange.bind(this)
         this.wordCount = this.wordCount.bind(this)
@@ -47,9 +46,9 @@ class Note extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.props.drawing && prevProps.drawing !== this.props.drawing && this.props.drawTool === this.props.noteId) {
+        if (this.props.drawing && prevProps.drawing !== this.props.drawing) {
             this.editor.insertContent(this.props.drawing)
-            this.props.removeDrawing()
+            this.props.onDrawingInserted()
         }
     }
 
@@ -60,34 +59,25 @@ class Note extends React.Component {
         } else if (note.attach) {
             this.editor.insertContent(note.attach)
         } else if (note.deleteAttach) {
-            this.props.deleteAttachment(this.props.noteId, note.deleteAttach)
+            this.props.deleteAttachment(this.props.note._id, note.deleteAttach)
             this.editor.dom.remove(this.editor.dom.select('.' + note.deleteAttach))
         }
         else {
-            this.props.editNote({ _id: this.props.noteId, ...note })
-            if (note.data && note.data.body) {
-                this.wordCount(note.data.body);
+            if (note.data && note.data.body){
+                this.props.onNoteChange({ ...note, wordCount: this.wordCount(note.data.body) })
+            }else{
+                this.props.onNoteChange({ ...note })
             }
         }
     }
 
     wordCount(text) {
-        const wordCount = this.editor.plugins.wordcount.getCount() - scaffoldWordCount(text);
-        this.props.setWordCount({ contribId: this.props.noteId, wc: wordCount })
+        return this.editor.plugins.wordcount.getCount() - scaffoldWordCount(text);
     }
 
     onEditorSetup(editor) {
-        editor.onDrawButton = this.onDrawingToolOpen;
+        editor.onDrawButton = this.props.onDrawToolOpen;
         this.editor = editor;
-    }
-
-    onDrawingToolOpen(svg) {
-        //Create dialog
-        if (svg) {
-            this.props.editSvgDialog(this.props.noteId, svg);
-        } else {
-            this.props.openDrawDialog(this.props.noteId);
-        }
     }
 
     addDrawing(drawing) {
@@ -118,6 +108,7 @@ class Note extends React.Component {
     }
 
     onAnnotationCreated(annotation) {
+        console.log(annotation)
         this.props.createAnnotation(this.props.note.communityId, this.props.note._id, this.props.noteAuthor._id, annotation)
     }
 
@@ -140,7 +131,7 @@ class Note extends React.Component {
         model.data = annotation;
         this.props.modifyAnnotation(model, this.props.note.communityId, this.props.note._id)
     }
-    
+
     editNote = (noteId) => {
         this.props.openContribution(noteId)
     }
@@ -207,10 +198,10 @@ class Note extends React.Component {
                         ''
                     }
                     <Tab eventKey="author" title="author(s)">
-                        <AuthorTab contribId={this.props.noteId} />
+                        <AuthorTab contrib={this.props.note} onChange={this.onNoteChange} />
                     </Tab>
                     <Tab eventKey='history' title='history'><History records={this.props.note.records} /></Tab>
-                    <Tab eventKey='properties' title='properties'><Properties contribution={this.props.note} onChange={this.onNoteChange} /></Tab>
+                    <Tab eventKey='properties' title='properties'><Properties contribution={this.props.note} onChange={this.props.onNoteChange} /></Tab>
                 </Tabs>
             </div>
         );
@@ -218,22 +209,18 @@ class Note extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-    const note = state.notes[ownProps.noteId]
     return {
-        note: note,
-        drawing: state.notes.drawing,
-        drawTool: state.dialogs.drawTool,
-        noteAuthor: note && (state.users[note.authors[0]] || 'NA'),
+        noteAuthor: ownProps.note && (state.users[ownProps.note.authors[0]] || 'NA'),
         riseAboveViewNotes: state.notes.riseAboveViewNotes,
         riseAboveNotes: state.notes.riseAboveNotes,
         currentAuthor: state.globals.author,
-        editable: false || (note && note.authors.includes(state.globals.author._id))
+        editable: false || (ownProps.note && ownProps.note.authors.includes(state.globals.author._id))
     }
 }
 
 const mapDispatchToProps = {
-    editNote, openDrawDialog, setWordCount,
-    removeDrawing, editSvgDialog, fetchAttachments, fetchRecords,
+    editNote,
+    fetchAttachments, fetchRecords,
     deleteAnnotation, fetchCommGroups, createAnnotation, modifyAnnotation,
     setAnnotationsLoaded, deleteAttachment, openContribution}
 
