@@ -26,9 +26,7 @@ class DrawDialog extends React.Component {
         wnd1.svgCanvas.current_drawing_.svgElem_.setAttribute("height", heig);
         bg[1].childNodes[1].setAttribute("width", widd);
         bg[1].childNodes[1].setAttribute("height", heig);
-        console.log(1)
         wnd1.svgCanvas.selectAllInCurrentLayer();
-        console.log(2)
         wnd1.svgCanvas.groupSelectedElements();
         wnd1.svgCanvas.alignSelectedElements('l', 'page');
         wnd1.svgCanvas.alignSelectedElements('t', 'page');

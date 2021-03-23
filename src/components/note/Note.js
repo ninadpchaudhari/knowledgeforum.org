@@ -8,11 +8,10 @@ import Annotator from '../annotator/Annotator'
 import RiseAboveView from '../RiseAboveView/RiseAboveView'
 import { connect } from 'react-redux'
 import {
-    editNote, removeDrawing, editSvgDialog, setAnnotationsLoaded,
-    fetchAttachments, setWordCount, fetchRecords,
+    editNote, setAnnotationsLoaded,
+    fetchAttachments, fetchRecords,
     createAnnotation, deleteAnnotation, modifyAnnotation, deleteAttachment, openContribution
 } from '../../store/noteReducer.js'
-import { openDrawDialog } from '../../store/dialogReducer.js'
 import { scaffoldWordCount } from '../../store/kftag.service.js'
 import { dateFormatOptions, fetchCommGroups } from '../../store/globalsReducer.js'
 import './Note.css'

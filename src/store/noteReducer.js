@@ -144,12 +144,10 @@ export const noteReducer = createReducer(initState, {
     [setRiseAboveViewNotes]: (state, action) => {
         state.riseAboveViewNotes[action.payload.noteId] = [...action.payload.notes]
         // state.riseAboveViewNotes = [...state.riseAboveViewNotes, action.payload]
-        // console.log("state.riseAboveViewViewciew", state.riseAboveViewNotes);
     },
     [setRiseAboveNotes]: (state, action) => {
         // let viewId = action.payload.viewId
         // state.riseAboveNotes[viewId] = [...action.payload.notes]
-        // console.log("state.riseAboveNotes", state.riseAboveNotes, action.payload.notes);
         action.payload.forEach(note => state.riseAboveNotes[note._id] = note)
     },
     [setReadLinks]: (state, action) =>{
@@ -275,7 +273,6 @@ export const fetchAttachments = (contribId) => async dispatch => {
 export const postContribution = (contrib, dialogId) => async (dispatch, getState) => {
     contrib = Object.assign({}, contrib)
     contrib.data = Object.assign({}, contrib.data)
-    console.log("Post contrib", contrib)
     if (!contrib.title) {
         addNotification({ title: 'Error Saving Note!', type: 'danger', message: 'Title is required' })
         return

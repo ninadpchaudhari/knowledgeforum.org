@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react'
+import React, {useEffect, useState} from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import Dialog from './Dialog.js'
 import DrawDialog from '../drawDialog/DrawDialog.js'
@@ -17,7 +17,12 @@ const NoteDialog = props => {
     const [drawing, setDrawing] = useState(null);
 
     useEffect(()=>{
-        setNote({...reduxNote})
+        setNote(prevNote => {
+            if (prevNote === null) //Initialize once
+                return {...reduxNote}
+            else //Only update attachmets
+                return {...prevNote, attachments: reduxNote.attachments }
+        })
     }, [reduxNote])
 
 
@@ -31,18 +36,15 @@ const NoteDialog = props => {
     }
 
     const onBuildOnClick = (noteId) => {
-        console.log("build on note" + noteId);
         dispatch(buildOnNote(noteId));
     }
 
     const onNoteChange = (noteChanged) => {
-        console.log('note Changed!', noteChanged)
         setNote(prevNote => ({...prevNote, ...noteChanged}))
     }
 
     const openDrawDialog = (svg) => {
         if (svg) {
-            console.log("SVG")
             setSvg(svg)
         }
         setDrawTool(true)

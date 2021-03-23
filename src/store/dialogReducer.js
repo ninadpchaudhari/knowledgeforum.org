@@ -7,8 +7,8 @@ export const openAttachPanel = createAction('OPEN_ATTACH_PANEL')
 export const closeAttachPanel = createAction('CLOSE_ATTACH_PANEL')
 
 let dialogCounter= 0
-const defaultZIndex = 1000
-const focusedZindex = 1100
+const defaultZIndex = 999
+const focusedZindex = 1000
 //Dialog content
 // dialog = {id, noteId, title, content, confirmButton, zIndex}
 const initState = { dialogs: [], drawTool: null, focused: null, attachPanel: {}};
