@@ -6,7 +6,6 @@ import CytoscapePanZoom from 'cytoscape-panzoom';
 import CytoscapeNodeHtmlLabel from 'cytoscape-node-html-label';
 import CytoscapeSupportImages from 'cytoscape-supportimages';
 
-import { postReadStatus } from './api/link.js';
 import { updateViewLink } from './store/async_actions.js'
 import {addNodesToGraph, addEdgesToGraph} from './helper/Graph_helper.js';
 import './css/cytoscape.js-panzoom.css';
@@ -190,7 +189,6 @@ class Graph extends Component {
             this.removeClass("unread-note");
             this.addClass("read-note");
         }
-        postReadStatus(ref.props.token, ref.props.server, ref.props.communityId, kfId);
       }
     });
 
