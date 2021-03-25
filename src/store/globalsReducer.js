@@ -198,6 +198,7 @@ export const fetchCommunityViews = (communityId) => async (dispatch) => {
 
 export const fetchViewCommunityData = (viewId) => async (dispatch) => {
     dispatch(setCheckedNotes([]))
+    dispatch(setViewId(viewId))
     const view = await getObject(viewId)
     const commId = view.communityId
     dispatch(setView(view))
