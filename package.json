@@ -14,7 +14,7 @@
     "cytoscape-node-html-label": "^1.2.2",
     "cytoscape-panzoom": "^2.5.3",
     "cytoscape-supportimages": "git+https://github.com/SERG-UAlbany/cytoscape.js-supportimages.git",
-    "jquery": "^3.5.1",
+    "jquery": "^3.6.0",
     "popper.js": "^1.16.1",
     "react": "^17.0.0",
     "react-bootstrap": "^1.4.0",
