@@ -180,9 +180,15 @@ export const fetchCommGroups = (communityId) => async (dispatch) => {
 }
 
 export const fetchLoggedUser = () => async (dispatch) => {
-    const user = await getUser()
-    dispatch(setUserId(user._id))
-    dispatch(setLoggedUser(user))
+    try {
+        const user = await getUser()
+        dispatch(setUserId(user._id))
+        dispatch(setLoggedUser(user))
+    }catch (e){//Error with token, logout
+        sessionStorage.clear();
+        localStorage.clear();
+        window.location.replace('/')
+    }
 }
 
 export const fetchCommunityViews = (communityId) => async (dispatch) => {

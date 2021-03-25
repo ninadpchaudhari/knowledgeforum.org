@@ -1,5 +1,5 @@
 import { createAction, createReducer } from '@reduxjs/toolkit';
-import { openDialog, openDrawDialog, closeDialog } from './dialogReducer.js'
+import { openDialog, closeDialog } from './dialogReducer.js'
 import { preProcess, postProcess } from './kftag.service.js'
 import * as api from './api.js'
 import { addNotification } from './notifier.js'
@@ -8,9 +8,6 @@ import { dateFormatOptions } from './globalsReducer.js'
 export const addNote = createAction('ADD_NOTE')
 export const removeNote = createAction('REMOVE_NOTE')
 export const editNote = createAction('EDIT_NOTE')
-export const addDrawing = createAction('ADD_DRAWING')
-export const removeDrawing = createAction('REMOVE_DRAWING')
-export const editSvg = createAction('EDIT_SVG')
 export const addAttachment = createAction('ADD_ATTACHMENT')
 export const removeAttachment = createAction('REMOVE_ATTACHMENT')
 export const setAttachments = createAction('SET_ATTACHMENTS')
@@ -36,7 +33,7 @@ export const setReadLinks = createAction('SET_READ_LINKS')
 export const removeViewLink = createAction('REMOVE_READ_LINKS')
 export const removeViewNote = createAction('REMOVE_VIEW_NOTE')
 
-const initState = { drawing: '', attachments: {}, viewNotes: {}, checkedNotes: [], viewLinks: [], buildsOn: [], supports: [], riseAboveNotes: {}, riseAboveViewNotes: {}, readLinks: []}
+const initState = {attachments: {}, viewNotes: {}, checkedNotes: [], viewLinks: [], buildsOn: [], supports: [], riseAboveNotes: {}, riseAboveViewNotes: {}, readLinks: []}
 
 export const noteReducer = createReducer(initState, {
     [addNote]: (notes, action) => {
@@ -48,15 +45,6 @@ export const noteReducer = createReducer(initState, {
     [editNote]: (notes, action) => {
         let note = notes[action.payload._id];
         notes[action.payload._id] = Object.assign({}, note, action.payload)
-    },
-    [addDrawing]: (notes, action) => {
-        notes.drawing = action.payload
-    },
-    [removeDrawing]: (notes, action) => {
-        notes.drawing = '';
-    },
-    [editSvg]: (notes, action) => {
-        notes[action.payload.noteId].editSvg = action.payload.svg
     },
     [addAttachment]: (state, action) => {
         let note = state[action.payload.noteId]
@@ -156,12 +144,10 @@ export const noteReducer = createReducer(initState, {
     [setRiseAboveViewNotes]: (state, action) => {
         state.riseAboveViewNotes[action.payload.noteId] = [...action.payload.notes]
         // state.riseAboveViewNotes = [...state.riseAboveViewNotes, action.payload]
-        // console.log("state.riseAboveViewViewciew", state.riseAboveViewNotes);
     },
     [setRiseAboveNotes]: (state, action) => {
         // let viewId = action.payload.viewId
         // state.riseAboveNotes[viewId] = [...action.payload.notes]
-        // console.log("state.riseAboveNotes", state.riseAboveNotes, action.payload.notes);
         action.payload.forEach(note => state.riseAboveNotes[note._id] = note)
     },
     [setReadLinks]: (state, action) =>{
@@ -267,10 +253,6 @@ export const buildOnNote = (noteId) => (dispatch, getState )=> {
     dispatch(newNote(state.globals.view, state.globals.communityId, state.globals.author._id, noteId))
 }
 
-export const editSvgDialog = (noteId, svg) => dispatch => {
-    dispatch(editSvg({ noteId, svg }))
-    dispatch(openDrawDialog(noteId))
-}
 
 export const attachmentUploaded = (noteId, attachment, inline, x, y) => dispatch => {
 
@@ -288,9 +270,7 @@ export const fetchAttachments = (contribId) => async dispatch => {
     dispatch(setAttachments({ contribId, attachments }))
 }
 
-export const postContribution = (contribId, dialogId) => async (dispatch, getState) => {
-    const state = getState()
-    let contrib = state.notes[contribId]
+export const postContribution = (contrib, dialogId) => async (dispatch, getState) => {
     contrib = Object.assign({}, contrib)
     contrib.data = Object.assign({}, contrib.data)
     if (!contrib.title) {
@@ -314,8 +294,8 @@ export const postContribution = (contribId, dialogId) => async (dispatch, getSta
         dispatch(editNote(newNote))
         dispatch(addViewNote(newNote))
 
-        dispatch(fetchLinks(contribId, 'from'))
-        dispatch(fetchLinks(contribId, 'to'))
+        dispatch(fetchLinks(contrib._id, 'from'))
+        dispatch(fetchLinks(contrib._id, 'to'))
         if (dialogId !== undefined)
             dispatch(closeDialog(dialogId))
         if (!wasActive) //To update builds on hierarchy

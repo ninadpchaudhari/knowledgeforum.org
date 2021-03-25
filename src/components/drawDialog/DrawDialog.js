@@ -1,6 +1,5 @@
 import React from 'react';
 import Dialog from '../dialog/Dialog.js'
-import { connect } from 'react-redux'
 
 class DrawDialog extends React.Component {
 
@@ -18,19 +17,21 @@ class DrawDialog extends React.Component {
 
         var widd = wnd2[1].getBBox().width;
         var heig = wnd2[1].getBBox().height;
+        if (widd === 0 || heig === 0){
+            this.props.onClose()
+            return;
+        }
 
         wnd1.svgCanvas.current_drawing_.svgElem_.setAttribute("width", widd);
         wnd1.svgCanvas.current_drawing_.svgElem_.setAttribute("height", heig);
         bg[1].childNodes[1].setAttribute("width", widd);
         bg[1].childNodes[1].setAttribute("height", heig);
-
         wnd1.svgCanvas.selectAllInCurrentLayer();
         wnd1.svgCanvas.groupSelectedElements();
         wnd1.svgCanvas.alignSelectedElements('l', 'page');
         wnd1.svgCanvas.alignSelectedElements('t', 'page');
         wnd1.svgCanvas.ungroupSelectedElement();
         wnd1.svgCanvas.clearSelection();
-
         wnd1.svgCanvas.current_drawing_.svgElem_.setAttribute("padding", '2em');
         wnd1.svgCanvas.setResolution('fit', 100);
         var svg = wnd1.svgCanvas.getSvgString();
@@ -63,7 +64,7 @@ class DrawDialog extends React.Component {
     }
 
     onLoad(e){
-        const svg = this.props.note.editSvg
+        const svg = this.props.svg
         if (svg){
             e.target.contentWindow.svgCanvas.setSvgString(svg)
         }
@@ -86,14 +87,4 @@ class DrawDialog extends React.Component {
     }
 }
 
-const mapStateToProps = (state, ownProps) => {
-    return {
-        note: state.notes[ownProps.noteId],
-    }
-}
-
-/* const mapDispatchToProps = { editNote, openDrawDialog, removeDrawing, editSvgDialog} */
-
-export default connect(
-    mapStateToProps,
-)(DrawDialog)
+export default DrawDialog

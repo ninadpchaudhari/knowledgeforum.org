@@ -7,7 +7,12 @@ import './attachArea.css'
 const AttachArea = props => {
 
     const attachments = useSelector(state => {
-        return props.attachments.map((attId) => state.notes.attachments[attId])
+        const atts = []
+        props.attachments.forEach((attId) => {
+            const att = state.notes.attachments[attId]
+            if (att){ atts.push(att) }
+        })
+        return atts;
     })
     const [selectedImgs, setSelectedImgs] = useState([])
     const getFileNameString = (name) => {
@@ -19,14 +24,12 @@ const AttachArea = props => {
     }
 
     const addImages = () => {
-        console.log("Add images")
         const  selectedImgs = Array.from(document.getElementById(`attachbox-${props.noteId}`).getElementsByClassName("selected"))
         if (selectedImgs.length === 0) {
             return;
         }
         let html = "";
         const maxWidth = 200;
-        console.log(selectedImgs)
         selectedImgs.forEach((img) => {
             const tagName = img.tagName;
             let width = img.naturalWidth;
