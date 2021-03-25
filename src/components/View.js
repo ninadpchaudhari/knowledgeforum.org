@@ -38,19 +38,18 @@ class View extends Component {
     }
 
     componentDidMount() {
-        this.context.openConnection();//Open websocket connection
         var viewId = this.props.viewId ? this.props.viewId : this.props.match.params.viewId;
+        this.context.openConnection(viewId, 'link');//Open websocket connection and subscribe to view
         this.props.fetchViewCommunityData(viewId);
     }
 
     componentDidUpdate(prevProps, prevState) {
         if (this.props.viewId && this.props.viewId !== prevProps.viewId) {
-          this.props.fetchNewViewDifference(this.props.viewId);
-        }
-      
-        if (this.props.viewId && this.props.socketStatus && !prevProps.socketStatus){
-            this.context.subscribeToView(this.props.viewId);
-            this.context.syncUpdates('link');
+            this.props.fetchNewViewDifference(this.props.viewId);
+            if (this.props.socketStatus && prevProps.viewId){//If changing view and socket connection
+                this.context.emit('unsubscribe', `linkfrom:${prevProps.viewId}`);
+                this.context.subscribeToView(this.props.viewId);
+            }
         }
     }
 

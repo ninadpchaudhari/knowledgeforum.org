@@ -57,7 +57,7 @@ export default (({ children }) => {
         socket.removeAllListeners(modelName + ':remove');
     }
 
-    const openConnection = () => {
+    const openConnection = (subscribe, sync) => {
         if (!socket){
             socket = io.connect(
                 url,
@@ -68,8 +68,13 @@ export default (({ children }) => {
                  , "heartbeat interval": 20
                 });
             socket.on('connect', ()=>{
-                console.log("connected")
                 dispatch(setSocketStatus(true));
+                if (subscribe){
+                    subscribeToView(subscribe)
+                }
+                if (sync){
+                    syncUpdates(sync)
+                }
             });
             socket.on('error', function (data) {
                 console.log(data || 'error');
