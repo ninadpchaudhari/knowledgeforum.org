@@ -30,19 +30,22 @@ class Graph extends Component {
 
     this.state = {
       elements: {nodes: [], edges: []},
+      currViewLinksLength: 0,
     };
 
     this.loadElements = this.loadElements.bind(this);
     this.supportImageIsDuplicate = this.supportImageIsDuplicate.bind(this);
     this.compareSupportImages = this.compareSupportImages.bind(this);
     this.findCyElemFromKfId = this.findCyElemFromKfId.bind(this);
+    this.updateReadLinks = this.updateReadLinks.bind(this);
     this.focusRecentAddition = this.focusRecentAddition.bind(this);
   };
 
   loadElements(prevViewLinksLength) {
       // ensure we have all the informationn needed to render the graph
-      if ((this.props.viewLinks.length !== 0 || (this.props.viewLinks.length === 0 && prevViewLinksLength !== undefined))
+      if ((this.props.viewLinks.length !== this.state.currViewLinksLength || (this.props.viewLinks.length === 0 && prevViewLinksLength !== undefined))
                                         && this.props.buildsOn.length !== 0 && Object.keys(this.props.authors).length !== 0){
+          this.setState({currViewLinksLength: this.props.viewLinks.length});
           const cy = this.cy;
           const si = cy.supportimages();
 
@@ -53,7 +56,7 @@ class Graph extends Component {
           // clear the support images extension
           si._private.supportImages = [];
 
-          var graph_nodes = addNodesToGraph(this.props.server, this.props.token, nodes, this.props.viewLinks, this.props.readLinks, this.props.authors);
+          var graph_nodes = addNodesToGraph(this.props.server, this.props.token, nodes, this.props.viewLinks, this.props.authors);
           var graph_edges = addEdgesToGraph(nodes, this.props.buildsOn);
           var self = this;
 
@@ -70,11 +73,13 @@ class Graph extends Component {
               }
 
               self.setState({elements: cy_elements});
-
+              // support-images extension will not trigger a redraw if there are no images in the view - this line handles that
+              if(si.images().length === 0){ si._private.renderer.redraw(); }
               // if a single new element was added to the graph - highlight it
-              if(this.props.viewLinks.length === prevViewLinksLength + 1){
-                this.focusRecentAddition(this.props.viewLinks[this.props.viewLinks.length - 1]);
-              }
+              if(this.props.viewLinks.length === prevViewLinksLength + 1){ this.focusRecentAddition(this.props.viewLinks[this.props.viewLinks.length - 1]); }
+
+          }).then(() => {
+            this.updateReadLinks();
           });
       }
   }
@@ -99,6 +104,21 @@ class Graph extends Component {
       if(cy_elements_nodes[i].data.kfId === kfId) return cy_elements_nodes[i];
     }
     return null;
+  }
+
+  updateReadLinks(){
+    var cy = this.cy;
+    var readLinks = this.props.readLinks;
+    for(let i in readLinks){
+      var cy_elem = this.findCyElemFromKfId(readLinks[i]);
+      if(cy_elem !== null){
+        var isRiseAbove = cy.$('#'+cy_elem.data.id).hasClass('unread-riseabove') ? true : false; // the element will either be a riseabove or a regular note
+        var classToRemove = isRiseAbove ? 'unread-riseabove' : 'unread-note';
+        var classToAdd = isRiseAbove ? 'read-riseabove' : 'read-note';
+        cy.$('#'+cy_elem.data.id).removeClass(classToRemove);
+        cy.$('#'+cy_elem.data.id).addClass(classToAdd);
+      }
+    }
   }
 
   focusRecentAddition(note){

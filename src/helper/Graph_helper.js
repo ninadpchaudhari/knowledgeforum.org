@@ -2,13 +2,13 @@ import {getApiObjectsObjectId} from '../api/object.js';
 
 // adds the notes to the cytoscape graph
 // parameters are token, cytoscape instance, cytoscape-supportimage instance, notes map, getApiLinksFromViewId, getApiLinksReadStatus, and getCommunityAuthors results
-export function addNodesToGraph(server, token, nodes, nodeData, readData, authorData){
+export function addNodesToGraph(server, token, nodes, nodeData, authorData){
   var graph_nodes = [];
   for(var i = 0; i < nodeData.length; i++){
     var id = createCytoscapeId(nodes, nodeData[i].to);
 
     if(nodeData[i]._to.type === "Note" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
-      graph_nodes.push(handleNote(id, nodeData[i], readData, authorData));
+      graph_nodes.push(handleNote(id, nodeData[i], authorData));
     } else if(nodeData[i]._to.type === "Attachment" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
       graph_nodes.push(handleAttachment(server, token, nodes, nodeData[i], authorData));
     } else if(nodeData[i]._to.type === "Drawing" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
@@ -55,17 +55,17 @@ export function addEdgesToGraph(nodes, edgeData){
 
 
 // handles adding notes to the cytoscape instance
-function handleNote(id, nodeData, readData, authorData){
+function handleNote(id, nodeData, authorData){
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var date = parseDate(nodeData.created);
   var readStatus, type;
 
   // handles whether it is a note or a riseabove
   if(nodeData._to.data === undefined){
-    readStatus = readData.includes(nodeData.to) ? 'read-note' : 'unread-note';
+    readStatus = 'unread-note';
     type = "note";
   } else {
-    readStatus = readData.includes(nodeData.to) ? 'read-riseabove' : 'unread-riseabove';
+    readStatus = 'unread-riseabove';
     type = "riseabove";
   }
 
