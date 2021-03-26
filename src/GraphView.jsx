@@ -77,9 +77,7 @@ class Graph extends Component {
               if(si.images().length === 0){ si._private.renderer.redraw(); }
               // if a single new element was added to the graph - highlight it
               if(this.props.viewLinks.length === prevViewLinksLength + 1){ this.focusRecentAddition(this.props.viewLinks[this.props.viewLinks.length - 1]); }
-
-          }).then(() => {
-            this.updateReadLinks();
+              this.updateReadLinks();
           });
       }
   }
@@ -106,6 +104,7 @@ class Graph extends Component {
     return null;
   }
 
+  // all links are initially marked as unread - this function updates the read links accordingly afterward
   updateReadLinks(){
     var cy = this.cy;
     var readLinks = this.props.readLinks;
