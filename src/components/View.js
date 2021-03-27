@@ -178,7 +178,7 @@ class View extends Component {
               <div className="row flex-grow-1">
 
                   {/* SIDEBAR */}
-                  <div className="col-md-1" id="sticky-sidebar">
+                  <div className="col-md" id="sticky-sidebar">
                     <div className="row sidebar-list">
                       <div className="sidebar-list-col col-4 col-sm-4 col-md-12">
                       <DropdownButton drop="right" className="dropdown-btn-parent" title={<i className="fas fa-plus-circle"></i>}>
@@ -217,7 +217,7 @@ class View extends Component {
                   {/* END SIDEBAR */}
 
                   {/* MAIN CANVAS */}
-                  <div className="col-md-11" id="main-canvas">
+                  <div className="col-md" id="main-canvas">
                       {viewToRender}
                   </div>
                   {/* END MAIN CANVAS */}
