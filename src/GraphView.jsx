@@ -29,8 +29,7 @@ class Graph extends Component {
     super(props);
 
     this.state = {
-      elements: {nodes: [], edges: []},
-      currViewLinksLength: 0,
+      elements: {nodes: [], edges: []}
     };
 
     this.loadElements = this.loadElements.bind(this);
@@ -43,9 +42,8 @@ class Graph extends Component {
 
   loadElements(prevViewLinksLength) {
       // ensure we have all the informationn needed to render the graph
-      if ((this.props.viewLinks.length !== this.state.currViewLinksLength || (this.props.viewLinks.length === 0 && prevViewLinksLength !== undefined))
+      if ((this.props.viewLinks.length !== 0 || (this.props.viewLinks.length === 0 && prevViewLinksLength !== undefined))
                                         && this.props.buildsOn.length !== 0 && Object.keys(this.props.authors).length !== 0){
-          this.setState({currViewLinksLength: this.props.viewLinks.length});
           const cy = this.cy;
           const si = cy.supportimages();
 
