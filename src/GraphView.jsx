@@ -223,6 +223,18 @@ class Graph extends Component {
               this.props.updateViewLink(newViewLink)
           }
       })
+
+      //Update view link of image if position is changed
+      cy.on('cysupportimages.imagemoved', (evt, img) => {
+          let viewLink = this.props.viewLinks.filter((link) => link._id === img.linkId)
+          if (viewLink.length) {
+              viewLink = viewLink[0];
+              const data = {x: img.bounds.x, y: img.bounds.y}
+              const newViewLink = { ...viewLink }
+              newViewLink.data = { ...newViewLink.data, ...data };
+              this.props.updateViewLink(newViewLink)
+          }
+      })
   }
 
   componentDidUpdate(prevProps, prevState) {

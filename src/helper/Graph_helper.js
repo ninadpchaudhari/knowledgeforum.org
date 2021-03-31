@@ -115,6 +115,7 @@ function handleAttachment(server, token, nodes, nodeData, authorData){
         name: nodeData._to.title,
         bounds: bounds,
         locked: false,
+          linkId: nodeData._id
       };
 
     } else {
