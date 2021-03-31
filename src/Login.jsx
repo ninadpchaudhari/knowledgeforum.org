@@ -12,6 +12,8 @@ import {getUserToken} from './api/user.js';
 
 import './css/Login.css';
 import sample_view from './assets/sample_view.gif';
+import app_store from './assets/appstore.svg';
+import googleplay_store from './assets/googleplaystore.png';
 
 class Login extends Component {
   constructor(props) {
@@ -83,6 +85,14 @@ class Login extends Component {
                         <div className="login-overlay-text">Demo a Knowledge Forum</div>
                     </div>
                   </div>
+
+                  <div className="login-apps-div">
+                    <a href="itms-apps://apps.apple.com/us/app/id1554705711"><img className="login-appstore-img" src={app_store} alt={"Apple App Store"}/></a>
+                    <a style={{marginLeft: "10px"}} href="https://play.google.com/store/apps/details?id=com.kf6mobile&hl=en_US&gl=US"><img className="login-appstore-img" src={googleplay_store} alt={"Google Play Store"}/></a>
+                  </div>
+
+
+
 
                   <Modal dialogClassName="login-modal-dialog" /*show={this.state.showModal}*/ onHide={this.handleClose}>
                     <Modal.Header closeButton>

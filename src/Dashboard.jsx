@@ -156,10 +156,10 @@ class Dashboard extends Component {
             </div>
           </nav>
 
-          <div className="container-fluid">
+          <div className="container-fluid" id="dashboard-mainContentContainer">
             <div className = "row">
 
-              <div className = "col-md-6 dashboard-mainContentCol">
+              <div className = "col-md-6 dashboard-mainContentCol userCommunitiesTableCol">
                 <h1>My Knowledge Building Communities</h1>
                 <table className="dashboard-userCommunities table" id = "userCommunities">
                   <tbody>
