@@ -20,7 +20,16 @@
 
 #sticky-sidebar{
   padding-top: 10px;
+  padding-left: 0px;
+  padding-right: 0px;
 }
+
+@media(min-width: 768px) {
+    #sticky-sidebar{
+        max-width: fit-content;
+    }
+}
+
 
 @media(max-width: 768px) {
     #sticky-sidebar{
@@ -41,6 +50,18 @@
 
 .sidebar-list {
   padding: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+@media(min-width: 768px) {
+    .sidebar-list {
+        display: inline-block;
+    }
+}
+
+.sidebar-list-col {
+
 }
 
 @media(max-width: 768px) {

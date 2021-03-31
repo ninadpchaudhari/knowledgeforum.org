@@ -7,7 +7,7 @@ import Axios from 'axios';
 import { apiUrl, getCommunity, putCommunity, postLink, getViews } from '../store/api.js';
 import { setViewId, fetchViewCommunityData, fetchNewViewDifference } from '../store/globalsReducer.js'
 import { setViewLinks, setBuildsOn, setReadLinks, newNote, openContribution } from '../store/noteReducer.js'
-import { addAuthors } from '../store/userReducer.js';
+import { clearAuthors } from '../store/userReducer.js';
 import TopNavBar from '../TopNavBar/TopNavbar';
 import GraphView from '../GraphView.jsx';
 import LightView from '../View/LightView.js';
@@ -65,7 +65,7 @@ class View extends Component {
       this.props.setViewLinks([]);
       this.props.setBuildsOn([]);
       this.props.setReadLinks([]);
-      this.props.addAuthors([]);
+      this.props.clearAuthors([]);
     }
 
     onViewClick(viewId){
@@ -178,7 +178,7 @@ class View extends Component {
               <div className="row flex-grow-1">
 
                   {/* SIDEBAR */}
-                  <div className="col-md-1" id="sticky-sidebar">
+                  <div className="col-md" id="sticky-sidebar">
                     <div className="row sidebar-list">
                       <div className="sidebar-list-col col-4 col-sm-4 col-md-12">
                       <DropdownButton drop="right" className="dropdown-btn-parent" title={<i className="fas fa-plus-circle"></i>}>
@@ -217,7 +217,7 @@ class View extends Component {
                   {/* END SIDEBAR */}
 
                   {/* MAIN CANVAS */}
-                  <div className="col-md-11" id="main-canvas">
+                  <div className="col-md" id="main-canvas">
                       {viewToRender}
                   </div>
                   {/* END MAIN CANVAS */}
@@ -294,7 +294,7 @@ const mapDispatchToProps = {
     setViewLinks,
     setBuildsOn,
     setReadLinks,
-    addAuthors,
+    clearAuthors,
     fetchViewCommunityData,
     fetchNewViewDifference,
     openContribution,
