@@ -7,7 +7,7 @@ import { FileDrop } from 'react-file-drop';
 import {url as serverUrl} from '../../store/api.js'
 import './AttachPanel.css'
 
-import {postAttachment, uploadFile, putObject, postLink} from '../../store/api.js'
+import {postAttachment, uploadFile, putObject, postLink, putLink} from '../../store/api.js'
 
 //TODO if dropping files is not supported
 const AttachPanel = props => {
@@ -57,7 +57,7 @@ const AttachPanel = props => {
             img.src = src
         })
     }
-    const createAttachment = async (file, type) => {
+    const createAttachment = async (file, type, x, y) => {
         try {
             const attachRes = await postAttachment(author.communityId, author._id)
             const uploadRes = await uploadFile(file, onUploadProgress)
@@ -73,13 +73,26 @@ const AttachPanel = props => {
             newAttachment.data.width = file.width;
             newAttachment.data.height = file.height;
 
+            if (props.noteId){
+                linkToNote(newAttachment, type);
+            }else if (props.viewId){
+                linkToView(newAttachment, x, y, type);
+            }
+        } catch (err) {
+            console.log(err)
+        } finally {
 
+        }
+
+    }
+
+    const linkToNote = async (attachment, type) => {
             await postLink(props.noteId, attachment._id, 'attach')
             //TODO updateFromConnections
             dispatch(fetchLinks(props.noteId, 'from'))
             if (props.inlineAttach){
-                const data_mce_src = `${serverUrl}${newAttachment.data.url}`;
-                const title = newAttachment.title;
+                const data_mce_src = `${serverUrl}${attachment.data.url}`;
+                const title = attachment.title;
                 let html = '';
                 if (type==='image') {
                     html = '<img class="inline-attachment ' + attachment._id + '" src="' + data_mce_src +'" width="100px" alt="' + title + '" data-mce-src="' + data_mce_src + '">';
@@ -96,14 +109,33 @@ const AttachPanel = props => {
             /* if(newAttachment.data.type.indexOf('video') === 0 && $community.isPluginEnabled('googledrive')){
              *     $scope.save2GoogleDrive(userName, newAttachment);
              * } */
-        } catch (err) {
-            console.log(err)
-        } finally {
+    }
 
+    const linkToView = async (attachment, x, y, attach_type) => {
+        const newX = x ? x: 200;
+        const newY = y ? y: 200;
+        let w = 200;
+        let h = 200;
+        let showInPlace = false;
+        if (attach_type ==='image'){
+            w = attachment.data.width;
+            h = attachment.data.height;
+            if (w > 200){ w = 200; }
+            h = (w*h) / attachment.data.width;
+            showInPlace = true;
+        }
+        const link = await postLink(
+            props.viewId,
+            attachment._id,
+            'contains',
+            {x: newX, y: newY, width: w, height: h}
+        )
+        if (showInPlace){
+            link.data.showInPlace = true
+            await putLink(link._id, link)
         }
 
     }
-
     const onUploadProgress = (progressEvent) => {
         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
         setProgress(percentCompleted)
