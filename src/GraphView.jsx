@@ -235,6 +235,17 @@ class Graph extends Component {
               this.props.updateViewLink(newViewLink)
           }
       })
+
+      cy.on('cysupportimages.imageresized', (evt, img, b1, b2) => {
+          let viewLink = this.props.viewLinks.filter((link) => link._id === img.linkId)
+          if (viewLink.length) {
+              viewLink = viewLink[0];
+              const data = {width: img.bounds.width, height: img.bounds.height}
+              const newViewLink = { ...viewLink }
+              newViewLink.data = { ...newViewLink.data, ...data };
+              this.props.updateViewLink(newViewLink)
+          }
+      })
   }
 
   componentDidUpdate(prevProps, prevState) {
