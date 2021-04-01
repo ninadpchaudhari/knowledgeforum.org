@@ -33,6 +33,8 @@ const DialogHandler = props => {
                             onMouseDown={() => onFocusDialog(elt.id)}
                         />
                     )
+                } else {
+                    return ''
                 }
             })
         }

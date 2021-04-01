@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import History from '../historyTab/History'
 import Properties from '../propertiesTab/Properties'
 import AuthorTab from '../authorsTab/AuthorTab'
-import { Tabs, Tab, Container, Row, Col, Form } from 'react-bootstrap';
+import { Tabs, Tab, Row, Col, Form } from 'react-bootstrap';
 import { dateFormatOptions, fetchCommGroups } from '../../store/globalsReducer.js'
 import {fetchRecords} from '../../store/noteReducer.js'
 import {url as serverUrl} from '../../store/api'
@@ -30,27 +30,37 @@ const Attachment = (props) => {
                 Last modified: {timestamp}
             </div>
             <Tabs activeKey={selectedTab} transition={false} onSelect={onTabSelected}>
-                <Tab eventKey="read" title="read">
+                <Tab style={{height: '100%'}} eventKey="read" title="read">
 
-                    <a href={`${serverUrl}${(props.attachment.data.downloadUrl || props.attachment.data.url)}`} title={props.attachment.title} download>
+                    <a href={`${serverUrl}${(props.attachment.data.url)}`} title={props.attachment.title} download>
                         { props.attachment.data.url }
                     </a>
+                    { props.attachment.data.type === 'application/pdf' ?
+                    <object data={`${serverUrl}${(props.attachment.data.url)}`} type="application/pdf" width="100%" height="100%">
+
+                    </object> : ''}
+
                 </Tab>
 
-                <Tab eventKey="write" title="write">
-                    <Row>
-                        <Col>
-                            <Form.Group className="write-title-form" controlId="note-title">
-                                <Form.Control type="text"
-                                              className="write-tab-input"
-                                              size="sm"
-                                              placeholder="Enter title"
-                                              value={props.attachment.title}
-                                              onChange={(val) => {props.onChange({title: val.target.value})}}/>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-                </Tab>
+                {
+                    props.mode !== "read" ?
+                    <Tab eventKey="write" title="write">
+                        <Row>
+                            <Col>
+                                <Form.Group className="write-title-form" controlId="note-title">
+                                    <Form.Control type="text"
+                                                  className="write-tab-input"
+                                                  size="sm"
+                                                  placeholder="Enter title"
+                                                  value={props.attachment.title}
+                                                  onChange={(val) => {props.onChange({title: val.target.value})}}/>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                    </Tab>
+                    :
+                    ''
+                }
 
                 <Tab eventKey="author" title="author(s)">
                     <AuthorTab contrib={props.attachment} onChange={props.onChange} />
