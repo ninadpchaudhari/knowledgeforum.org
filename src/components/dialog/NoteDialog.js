@@ -9,7 +9,7 @@ import {closeDialog } from '../../store/dialogReducer.js'
 const NoteDialog = props => {
 
     const dialog = props.dialog
-    const reduxNote = useSelector(state => state.notes[dialog.noteId])
+    const reduxNote = useSelector(state => state.notes[dialog.contribId])
     const dispatch = useDispatch();
     const [note, setNote] = useState(null);//make copy of note from redux
     const [drawTool, setDrawTool] = useState(false);
@@ -28,7 +28,7 @@ const NoteDialog = props => {
 
     const onDialogClose = (dlg) => {
         dispatch(closeDialog(dlg.id));
-        dispatch(removeNote(dlg.noteId));
+        dispatch(removeNote(dlg.contribId));
     }
 
     const onDialogConfirm = () => {
@@ -74,11 +74,11 @@ const NoteDialog = props => {
                     confirmButton={dialog.confirmButton}
                     editable={dialog.editable}
                     buildon={dialog.buildOn}
-                    onBuildOnClick={()=>onBuildOnClick(dialog.noteId)}
+                    onBuildOnClick={()=>onBuildOnClick(dialog.contribId)}
             >
                 {note ?
                  <Note
-                     key={dialog.noteId}
+                     key={dialog.contribId}
                      dlgId={dialog.id}
                      note={note}
                      mode={dialog.editable? "write": "read"}

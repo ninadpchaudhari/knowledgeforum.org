@@ -300,8 +300,16 @@ export const postContribution = (contrib, dialogId) => async (dispatch, getState
             dispatch(closeDialog(dialogId))
         if (!wasActive) //To update builds on hierarchy
             dispatch(fetchBuildsOn(newNote.communityId))
-        addNotification({ title: 'Saved!', type: 'success', message: 'Contribution updated!' })
+    } else if (contrib.type === 'Attachment'){
+         await api.putObject(contrib, contrib.communityId, contrib._id)
+        if (dialogId !== undefined){
+            dispatch(closeDialog(dialogId))
+            //TODO remove from store?
+            dispatch(removeNote(contrib._id))
+        }
     }
+
+    addNotification({ title: 'Saved!', type: 'success', message: 'Contribution updated!' })
 }
 
 export const fetchLinks = (contribId, direction) => async (dispatch) => {
@@ -332,41 +340,60 @@ export const fetchRecords = (contribId) => async (dispatch, getState) => {
 
 export const openContribution = (contribId) => async (dispatch, getState) => {
 
-    const [contrib, fromLinks, toLinks] = await Promise.all([api.getObject(contribId),
-    api.getLinks(contribId, 'from'),
-    api.getLinks(contribId, 'to')])
+    const contrib = await api.getObject(contribId)
     const author = getState().globals.author;
-    const note = { attachments: [], fromLinks, toLinks, records: [], annos: {}, ...contrib }
-    const noteBody = preProcess(note.data.body, toLinks, fromLinks)
-    note.data.body = noteBody
-    dispatch(addNote(note))
-    dispatch(fetchAttachments(contribId))
-    dispatch(openDialog({
-        title: 'Edit Note',
-        confirmButton: 'edit',
-        noteId: note._id,
-        editable: author && (note.authors.includes(author._id) || author.role === "manager"), // read or write tab
-        buildOn: true
-    }))
-    //annotations
-    const annoLinks = toLinks.filter((link) => link.type === 'annotates')
+    if (contrib.type === 'Note'){
+        const [fromLinks, toLinks] = await Promise.all([
+            api.getLinks(contribId, 'from'),
+            api.getLinks(contribId, 'to')])
+        const note = { attachments: [], fromLinks, toLinks, records: [], annos: {}, ...contrib }
+        const noteBody = preProcess(note.data.body, toLinks, fromLinks)
+        note.data.body = noteBody
 
-    const annotations = await Promise.all(
-        annoLinks.map((annLink) =>
-            api.getObject(annLink.from).then(anno => {
-                anno.data.linkId = annLink._id
-                anno.data.modelId = anno._id
-                return anno
-            })
+        dispatch(addNote(note))
+        dispatch(fetchAttachments(contribId))
+        dispatch(openDialog({
+            title: 'Edit Note',
+            confirmButton: 'edit',
+            contribId: note._id,
+            type: 'Note',
+            editable: author && (note.authors.includes(author._id) || author.role === "manager"), // read or write tab
+            buildOn: true
+        }))
+        //annotations
+        const annoLinks = toLinks.filter((link) => link.type === 'annotates')
+
+        const annotations = await Promise.all(
+            annoLinks.map((annLink) =>
+                api.getObject(annLink.from).then(anno => {
+                    anno.data.linkId = annLink._id
+                    anno.data.modelId = anno._id
+                    return anno
+                })
+            )
         )
-    )
 
-    annotations.forEach((annot) => dispatch(setAnnotation({ annotation: annot, contribId })))
-    dispatch(setAnnotationsLoaded({ contribId, value: 1 }))
+        annotations.forEach((annot) => dispatch(setAnnotation({ annotation: annot, contribId })))
+        dispatch(setAnnotationsLoaded({ contribId, value: 1 }))
+    }else if (contrib.type === 'Attachment'){
+        const attachment = { records: [],  ...contrib }
+        dispatch(addNote(attachment))
 
-    if (note.status === 'active') {
-        api.read(note.communityId, note._id)
+        dispatch(openDialog({
+            title: 'Edit Attachment',
+            confirmButton: 'edit',
+            contribId: contrib._id,
+            type: 'Attachment',
+            editable: author && (contrib.authors.includes(author._id) || author.role === "manager"), // read or write tab
+            buildOn: true
+        }))
     }
+    console.log(contrib)
+
+    if (contrib.status === 'active') {
+        api.read(contrib.communityId, contrib._id)
+    }
+    return;
 }
 
 export const createAnnotation = (communityId, contribId, authorId, annotation) => async (dispatch) => {

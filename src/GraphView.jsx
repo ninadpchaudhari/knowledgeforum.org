@@ -195,6 +195,7 @@ class Graph extends Component {
         console.log("image");
       } else if(this.hasClass("attachment")){
         console.log("attachment");
+          ref.props.onNoteClick(kfId)
       } else if(this.hasClass("view")){
           ref.props.onViewClick(kfId);
       } else {
