@@ -105,8 +105,10 @@ export function postCommunityRegistration(token, communityId, server, userId, re
       if(response.status !== 200){
         console.log("Error: " + server + 'api/authors');
         console.log(response);
+        return response;
+      } else {
+        return response.json();
       }
-      return response.json();
   }).then(function(body) {
       return ("Success:", [body, server]);
   }).catch(function(error) {

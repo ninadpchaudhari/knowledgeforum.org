@@ -120,12 +120,11 @@ export function joinCommunity(userId, server, registrationKey, communityId, dash
   var ref = dashboard_component;
   var promise = postCommunityRegistration(token, communityId, server, userId, registrationKey);
   promise.then(result => {
-    if(result[0].error){
-      document.getElementById('communityKey').value = '';
+    document.getElementById('communityKey').value = '';
+    if(result[0].status !== 201){
       ref.setState({joinCommunityErrorMessage: "Registration key does not match or you are already registered."});
-    }
-    else {
-      document.getElementById('communityKey').value = '';
+    } else {
+      ref.setState({joinCommunityErrorMessage: ""});
       loadServer(server, ref);
     }
   })

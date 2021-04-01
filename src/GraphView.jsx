@@ -29,7 +29,8 @@ class Graph extends Component {
     super(props);
 
     this.state = {
-      elements: {nodes: [], edges: []}
+      elements: {nodes: [], edges: []},
+      currViewLinksLength: 0
     };
 
     this.loadElements = this.loadElements.bind(this);
@@ -40,10 +41,12 @@ class Graph extends Component {
     this.focusRecentAddition = this.focusRecentAddition.bind(this);
   };
 
-  loadElements(prevViewLinksLength) {
+  loadElements(prevViewLinksLength, forceRender) {
       // ensure we have all the informationn needed to render the graph
-      if ((this.props.viewLinks.length !== 0 || (this.props.viewLinks.length === 0 && prevViewLinksLength !== undefined))
-                                        && this.props.buildsOn.length !== 0 && Object.keys(this.props.authors).length !== 0){
+      // if ((VIEWLINKS UPDATED OR FORCE RENDER FROM EDGE CASE) AND WE HAVE BUILDSON + AUTHORS INFO)
+      // only the viewlinks prop changes between views - buildson and author info stays the same
+      if ((this.props.viewLinks.length !== this.state.currViewLinksLength || forceRender) && this.props.buildsOn.length !== 0 && Object.keys(this.props.authors).length !== 0){
+          this.setState({currViewLinksLength: this.props.viewLinks.length});
           const cy = this.cy;
           const si = cy.supportimages();
 
@@ -106,16 +109,22 @@ class Graph extends Component {
   updateReadLinks(){
     var cy = this.cy;
     var readLinks = this.props.readLinks;
-    for(let i in readLinks){
-      var cy_elem = this.findCyElemFromKfId(readLinks[i]);
-      if(cy_elem !== null){
-        var isRiseAbove = cy.$('#'+cy_elem.data.id).hasClass('unread-riseabove') ? true : false; // the element will either be a riseabove or a regular note
-        var classToRemove = isRiseAbove ? 'unread-riseabove' : 'unread-note';
-        var classToAdd = isRiseAbove ? 'read-riseabove' : 'read-note';
-        cy.$('#'+cy_elem.data.id).removeClass(classToRemove);
-        cy.$('#'+cy_elem.data.id).addClass(classToAdd);
+    var self = this;
+
+    // cy.batch() updates all the elements one time instead of triggering multiple redraws
+    cy.batch(function(){
+
+      for(let i in readLinks){
+        var cy_elem = self.findCyElemFromKfId(readLinks[i]); // the element will either be a riseabove or a regular note
+        if(cy_elem !== null){
+          var isRiseAbove = cy.$('#'+cy_elem.data.id).hasClass('unread-riseabove') ? true : false;
+          var classToRemove = isRiseAbove ? 'unread-riseabove' : 'unread-note';
+          var classToAdd = isRiseAbove ? 'read-riseabove' : 'read-note';
+          cy.$('#'+cy_elem.data.id).removeClass(classToRemove).addClass(classToAdd);
+        }
       }
-    }
+
+    });
   }
 
   focusRecentAddition(note){
@@ -226,10 +235,23 @@ class Graph extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-      //If any prop is updated, re-load elements
-      if (this.props.viewId !== prevProps.viewId || this.props.buildsOn !== prevProps.buildsOn
-                          || this.props.authors !== prevProps.authors || this.props.viewLinks !== prevProps.viewLinks || this.props.readLinks !== prevProps.readLinks){
-          this.loadElements(prevProps.viewLinks.length);
+      // AN OBJECT MAPPING DIFFERENT RENDERING CASES TO BOOLEAN VALUES
+      // this is an attempt to organize and account for all the edge cases when deciding to rerender the graph
+      let cases = {
+        anyPropUpdated: (this.props.viewId !== prevProps.viewId || this.props.buildsOn !== prevProps.buildsOn
+                            || this.props.authors !== prevProps.authors || this.props.viewLinks !== prevProps.viewLinks || this.props.readLinks !== prevProps.readLinks),
+
+        nodePositionUpdated: (this.props.viewId === prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.authors === prevProps.authors
+                            && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === prevProps.viewLinks.length && this.props.readLinks === prevProps.readLinks),
+
+        switchedToEmptyView: (this.props.viewId !== prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.authors === prevProps.authors
+                            && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === 0 && prevProps.viewLinks.length !== undefined)
+      }
+
+      if(cases.nodePositionUpdated || cases.switchedToEmptyView){
+        this.loadElements(prevProps.viewLinks.length, true);
+      } else if(cases.anyPropUpdated) {
+        this.loadElements(prevProps.viewLinks.length, false);
       }
   }
 
