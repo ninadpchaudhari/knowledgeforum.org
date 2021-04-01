@@ -47,6 +47,11 @@ export default (({ children }) => {
         socket.emit('subscribe', `linkfrom:${viewId}`);
         socket.emit('subscribe', `noteCount:${viewId}`);
     }
+
+    const unsubscribeToView = (viewId) => {
+        socket.emit('unsubscribe', `linkfrom:${viewId}`);
+        socket.emit('unsubscribe', `noteCount:${viewId}`);
+    }
     /**
      * Removes listeners for a models updates on the socket
      *
@@ -78,14 +83,28 @@ export default (({ children }) => {
             });
             socket.on('error', function (data) {
                 console.log(data || 'error');
+                socket = null;
                 dispatch(setSocketStatus(false));
             });
 
             socket.on('connect_failed', function (data) {
                 console.log(data || 'connect_failed');
+                socket = null;
                 dispatch(setSocketStatus(false));
             });
 
+            socket.on('disconnect', function(data){
+                socket = null;
+                dispatch(setSocketStatus(false));
+            })
+
+        }else{
+            if (subscribe){
+                subscribeToView(subscribe)
+            }
+            if (sync){
+                syncUpdates(sync)
+            }
         }
     }
 
@@ -101,6 +120,7 @@ export default (({ children }) => {
         unsyncUpdates: unsyncUpdates,
         syncUpdates: syncUpdates,
         subscribeToView: subscribeToView,
+        unsubscribeToView: unsubscribeToView,
         disconnect: disconnect
     }
 

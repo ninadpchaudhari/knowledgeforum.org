@@ -47,7 +47,7 @@ class View extends Component {
         if (this.props.viewId && this.props.viewId !== prevProps.viewId) {
             this.props.fetchNewViewDifference(this.props.viewId);
             if (this.props.socketStatus && prevProps.viewId){//If changing view and socket connection
-                this.context.emit('unsubscribe', `linkfrom:${prevProps.viewId}`);
+                this.context.unsubscribeToView(prevProps.viewId);
                 this.context.subscribeToView(this.props.viewId);
             }
         }
@@ -56,7 +56,7 @@ class View extends Component {
     componentWillUnmount(){
         if (this.props.socketStatus){
             this.context.unsyncUpdates('link');
-            this.context.emit('unsubscribe', `linkfrom:${this.props.viewId}`);
+            this.context.unsubscribeToView(this.props.viewId);
             this.context.disconnect();
         }
     }
