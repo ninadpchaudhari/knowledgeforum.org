@@ -204,6 +204,7 @@ class Graph extends Component {
         console.log("image");
       } else if(this.hasClass("attachment")){
         console.log("attachment");
+          ref.props.onNoteClick(kfId)
       } else if(this.hasClass("view")){
           ref.props.onViewClick(kfId);
       } else {
@@ -227,6 +228,29 @@ class Graph extends Component {
           if (viewLink.length) {
               viewLink = viewLink[0];
               const data = {x, y}
+              const newViewLink = { ...viewLink }
+              newViewLink.data = { ...newViewLink.data, ...data };
+              this.props.updateViewLink(newViewLink)
+          }
+      })
+
+      //Update view link of image if position is changed
+      cy.on('cysupportimages.imagemoved', (evt, img) => {
+          let viewLink = this.props.viewLinks.filter((link) => link._id === img.linkId)
+          if (viewLink.length) {
+              viewLink = viewLink[0];
+              const data = {x: img.bounds.x, y: img.bounds.y}
+              const newViewLink = { ...viewLink }
+              newViewLink.data = { ...newViewLink.data, ...data };
+              this.props.updateViewLink(newViewLink)
+          }
+      })
+
+      cy.on('cysupportimages.imageresized', (evt, img, b1, b2) => {
+          let viewLink = this.props.viewLinks.filter((link) => link._id === img.linkId)
+          if (viewLink.length) {
+              viewLink = viewLink[0];
+              const data = {width: img.bounds.width, height: img.bounds.height}
               const newViewLink = { ...viewLink }
               newViewLink.data = { ...newViewLink.data, ...data };
               this.props.updateViewLink(newViewLink)

@@ -9,6 +9,7 @@ import { setViewId, fetchViewCommunityData, fetchNewViewDifference } from '../st
 import { setViewLinks, setBuildsOn, setReadLinks, newNote, openContribution } from '../store/noteReducer.js'
 import { clearAuthors } from '../store/userReducer.js';
 import TopNavBar from '../TopNavBar/TopNavbar';
+import AttachPanel from './attachmentCollapse/AttachPanel.js'
 import GraphView from '../GraphView.jsx';
 import LightView from '../View/LightView.js';
 import '../css/index.css';
@@ -21,12 +22,13 @@ class View extends Component {
     constructor(props){
         super(props)
         this.state = {
-          token: sessionStorage.getItem('token'),
-          currentView: this.props.location.state === undefined ? "Enhanced" : this.props.location.state.currentView,
-          communityTitle: this.props.location.state === undefined ? null : this.props.location.state.communityTitle,
-          addView: '',
-          showModal: false,
-          showView: false,
+            token: sessionStorage.getItem('token'),
+            currentView: this.props.location.state === undefined ? "Enhanced" : this.props.location.state.currentView,
+            communityTitle: this.props.location.state === undefined ? null : this.props.location.state.communityTitle,
+            addView: '',
+            showModal: false,
+            showView: false,
+            showAttachPanel: false,
         }
 
         this.clearGraphViewProps = this.clearGraphViewProps.bind(this);
@@ -170,7 +172,11 @@ class View extends Component {
       return(
           <div className="container-fluid d-flex flex-column" id="container-fluid-for-view-js">
               <DialogHandler />
-
+              <AttachPanel
+                  attachPanel={this.state.showAttachPanel}
+                  viewId={this.props.viewId}
+                  onClose={() => this.setState({showAttachPanel: false})}
+              />
               <div className="row">
                   {<TopNavBar onViewClick={this.onViewClick} communityTitle={this.state.communityTitle}></TopNavBar>}
               </div>
@@ -189,6 +195,10 @@ class View extends Component {
 
                           <Dropdown.Item onClick={() => this.newView()}>
                               New View
+                          </Dropdown.Item>
+
+                          <Dropdown.Item onClick={() => this.setState({showAttachPanel: true})}>
+                              New Attachment
                           </Dropdown.Item>
                       </DropdownButton>
                       </div>
