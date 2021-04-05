@@ -11,20 +11,30 @@ class TopNavbar extends Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      query: '',
+    }
 
     this.handleChange = this.handleChange.bind(this);
   }
 
   handleFilter = (e) => {
       let value = e.target.value;
+      this.setState({query: ''});
       this.props.setSearchQuery('');
       this.props.setSearchFilter(value);
   }
 
   handleInputChange = (event) => {
       const query = event.target.value
-      this.props.setSearchQuery(query);
+      this.setState({query: query});
+      if(query === '') this.props.setSearchQuery('');
   };
+
+  handleSearchSubmit = (e) => {
+    this.props.setSearchQuery(this.state.query);
+    e.preventDefault();
+  }
 
   logout() {
     sessionStorage.clear();
@@ -72,7 +82,7 @@ class TopNavbar extends Component {
           : null}
 
           <Navbar.Text className="viewNavBar-dropdown-title">Search:</Navbar.Text>
-          <Form>
+          <Form onSubmit={this.handleSearchSubmit}>
               <Row>
                   <Col>
                       <InputGroup>
@@ -86,10 +96,16 @@ class TopNavbar extends Component {
                           </InputGroupAddon>
                           <Input
                               className="form-control"
-                              value={this.props.query}
-                              placeholder="Search Your Note"
+                              value={this.state.query}
+                              placeholder="Search"
                               onChange={this.handleInputChange}
                           />
+
+                          {<InputGroupAddon addonType="append">
+                              <InputGroupText style={{ cursor: "pointer" }} onClick={this.handleSearchSubmit}>
+                                  <i className="fa fa-search"></i>
+                              </InputGroupText>
+                          </InputGroupAddon>}
                       </InputGroup>
                   </Col>
               </Row>

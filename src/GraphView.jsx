@@ -30,6 +30,8 @@ class GraphView extends Component {
 
     this.state = {
       elements: {nodes: [], edges: []},
+      kfToCyMap: null,
+      removedElements: null,
       currViewLinksLength: 0
     };
 
@@ -39,6 +41,7 @@ class GraphView extends Component {
     this.findCyElemFromKfId = this.findCyElemFromKfId.bind(this);
     this.updateReadLinks = this.updateReadLinks.bind(this);
     this.focusRecentAddition = this.focusRecentAddition.bind(this);
+    this.filterNodes = this.filterNodes.bind(this);
   };
 
   loadElements(prevViewLinksLength, forceRender) {
@@ -74,6 +77,7 @@ class GraphView extends Component {
               }
 
               self.setState({elements: cy_elements});
+              self.setState({kfToCyMap: nodes});
               // support-images extension will not trigger a redraw if there are no images in the view - this line handles that
               if(si.images().length === 0){ si._private.renderer.redraw(); }
               // if a single new element was added to the graph - highlight it
@@ -97,10 +101,16 @@ class GraphView extends Component {
         && a.name === b.name && a.url === b.url;
   }
 
+  // returns an array of cytoscapeIds corresponding to the given kfId
   findCyElemFromKfId(kfId){
-    var cy_elements_nodes = this.state.elements.nodes;
-    for(let i = cy_elements_nodes.length - 1; i >= 0; i--){
-      if(cy_elements_nodes[i].data.kfId === kfId) return cy_elements_nodes[i];
+    var map = this.state.kfToCyMap;
+    if(map.has(kfId)){
+      var cytoscapeIds = [];
+      var countInstances = map.get(kfId);
+      for(let i = 1; i <= countInstances; i++){
+        cytoscapeIds.push(kfId+'-'+i);
+      }
+      return cytoscapeIds;
     }
     return null;
   }
@@ -115,12 +125,14 @@ class GraphView extends Component {
     cy.batch(function(){
 
       for(let i in readLinks){
-        var cy_elem = self.findCyElemFromKfId(readLinks[i]); // the element will either be a riseabove or a regular note
-        if(cy_elem !== null){
-          var isRiseAbove = cy.$('#'+cy_elem.data.id).hasClass('unread-riseabove') ? true : false;
+        var cy_elems = self.findCyElemFromKfId(readLinks[i]); // the element will either be a riseabove or a regular note
+        if(cy_elems !== null && cy_elems.length !== 0){
+          var isRiseAbove = cy.$('#'+cy_elems[0]).hasClass('unread-riseabove') ? true : false;
           var classToRemove = isRiseAbove ? 'unread-riseabove' : 'unread-note';
           var classToAdd = isRiseAbove ? 'read-riseabove' : 'read-note';
-          cy.$('#'+cy_elem.data.id).removeClass(classToRemove).addClass(classToAdd);
+          for(let i in cy_elems){
+            cy.$('#'+cy_elems[i]).removeClass(classToRemove).addClass(classToAdd);
+          }
         }
       }
 
@@ -130,12 +142,92 @@ class GraphView extends Component {
   focusRecentAddition(note){
     var cy = this.cy;
     var kfId = note.to;
-    var cyElem = this.findCyElemFromKfId(kfId);
-
-    if(cyElem !== null){
-      cy.center(cyElem);
-      cy.$('#'+cyElem.data.id).flashClass('recentAddition', 10000);
+    var cyIds = this.findCyElemFromKfId(kfId);
+    if(cyIds !== null){
+      var newestCyElem = cy.$('#'+cyIds[cyIds.length - 1]);
+      cy.center(newestCyElem);
+      newestCyElem.flashClass('recentAddition', 10000);
     }
+  }
+
+  filterNodes(){
+    var cy = this.cy;
+    const si = cy.supportimages();
+
+    if(this.state.removedElements !== null) this.state.removedElements.restore();
+    var imgs = si.images();
+    for(let i in imgs){
+      si.setImageVisible(imgs[i], true);
+    }
+
+    var nodesToHide = [];
+    var query = this.props.searchQuery;
+    var filter = this.props.searchFilter;
+    switch (filter) {
+        case "title":
+            nodesToHide = cy.filter(function(elem, i){
+               const elem_type = elem.data('type');
+               const elem_title = elem.data('name');
+               if((elem_type === "note" || elem_type === "View" || elem_type === "riseabove" || elem_type === "Attachment") && !elem_title.toLowerCase().includes(query.toLowerCase())){
+                 return elem;
+               }
+            });
+
+            for(let i in imgs){
+              var supportImg = imgs[i];
+              if(!supportImg.name.toLowerCase().includes(query.toLowerCase())){
+                si.setImageVisible(supportImg, false);
+              }
+            }
+
+            break;
+
+        case "content":
+            // const notes = this.props.viewNotes;
+            // const map = this.state.kfToCyMap;
+            // console.log(notes);
+
+            // filteredResults = notes.filter(function (obj) {
+            //     if (obj.data && obj.data.English) {
+            //         return obj.data.English.includes(query);
+            //     }
+            //     else if (obj.data && obj.data.body) {
+            //         return obj.data.body.includes(query);
+            //     }
+            //     return false
+            // });
+
+            break;
+
+        case "author":
+            nodesToHide = cy.filter(function(elem, i){
+               const elem_type = elem.data('type');
+               const elem_author = elem.data('author');
+               if((elem_type === "note" || elem_type === "View" || elem_type === "riseabove" || elem_type === "Attachment") && !elem_author.toLowerCase().includes(query.toLowerCase())){
+                 return elem;
+               }
+            });
+
+            for(let i in imgs){
+              var supportImg = imgs[i];
+              if(!supportImg.author.toLowerCase().includes(query.toLowerCase())){
+                si.setImageVisible(supportImg, false);
+              }
+            }
+
+            break;
+
+        // case "scaffold":
+        //     const noteIds = this.props.supports.filter(support => support.from === query).map(support => support.to)
+        //     filteredResults = notes.filter(note => noteIds.includes(note._id))
+        //     break;
+
+        default:
+            break;
+    }
+
+    var removedElements = cy.remove(nodesToHide);
+    this.setState({removedElements: removedElements});
   }
 
   componentDidMount() {
@@ -269,13 +361,17 @@ class GraphView extends Component {
                             && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === prevProps.viewLinks.length && this.props.readLinks === prevProps.readLinks),
 
         switchedToEmptyView: (this.props.viewId !== prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.authors === prevProps.authors
-                            && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === 0 && prevProps.viewLinks.length !== undefined)
+                            && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === 0 && prevProps.viewLinks.length !== undefined),
+
+        searchTriggered: (this.props.searchQuery !== prevProps.searchQuery || this.props.searchFilter !== prevProps.searchFilter),
       }
 
       var forceRender = (cases.nodePositionUpdated || cases.switchedToEmptyView);
 
       if(cases.anyPropUpdated){
         this.loadElements(prevProps.viewLinks.length, forceRender);
+      } else if(cases.searchTriggered){
+        this.filterNodes();
       }
   }
 
