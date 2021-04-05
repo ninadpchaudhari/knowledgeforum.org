@@ -1,18 +1,30 @@
 import React, { Component } from 'react'
 import { Navbar, Nav, Button } from 'react-bootstrap'
-import { Col, Form, FormGroup, Input } from 'reactstrap'
+import { Row, Col, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router'
 
 import { removeToken } from '../store/api.js'
-import { setViewId, setGlobalToken } from '../store/globalsReducer'
+import { setViewId, setGlobalToken, setSearchQuery, setSearchFilter } from '../store/globalsReducer'
 
 class TopNavbar extends Component {
 
   constructor(props) {
     super(props);
+
     this.handleChange = this.handleChange.bind(this);
   }
+
+  handleFilter = (e) => {
+      let value = e.target.value;
+      this.props.setSearchQuery('');
+      this.props.setSearchFilter(value);
+  }
+
+  handleInputChange = (event) => {
+      const query = event.target.value
+      this.props.setSearchQuery(query);
+  };
 
   logout() {
     sessionStorage.clear();
@@ -21,16 +33,12 @@ class TopNavbar extends Component {
   }
 
   handleChange(e) {
-    /* e.persist(); */
     const viewId = e.target.value;
     this.props.onViewClick(viewId);
-    // this.props.setViewId(viewId);
-    // //TODO EMPTY CHECKEDNOTES
-    // this.props.history.push(`/view/${viewId}`)
   }
 
   signUp = (e) => {
-    this.props.history.push("/signup");
+    this.props.history.push("/");
   }
 
 
@@ -40,14 +48,15 @@ class TopNavbar extends Component {
     const isViewUrl = this.props.location.pathname.startsWith('/view/')
     return (
       <Navbar className="viewNavBar">
-        <Navbar.Brand className="viewNavBar-brand">{this.props.communityTitle}</Navbar.Brand>
+        <Navbar.Brand className="viewNavBar-brand d-none d-sm-block">{this.props.communityTitle}</Navbar.Brand>
+
+        <Navbar.Text className="viewNavBar-dropdown-title">View:</Navbar.Text>
         {isViewUrl ?
           (
-            <Nav className="mr-auto">
+            <Nav className="viewNavBar-dropdown">
               {this.props.view ?
-                <Form className="mrg-1-top">
-                  <Col>
-                    <FormGroup>
+                <Form>
+                    <FormGroup className="viewNavBar-dropdown-formgroup">
                       <Input type="select" name="viewId" value={this.props.view._id} onChange={this.handleChange}>
                         {
                           this.props.views.map((obj) => {
@@ -56,17 +65,40 @@ class TopNavbar extends Component {
                         }
                       </Input>
                     </FormGroup>
-                  </Col>
                 </Form>
                 : null}
             </Nav>
           )
           : null}
 
+          <Navbar.Text className="viewNavBar-dropdown-title">Search:</Navbar.Text>
+          <Form>
+              <Row>
+                  <Col>
+                      <InputGroup>
+                          <InputGroupAddon addonType="prepend">
+                              <Input type="select" name="filter" id="filter" onChange={this.handleFilter}>
+                                  <option key="title" value="title">Title</option>
+                                  <option key="scaffold" value="scaffold">Scaffold</option>
+                                  <option key="content" value="content">Content</option>
+                                  <option key="author" value="author">Author</option>
+                              </Input>
+                          </InputGroupAddon>
+                          <Input
+                              className="form-control"
+                              value={this.props.query}
+                              placeholder="Search Your Note"
+                              onChange={this.handleInputChange}
+                          />
+                      </InputGroup>
+                  </Col>
+              </Row>
+          </Form>
+
         {isLoggedIn ? (
           <>
             <Nav className="ml-auto">
-              <Nav.Link className="white mr-auto"> {userName} </Nav.Link>
+              <Nav.Link className="white mr-auto d-none d-sm-block"> {userName} </Nav.Link>
               <Button className='ml-2 viewNavBar-logout-btn' href="/" onClick={this.logout}>Logout</Button>
             </Nav>
           </>
@@ -91,12 +123,19 @@ const mapStateToProps = (state, ownProps) => {
     isAuthenticated: state.globals.isAuthenticated,
     user: state.globals.author,
     views: state.globals.views,
-    view: state.globals.view
+    view: state.globals.view,
+    viewNotes: state.notes.viewNotes,
+    authors: state.users,
+    supports: state.notes.supports,
+    query: state.globals.searchQuery,
+    filter: state.globals.searchFilter
   }
 }
 const mapDispatchToProps = {
   setViewId,
-  setGlobalToken
+  setGlobalToken,
+  setSearchQuery,
+  setSearchFilter
 }
 
 export default withRouter(connect(

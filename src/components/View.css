@@ -7,6 +7,31 @@
   color: white !important;
 }
 
+.viewNavBar-dropdown-title {
+  color: white !important;
+  font-weight: 400;
+  font-size: 14px;
+  margin-right: 5px;
+  padding-top: .325rem;
+  padding-bottom: .3125rem;
+}
+
+.viewNavBar-dropdown {
+  margin-right: 10px;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.viewNavBar-dropdown-formgroup {
+  margin-bottom: 0;
+  font-size: 14px;
+  display: inline-block;
+}
+
+.viewNavBar-dropdown-formgroup > .form-control {
+  padding: 0;
+}
+
 .viewNavBar-logout-btn {
   color: white;
   border-color: white;

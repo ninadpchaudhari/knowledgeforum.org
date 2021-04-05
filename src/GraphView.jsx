@@ -24,7 +24,7 @@ Cytoscape.use(CytoscapePanZoom);
 Cytoscape.use(CytoscapeNodeHtmlLabel);
 Cytoscape.use(CytoscapeSupportImages);
 
-class Graph extends Component {
+class GraphView extends Component {
   constructor(props) {
     super(props);
 
@@ -272,10 +272,10 @@ class Graph extends Component {
                             && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === 0 && prevProps.viewLinks.length !== undefined)
       }
 
-      if(cases.nodePositionUpdated || cases.switchedToEmptyView){
-        this.loadElements(prevProps.viewLinks.length, true);
-      } else if(cases.anyPropUpdated) {
-        this.loadElements(prevProps.viewLinks.length, false);
+      var forceRender = (cases.nodePositionUpdated || cases.switchedToEmptyView);
+
+      if(cases.anyPropUpdated){
+        this.loadElements(prevProps.viewLinks.length, forceRender);
       }
   }
 
@@ -352,6 +352,8 @@ const mapStateToProps = (state, ownProps) => {
         viewLinks: state.notes.viewLinks,
         readLinks: state.notes.readLinks,
         buildsOn: state.notes.buildsOn,
+        searchQuery: state.globals.searchQuery,
+        searchFilter: state.globals.searchFilter,
     }
 }
 
@@ -362,4 +364,4 @@ const mapDispatchToProps = {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(Graph)
+)(GraphView)

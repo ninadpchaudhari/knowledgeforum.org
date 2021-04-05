@@ -10,7 +10,7 @@ import { Breakpoint } from 'react-socks'
 import '../css/index.css';
 import './View.css';
 
-class View extends Component {
+class LightView extends Component {
 
     constructor(props) {
         super(props);
@@ -18,19 +18,15 @@ class View extends Component {
         this.state = {
             showView: false,
             showRiseAbove: false,
-            query: "",
             filteredData: [],
-            filter: 'title',
             hideScaffold: true,
         };
 
         this.getBuildOnHierarchy = this.getBuildOnHierarchy.bind(this)
         this.onCloseDialog = this.onCloseDialog.bind(this);
         this.onConfirmDrawDialog = this.onConfirmDrawDialog.bind(this);
-        this.handleInputChange = this.handleInputChange.bind(this);
         this.filterResults = this.filterResults.bind(this);
         this.getScaffoldSupports = this.getScaffoldSupports.bind(this);
-        this.clearSearch = this.clearSearch.bind(this);
         this.onScaffoldSelected = this.onScaffoldSelected.bind(this)
     }
 
@@ -74,7 +70,9 @@ class View extends Component {
 
 
     componentDidUpdate(prevProps, prevState) {
-
+      if(this.props.searchQuery !== prevProps.searchQuery || this.props.searchFilter !== prevProps.searchFilter){
+        this.filterResults(this.props.searchQuery);
+      }
     }
 
     newRiseAbove() {
@@ -102,11 +100,11 @@ class View extends Component {
     }
 
     filterResults(q) {
-        const query = q || this.state.query
+        const query = q || this.props.searchQuery
         let filteredResults = [];
         const notes = Object.values(this.props.viewNotes)
-        if (query || this.state.filter) {
-            switch (this.state.filter) {
+        if (query || this.props.searchFilter) {
+            switch (this.props.searchFilter) {
                 case "title":
                     filteredResults = notes.filter(note => note.title.toLowerCase().includes(query.toLowerCase()));
                     break;
@@ -144,29 +142,7 @@ class View extends Component {
                     break;
             }
         }
-        return filteredResults
-    }
-    handleInputChange = (event) => {
-        const query = event.target.value
-        this.setState({
-            query: query,
-            filteredData: this.filterResults(query)
-        });
-    };
-
-    clearSearch() {
-        this.setState({
-            query: "",
-            filteredData: this.filterResults(null),
-        });
-    };
-
-    handleFilter = (e) => {
-        let value = e.target.value;
-        this.setState({
-            filter: value,
-            query: ''
-        });
+        this.setState({filteredData: filteredResults});
     }
 
     buildOn = (buildOn) => {
@@ -175,9 +151,9 @@ class View extends Component {
 
 
     render() {
-        const showScffold = !this.hideScaffold && this.state.filter === "scaffold";
+        const showScffold = !this.hideScaffold && this.props.searchFilter === "scaffold";
         const hierarchy = this.getBuildOnHierarchy()
-        /* const filteredResults = this.filterResults() */
+
         let scaffolds;
         if (showScffold) {
             scaffolds = <ScaffoldSelect initVal={0} onScaffoldSelected={this.onScaffoldSelected} returnSupport={true} />
@@ -192,42 +168,9 @@ class View extends Component {
 
                         {/* NOTES */}
                         <Col md="5" sm="12" className="mrg-1-top pd-2-right v-scroll">
-                            <Form className="mrg-1-bot">
-                                <Row>
-                                    <Col>
-                                        <InputGroup>
-                                            <InputGroupAddon addonType="prepend">
-                                                <Input type="select" name="filter" id="filter" onChange={this.handleFilter}>
-                                                    <option key="title" value="title">Search By Title</option>
-                                                    <option key="scaffold" value="scaffold">Search By Scaffold</option>
-                                                    <option key="content" value="content">Search By Content</option>
-                                                    <option key="author" value="author">Search By Author</option>
-                                                </Input>
-                                            </InputGroupAddon>
-                                            <Input
-                                                className="form-control"
-                                                value={this.state.query}
-                                                placeholder="Search Your Note"
-                                                onChange={this.handleInputChange}
-                                            />
 
-                                            <InputGroupAddon addonType="append">
-                                                <InputGroupText>
-                                                    <i className="fa fa-search"></i>
-                                                </InputGroupText>
-                                            </InputGroupAddon>
-
-                                            <InputGroupAddon addonType="append">
-                                                <InputGroupText style={{ cursor: "pointer" }} onClick={this.clearSearch} >
-                                                    <i className="fa fa-refresh"></i>
-                                                </InputGroupText>
-                                            </InputGroupAddon>
-                                        </InputGroup>
-                                    </Col>
-                                </Row>
-                            </Form>
                             {scaffolds}
-                            {this.state.query === "" && !showScffold ?
+                            {this.props.searchQuery === "" && !showScffold ?
                                 (<ListOfNotes hierarchy={hierarchy} />)
                                 :
                                 (<ListOfNotes noteLinks={this.state.filteredData} />)
@@ -238,7 +181,7 @@ class View extends Component {
                         {this.props.checkedNotes.length ?
                             (<>
                                 <Col md="5" sm="12" className="mrg-1-top v-scroll">
-                                    <NoteContent query={this.state.query} buildOn={this.buildOn} />
+                                    <NoteContent query={this.props.searchQuery} buildOn={this.buildOn} />
                                 </Col>
                             </>)
                             : null
@@ -270,7 +213,7 @@ class View extends Component {
                                             </InputGroupAddon>
                                             <Input
                                                 className="form-control"
-                                                value={this.state.query}
+                                                value={this.props.searchQuery}
                                                 placeholder="Search Your Note"
                                                 onChange={this.handleInputChange}
                                             />
@@ -291,7 +234,7 @@ class View extends Component {
                                 </Row>
                             </Form>
                             {scaffolds}
-                            {this.state.query === "" && !showScffold ?
+                            {this.props.searchQuery === "" && !showScffold ?
                                 (<ListOfNotes hierarchy={hierarchy} />)
                                 :
                                 (<ListOfNotes noteLinks={this.state.filteredData} />)
@@ -320,7 +263,9 @@ const mapStateToProps = (state, ownProps) => {
         viewLinks: state.notes.viewLinks,
         buildsOn: state.notes.buildsOn,
         supports: state.notes.supports,
-        riseAboveViewNotes: state.notes.riseAboveViewNotes
+        riseAboveViewNotes: state.notes.riseAboveViewNotes,
+        searchQuery: state.globals.searchQuery,
+        searchFilter: state.globals.searchFilter,
     }
 }
 
@@ -331,4 +276,4 @@ const mapDispatchToProps = {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(View)
+)(LightView)

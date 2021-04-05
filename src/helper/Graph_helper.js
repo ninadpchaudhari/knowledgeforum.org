@@ -104,10 +104,10 @@ function handleAttachment(server, token, nodes, nodeData, authorData){
       }
 
       var bounds = {
-        x: nodeData.data.x || 0,
-        y: nodeData.data.y || 0,
-        width: nodeData.data.width || 0,
-        height: nodeData.data.height || 0,
+        x: nodeData.data ? nodeData.data.x : 0,
+        y: nodeData.data ? nodeData.data.y : 0,
+        width: nodeData.data ? nodeData.data.width : 0,
+        height: nodeData.data ? nodeData.data.height : 0,
       };
 
       return {
@@ -115,7 +115,7 @@ function handleAttachment(server, token, nodes, nodeData, authorData){
         name: nodeData._to.title,
         bounds: bounds,
         locked: false,
-          linkId: nodeData._id
+        linkId: nodeData._id
       };
 
     } else {
