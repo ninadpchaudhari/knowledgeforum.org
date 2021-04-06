@@ -26,7 +26,6 @@ const AttachmentDialog = props => {
     }
 
     const onChange = (attachmentChanged) => {
-        console.log("Changed!")
         dispatch(editNote({"_id": attachment._id, ...attachmentChanged}));
     }
 
@@ -42,7 +41,7 @@ const AttachmentDialog = props => {
                     confirmButton={dialog.confirmButton}
                     editable={dialog.editable}
                     buildon={dialog.buildOn}
-                    onBuildOnClick={()=>onBuildOnClick(dialog.noteId)}
+                    onBuildOnClick={()=>onBuildOnClick(dialog.contribId)}
             >
                 {attachment ?
                  <Attachment
