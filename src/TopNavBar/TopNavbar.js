@@ -51,6 +51,12 @@ class TopNavbar extends Component {
     this.props.history.push("/");
   }
 
+  componentDidUpdate(prevProps, prevState){
+    if(this.props.currentView !== prevProps.currentView){
+      this.setState({query: ''});
+    }
+  }
+
 
   render() {
     const isLoggedIn = this.props.isAuthenticated

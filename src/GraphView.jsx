@@ -38,7 +38,7 @@ class GraphView extends Component {
     this.loadElements = this.loadElements.bind(this);
     this.supportImageIsDuplicate = this.supportImageIsDuplicate.bind(this);
     this.compareSupportImages = this.compareSupportImages.bind(this);
-    this.findCyElemFromKfId = this.findCyElemFromKfId.bind(this);
+    this.findCyIdsFromKfId = this.findCyIdsFromKfId.bind(this);
     this.updateReadLinks = this.updateReadLinks.bind(this);
     this.focusRecentAddition = this.focusRecentAddition.bind(this);
     this.filterNodes = this.filterNodes.bind(this);
@@ -102,7 +102,7 @@ class GraphView extends Component {
   }
 
   // returns an array of cytoscapeIds corresponding to the given kfId
-  findCyElemFromKfId(kfId){
+  findCyIdsFromKfId(kfId){
     var map = this.state.kfToCyMap;
     if(map.has(kfId)){
       var cytoscapeIds = [];
@@ -125,7 +125,7 @@ class GraphView extends Component {
     cy.batch(function(){
 
       for(let i in readLinks){
-        var cy_elems = self.findCyElemFromKfId(readLinks[i]); // the element will either be a riseabove or a regular note
+        var cy_elems = self.findCyIdsFromKfId(readLinks[i]); // the element will either be a riseabove or a regular note
         if(cy_elems !== null && cy_elems.length !== 0){
           var isRiseAbove = cy.$('#'+cy_elems[0]).hasClass('unread-riseabove') ? true : false;
           var classToRemove = isRiseAbove ? 'unread-riseabove' : 'unread-note';
@@ -142,7 +142,7 @@ class GraphView extends Component {
   focusRecentAddition(note){
     var cy = this.cy;
     var kfId = note.to;
-    var cyIds = this.findCyElemFromKfId(kfId);
+    var cyIds = this.findCyIdsFromKfId(kfId);
     if(cyIds !== null){
       var newestCyElem = cy.$('#'+cyIds[cyIds.length - 1]);
       cy.center(newestCyElem);
@@ -160,7 +160,7 @@ class GraphView extends Component {
       si.setImageVisible(imgs[i], true);
     }
 
-    var nodesToHide = [];
+    var nodesToHide = cy.collection();
     var query = this.props.searchQuery;
     var filter = this.props.searchFilter;
     switch (filter) {
@@ -183,19 +183,15 @@ class GraphView extends Component {
             break;
 
         case "content":
-            // const notes = this.props.viewNotes;
-            // const map = this.state.kfToCyMap;
-            // console.log(notes);
-
-            // filteredResults = notes.filter(function (obj) {
-            //     if (obj.data && obj.data.English) {
-            //         return obj.data.English.includes(query);
-            //     }
-            //     else if (obj.data && obj.data.body) {
-            //         return obj.data.body.includes(query);
-            //     }
-            //     return false
-            // });
+            const notes = Object.values(this.props.viewNotes);
+            var self = this;
+            notes.filter(function (obj) {
+                if (obj.data && ( (obj.data.English && !obj.data.English.includes(query)) || (obj.data.body && !obj.data.body.includes(query)) ) ) {
+                  var cy_ids = self.findCyIdsFromKfId(obj._id);
+                  for(let j in cy_ids){ nodesToHide = nodesToHide.union(cy.$('#'+cy_ids[j])); }
+                }
+                return false
+            });
 
             break;
 
@@ -226,8 +222,10 @@ class GraphView extends Component {
             break;
     }
 
-    var removedElements = cy.remove(nodesToHide);
-    this.setState({removedElements: removedElements});
+    if(nodesToHide.length !== 0){
+      var removedElements = cy.remove(nodesToHide);
+      this.setState({removedElements: removedElements});
+    }
   }
 
   componentDidMount() {
