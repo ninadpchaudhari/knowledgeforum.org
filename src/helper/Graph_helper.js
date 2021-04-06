@@ -165,10 +165,11 @@ function handleDrawing(server, token, nodes, nodeData, authorData){
     };
 
     return {
-      url: 'data:image/svg+xml;utf8,' + encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>' + result.data.svg),
-      name: nodeData._to.title,
-      bounds: bounds,
-      locked: false,
+        url: 'data:image/svg+xml;utf8,' + encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>' + result.data.svg),
+        name: nodeData._to.title,
+        bounds: bounds,
+        locked: false,
+        linkId: nodeData._id
     };
 
   });

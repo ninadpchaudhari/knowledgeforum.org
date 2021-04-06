@@ -241,11 +241,43 @@ export const newNote = (view, communityId, authorId, buildson) => dispatch => {
         dispatch(openDialog({
             title: 'New Note',
             confirmButton: 'create',
-            noteId: note._id,
+            contribId: note._id,
+            type: 'Note',
             editable: true, // new note should open in write tab
         }))
     })
 
+}
+
+export const newDrawing = (viewId, communityId, authorId) => async dispatch => {
+
+    const newobj = {
+        communityId: communityId,
+        type: 'Drawing',
+        title: 'a Drawing',
+        authors: [authorId],
+        status: 'unsaved',
+        permission: 'protected',
+        data: {
+            svg: '<svg width="200" height="200" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g><title>Layer 1<\/title><\/g><\/svg>',
+        }
+    }
+
+    const drawing = (await api.postContribution(communityId, newobj)).data
+
+    api.postLink(viewId, drawing._id, 'contains', {x: 100, y:100, showInPlace: true})
+    //TODO save contains link to ITM
+    const contrib = {records: [], ...drawing}
+
+    dispatch(addNote(contrib))
+
+    dispatch(openDialog({
+        title: 'New Drawing',
+        confirmButton: 'create',
+        contribId: contrib._id,
+        type: 'Drawing',
+        editable: true, // new note should open in write tab
+    }))
 }
 
 export const buildOnNote = (noteId) => (dispatch, getState )=> {
@@ -300,11 +332,11 @@ export const postContribution = (contrib, dialogId) => async (dispatch, getState
             dispatch(closeDialog(dialogId))
         if (!wasActive) //To update builds on hierarchy
             dispatch(fetchBuildsOn(newNote.communityId))
-    } else if (contrib.type === 'Attachment'){
+    } else {
+        contrib.status = 'active'
          await api.putObject(contrib, contrib.communityId, contrib._id)
         if (dialogId !== undefined){
             dispatch(closeDialog(dialogId))
-            //TODO remove from store?
             dispatch(removeNote(contrib._id))
         }
     }
@@ -375,15 +407,15 @@ export const openContribution = (contribId) => async (dispatch, getState) => {
 
         annotations.forEach((annot) => dispatch(setAnnotation({ annotation: annot, contribId })))
         dispatch(setAnnotationsLoaded({ contribId, value: 1 }))
-    }else if (contrib.type === 'Attachment'){
+    }else {
         const attachment = { records: [],  ...contrib }
         dispatch(addNote(attachment))
 
         dispatch(openDialog({
-            title: 'Edit Attachment',
+            title: `Edit ${contrib.type}`,
             confirmButton: 'edit',
             contribId: contrib._id,
-            type: 'Attachment',
+            type: contrib.type,
             editable: author && (contrib.authors.includes(author._id) || author.role === "manager"), // read or write tab
             buildOn: true
         }))
