@@ -155,7 +155,7 @@ export const noteReducer = createReducer(initState, {
     }
 });
 
-const createNote = (communityId, authorId, contextMode, fromId, content) => {
+export const createNote = (communityId, authorId, contextMode, fromId, content) => {
     if (!content) { content = '' }
     if (contextMode && !contextMode.permission) {
         window.alert('invalid mode object')

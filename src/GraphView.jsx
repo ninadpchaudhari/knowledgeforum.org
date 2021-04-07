@@ -209,6 +209,7 @@ class Graph extends Component {
           ref.props.onViewClick(kfId);
       } else {
         if(type === "riseabove"){
+            ref.props.onNoteClick(kfId)
             this.removeClass("unread-riseabove");
             this.addClass("read-riseabove");
         } else if(type === "note"){
