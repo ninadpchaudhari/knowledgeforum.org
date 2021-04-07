@@ -54,10 +54,12 @@ export function responseHandler(uname, data, login_form_component){
       var token = data[i][0].token;
       var server = data[i][1];
 
+      var viewPreference = userStorage !== null && userStorage[i][3] ? userStorage[i][3] : {value: 'Classic', label: 'Classic'};
+
       if((userStorage === null && successfulLogin === false) || (userStorage !== null && userStorage[i][2] === "active")){
-        serverTokenPair.push([server, token, "active"]);
+        serverTokenPair.push([server, token, "active", viewPreference]);
       } else {
-        serverTokenPair.push([server, token, "inactive"]);
+        serverTokenPair.push([server, token, "inactive", viewPreference]);
       }
 
       successfulLogin = true;
@@ -98,5 +100,5 @@ export function getLoginData(){
             }
         }
     }
-    return [null,null,null]
+    return [null,null,null,null]
 }

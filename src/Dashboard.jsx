@@ -28,7 +28,7 @@ class Dashboard extends Component {
       selectedCommunityToJoin: null,
       communityRegistrationKey: null,
       joinCommunityErrorMessage: null,
-      viewType: {value: 'Classic', label: 'Classic'}
+      viewType: JSON.parse(localStorage.getItem(localStorage.getItem('Username')))[0][3]
     }
 
     this.enterCommunity = this.enterCommunity.bind(this);
@@ -59,8 +59,9 @@ class Dashboard extends Component {
       var server = serverTokenPairs[i][0];
       var token = serverTokenPairs[i][1];
       var status = (server === activeServerURL) ? "active" : "inactive";
+      var viewType = serverTokenPairs[i][3];
       if(server === activeServerURL) { this.setState({token: serverTokenPairs[i][1]}); }
-      serverTokenPair.push([server, token, status]);
+      serverTokenPair.push([server, token, status, viewType]);
     }
     localStorage.setItem(this.state.username, JSON.stringify(serverTokenPair));
 
@@ -69,7 +70,16 @@ class Dashboard extends Component {
   }
 
   handleViewChange = (event) => {
-    this.setState({viewType: {value: event.value, label: event.label}});
+    var selectedViewType = {value: event.value, label: event.label};
+    this.setState({viewType: selectedViewType});
+
+    // handles the view type preference in local storage
+    var serverTokenPairs = JSON.parse(localStorage.getItem(this.state.username));
+    var newServerTokenPair = [];
+    for(var i in serverTokenPairs){
+      newServerTokenPair.push([serverTokenPairs[i][0], serverTokenPairs[i][1], serverTokenPairs[i][2], selectedViewType]);
+    }
+    localStorage.setItem(this.state.username, JSON.stringify(newServerTokenPair));
   }
 
   handleCommunityDropDownChange = (event) => {
