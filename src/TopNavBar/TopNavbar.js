@@ -28,7 +28,7 @@ class TopNavbar extends Component {
   handleInputChange = (event) => {
       const query = event.target.value
       this.setState({query: query});
-      if(query === '') this.props.setSearchQuery('');
+      if(query === '' || this.props.filter === 'scaffold') this.props.setSearchQuery(query);
   };
 
   handleSearchSubmit = (e) => {
@@ -57,11 +57,31 @@ class TopNavbar extends Component {
     }
   }
 
-
   render() {
     const isLoggedIn = this.props.isAuthenticated
     const userName = this.props.user ? `${this.props.user.firstName} ${this.props.user.lastName}` : null
     const isViewUrl = this.props.location.pathname.startsWith('/view/')
+
+    var searchInput;
+    if(this.props.filter === "scaffold"){
+      searchInput = <Input type="select" onChange={this.handleInputChange}>
+                        {this.props.scaffolds.map((scaffold, i) => {
+                          return <optgroup key={i} label={scaffold.title}>
+                              {scaffold.supports.map((support, j) => {
+                                  return <option key={j} value={support.to}>{support._to.title}</option>
+                              })}
+                          </optgroup>;
+                        })}
+                    </Input>;
+    } else {
+      searchInput = <Input
+          className="form-control"
+          value={this.state.query}
+          placeholder="Search"
+          onChange={this.handleInputChange}
+      />;
+    }
+
     return (
       <Navbar className="viewNavBar">
         <Navbar.Brand className="viewNavBar-brand d-none d-sm-block">{this.props.communityTitle}</Navbar.Brand>
@@ -100,12 +120,7 @@ class TopNavbar extends Component {
                                   <option key="author" value="author">Author</option>
                               </Input>
                           </InputGroupAddon>
-                          <Input
-                              className="form-control"
-                              value={this.state.query}
-                              placeholder="Search"
-                              onChange={this.handleInputChange}
-                          />
+                          {searchInput}
 
                           {<InputGroupAddon addonType="append">
                               <InputGroupText style={{ cursor: "pointer" }} onClick={this.handleSearchSubmit}>
@@ -148,6 +163,7 @@ const mapStateToProps = (state, ownProps) => {
     view: state.globals.view,
     viewNotes: state.notes.viewNotes,
     authors: state.users,
+    scaffolds: state.scaffolds.items,
     supports: state.notes.supports,
     query: state.globals.searchQuery,
     filter: state.globals.searchFilter

@@ -19,15 +19,12 @@ class LightView extends Component {
             showView: false,
             showRiseAbove: false,
             filteredData: [],
-            hideScaffold: true,
         };
 
         this.getBuildOnHierarchy = this.getBuildOnHierarchy.bind(this)
         this.onCloseDialog = this.onCloseDialog.bind(this);
         this.onConfirmDrawDialog = this.onConfirmDrawDialog.bind(this);
         this.filterResults = this.filterResults.bind(this);
-        this.getScaffoldSupports = this.getScaffoldSupports.bind(this);
-        this.onScaffoldSelected = this.onScaffoldSelected.bind(this)
     }
 
     // GET BUILDON HIERARCHY
@@ -55,15 +52,6 @@ class LightView extends Component {
         return final_h
     }
 
-    // GET SCAFFOLD SUPPORTS
-    getScaffoldSupports() {
-        let supports = []
-        this.props.scaffolds.forEach(scaffold => {
-            supports = [...supports, ...scaffold.supports]
-        })
-        return supports
-    }
-
     componentDidMount() {
 
     }
@@ -82,13 +70,6 @@ class LightView extends Component {
         })
     }
 
-    // FILTER RESULTS ON SCAFFOLD SELECT
-    onScaffoldSelected = (support) => {
-        this.setState({
-            filteredData: this.filterResults(support.to)
-        });
-    }
-
     onConfirmDrawDialog(drawing) {
         this.props.addDrawing(drawing);
         this.props.closeDrawDialog();
@@ -100,7 +81,7 @@ class LightView extends Component {
     }
 
     filterResults(q) {
-        const query = q || this.props.searchQuery
+        const query = q || this.props.searchQuery;
         let filteredResults = [];
         const notes = Object.values(this.props.viewNotes)
         if (query || this.props.searchFilter) {
@@ -151,14 +132,7 @@ class LightView extends Component {
 
 
     render() {
-        const showScffold = !this.hideScaffold && this.props.searchFilter === "scaffold";
         const hierarchy = this.getBuildOnHierarchy()
-
-        let scaffolds;
-        if (showScffold) {
-            scaffolds = <ScaffoldSelect initVal={0} onScaffoldSelected={this.onScaffoldSelected} returnSupport={true} />
-        }
-
         return (
             <>
                 {/*<TopNavBar></TopNavBar>*/}
@@ -168,9 +142,7 @@ class LightView extends Component {
 
                         {/* NOTES */}
                         <Col md="5" sm="12" className="mrg-1-top pd-2-right v-scroll">
-
-                            {scaffolds}
-                            {this.props.searchQuery === "" && !showScffold ?
+                            {this.props.searchQuery === "" ?
                                 (<ListOfNotes hierarchy={hierarchy} />)
                                 :
                                 (<ListOfNotes noteLinks={this.state.filteredData} />)
@@ -233,8 +205,7 @@ class LightView extends Component {
                                     </Col>
                                 </Row>
                             </Form>
-                            {scaffolds}
-                            {this.props.searchQuery === "" && !showScffold ?
+                            {this.props.searchQuery === "" ?
                                 (<ListOfNotes hierarchy={hierarchy} />)
                                 :
                                 (<ListOfNotes noteLinks={this.state.filteredData} />)

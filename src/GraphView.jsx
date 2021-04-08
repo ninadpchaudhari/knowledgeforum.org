@@ -150,7 +150,7 @@ class GraphView extends Component {
     }
   }
 
-  filterNodes(){
+  filterNodes(q){
     var cy = this.cy;
     const si = cy.supportimages();
 
@@ -161,7 +161,7 @@ class GraphView extends Component {
     }
 
     var nodesToHide = cy.collection();
-    var query = this.props.searchQuery;
+    const query = q || this.props.searchQuery;
     var filter = this.props.searchFilter;
     switch (filter) {
         case "title":
