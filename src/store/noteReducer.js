@@ -40,7 +40,10 @@ export const noteReducer = createReducer(initState, {
         notes[action.payload._id] = action.payload
     },
     [removeNote]: (notes, action) => {
+        const note = notes[action.payload]
         delete notes[action.payload]
+        if (note?.data?.riseabove)//if ra delete fetched view data
+            delete notes.raViews[note.data.riseabove.viewId]
     },
     [editNote]: (notes, action) => {
         let note = notes[action.payload._id];
@@ -342,6 +345,8 @@ export const postContribution = (contrib, dialogId) => async (dispatch, getState
             dispatch(closeDialog(dialogId))
         if (!wasActive) //To update builds on hierarchy
             dispatch(fetchBuildsOn(newNote.communityId))
+
+        dispatch(removeNote(contrib._id))
     } else {
         contrib.status = 'active'
          await api.putObject(contrib, contrib.communityId, contrib._id)

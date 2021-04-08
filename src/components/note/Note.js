@@ -198,8 +198,8 @@ const mapStateToProps = (state, ownProps) => {
         noteAuthor: ownProps.note && (state.users[ownProps.note.authors[0]] || 'NA'),
         currentAuthor: state.globals.author,
         editable: false || (ownProps.note && ownProps.note.authors.includes(state.globals.author._id)),
-        raViewLinks: ownProps.note && ownProps.note.data.riseabove && state.notes.raViews[ownProps.note.data.riseabove.viewId].viewLinks,
-        raReadLinks: ownProps.note && ownProps.note.data.riseabove && state.notes.raViews[ownProps.note.data.riseabove.viewId].readLinks,
+        raViewLinks: ownProps.note?.data?.riseabove && state.notes.raViews[ownProps.note.data.riseabove.viewId]?.viewLinks,
+        raReadLinks: ownProps.note?.data?.riseabove && state.notes.raViews[ownProps.note.data.riseabove.viewId]?.readLinks,
     }
 }
 
