@@ -162,9 +162,12 @@ class GraphView extends Component {
 
     var nodesToHide = cy.collection();
     const query = q || this.props.searchQuery;
+    const notes = Object.values(this.props.viewNotes);
     var filter = this.props.searchFilter;
+    var self = this;
     switch (filter) {
         case "title":
+            // eslint-disable-next-line
             nodesToHide = cy.filter(function(elem, i){
                const elem_type = elem.data('type');
                const elem_title = elem.data('name');
@@ -173,29 +176,28 @@ class GraphView extends Component {
                }
             });
 
-            for(let i in imgs){
-              var supportImg = imgs[i];
-              if(!supportImg.name.toLowerCase().includes(query.toLowerCase())){
-                si.setImageVisible(supportImg, false);
-              }
-            }
+            // for(let i in imgs){
+            //   var supportImg = imgs[i];
+            //   if(!supportImg.name.toLowerCase().includes(query.toLowerCase())){
+            //     si.setImageVisible(supportImg, false);
+            //   }
+            // }
 
             break;
 
         case "content":
-            const notes = Object.values(this.props.viewNotes);
-            var self = this;
+            // eslint-disable-next-line
             notes.filter(function (obj) {
                 if (obj.data && ( (obj.data.English && !obj.data.English.includes(query)) || (obj.data.body && !obj.data.body.includes(query)) ) ) {
                   var cy_ids = self.findCyIdsFromKfId(obj._id);
                   for(let j in cy_ids){ nodesToHide = nodesToHide.union(cy.$('#'+cy_ids[j])); }
                 }
-                return false
             });
 
             break;
 
         case "author":
+            // eslint-disable-next-line
             nodesToHide = cy.filter(function(elem, i){
                const elem_type = elem.data('type');
                const elem_author = elem.data('author');
@@ -204,19 +206,25 @@ class GraphView extends Component {
                }
             });
 
-            for(let i in imgs){
-              var supportImg = imgs[i];
-              if(!supportImg.author.toLowerCase().includes(query.toLowerCase())){
-                si.setImageVisible(supportImg, false);
-              }
-            }
+            // for(let i in imgs){
+            //   var supportImg = imgs[i];
+            //   if(!supportImg.author.toLowerCase().includes(query.toLowerCase())){
+            //     si.setImageVisible(supportImg, false);
+            //   }
+            // }
 
             break;
 
-        // case "scaffold":
-        //     const noteIds = this.props.supports.filter(support => support.from === query).map(support => support.to)
-        //     filteredResults = notes.filter(note => noteIds.includes(note._id))
-        //     break;
+        case "scaffold":
+            const noteIds = this.props.supports.filter(support => support.from === query).map(support => support.to);
+            // eslint-disable-next-line
+            notes.filter(function(note){
+              if(!noteIds.includes(note._id)){
+                var cy_ids = self.findCyIdsFromKfId(note._id);
+                for(let j in cy_ids){ nodesToHide = nodesToHide.union(cy.$('#'+cy_ids[j])); }
+              }
+            });
+            break;
 
         default:
             break;
@@ -446,6 +454,7 @@ const mapStateToProps = (state, ownProps) => {
         viewLinks: state.notes.viewLinks,
         readLinks: state.notes.readLinks,
         buildsOn: state.notes.buildsOn,
+        supports: state.notes.supports,
         searchQuery: state.globals.searchQuery,
         searchFilter: state.globals.searchFilter,
     }

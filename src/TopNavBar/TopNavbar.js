@@ -20,8 +20,14 @@ class TopNavbar extends Component {
 
   handleFilter = (e) => {
       let value = e.target.value;
-      this.setState({query: ''});
-      this.props.setSearchQuery('');
+      if(value === "scaffold"){
+        var query = this.props.scaffolds[0].supports[0].to;
+        this.setState({query: query});
+        this.props.setSearchQuery(query);
+      } else {
+        this.setState({query: ''});
+        this.props.setSearchQuery('');
+      }
       this.props.setSearchFilter(value);
   }
 
@@ -54,6 +60,9 @@ class TopNavbar extends Component {
   componentDidUpdate(prevProps, prevState){
     if(this.props.currentView !== prevProps.currentView){
       this.setState({query: ''});
+      this.props.setSearchQuery('');
+      this.props.setSearchFilter('title');
+      document.getElementById('queryForm').reset();
     }
   }
 
@@ -68,7 +77,7 @@ class TopNavbar extends Component {
                         {this.props.scaffolds.map((scaffold, i) => {
                           return <optgroup key={i} label={scaffold.title}>
                               {scaffold.supports.map((support, j) => {
-                                  return <option key={j} value={support.to}>{support._to.title}</option>
+                                  return <option key={j} value={support.to}>{support._to.title}</option>;
                               })}
                           </optgroup>;
                         })}
@@ -108,7 +117,7 @@ class TopNavbar extends Component {
           : null}
 
           <Navbar.Text className="viewNavBar-dropdown-title">Search:</Navbar.Text>
-          <Form onSubmit={this.handleSearchSubmit}>
+          <Form id={"queryForm"} onSubmit={this.handleSearchSubmit}>
               <Row>
                   <Col>
                       <InputGroup>

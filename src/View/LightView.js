@@ -4,7 +4,6 @@ import { Form, Input, InputGroup, InputGroupAddon, InputGroupText } from 'reacts
 import { newNote } from '../store/noteReducer.js'
 import { connect } from 'react-redux'
 import NoteContent from '../components/NoteContent/NoteContent'
-import ScaffoldSelect from '../components/scaffold/ScaffoldSelect'
 import ListOfNotes from './ListOfNotes/ListOfNotes'
 import { Breakpoint } from 'react-socks'
 import '../css/index.css';
