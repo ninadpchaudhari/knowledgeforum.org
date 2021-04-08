@@ -33,9 +33,6 @@ class Note extends React.Component {
         this.onAnnotationUpdated = this.onAnnotationUpdated.bind(this)
     }
 
-    componentDidMount() {
-    }
-
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.drawing && prevProps.drawing !== this.props.drawing) {
             this.editor.insertContent(this.props.drawing)

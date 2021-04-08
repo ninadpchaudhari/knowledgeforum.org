@@ -20,8 +20,8 @@ const NoteDialog = props => {
         setNote(prevNote => {
             if (prevNote === null) //Initialize once
                 return {...reduxNote}
-            else //Only update attachmets
-                return {...prevNote, attachments: reduxNote.attachments }
+            else //Only update attachmets and records
+                return {...prevNote, attachments: reduxNote.attachments, records: reduxNote.records }
         })
     }, [reduxNote])
 
