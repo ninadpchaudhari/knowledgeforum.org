@@ -169,7 +169,15 @@ class View extends Component {
 
     render(){
       let viewToRender = this.state.currentView === "Enhanced" ?
-                <GraphView currentView={this.state.currentView} onViewClick={this.onViewClick} onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}/> : <LightView/>;
+                         <GraphView
+                             viewId={this.props.viewId}
+                             viewLinks={this.props.viewLinks}
+                             readLinks={this.props.readLinks}
+                             onViewClick={this.onViewClick}
+                             onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}
+                         />
+                      :
+                         <LightView/>;
 
       return(
           <div className="container-fluid d-flex flex-column" id="container-fluid-for-view-js">
@@ -306,7 +314,9 @@ const mapStateToProps = (state, ownProps) => {
         view: state.globals.view,
         author: state.globals.author,
         myViews: state.globals.views,
-        socketStatus: state.globals.socketStatus
+        socketStatus: state.globals.socketStatus,
+        viewLinks: state.notes.viewLinks,
+        readLinks: state.notes.readLinks,
     }
 }
 

@@ -4,7 +4,8 @@ import { preProcess, postProcess } from './kftag.service.js'
 import * as api from './api.js'
 import { addNotification } from './notifier.js'
 import { dateFormatOptions } from './globalsReducer.js'
-
+import {addRAView, removeRAView, addToRAView} from './noteActions.js'
+import {loadRiseAboveData} from './async_actions.js'
 export const addNote = createAction('ADD_NOTE')
 export const removeNote = createAction('REMOVE_NOTE')
 export const editNote = createAction('EDIT_NOTE')
@@ -32,8 +33,7 @@ export const setRiseAboveNotes = createAction('SET_RISEABOVE_NOTES')
 export const setReadLinks = createAction('SET_READ_LINKS')
 export const removeViewLink = createAction('REMOVE_READ_LINKS')
 export const removeViewNote = createAction('REMOVE_VIEW_NOTE')
-
-const initState = {attachments: {}, viewNotes: {}, checkedNotes: [], viewLinks: [], buildsOn: [], supports: [], riseAboveNotes: {}, riseAboveViewNotes: {}, readLinks: []}
+const initState = {attachments: {}, viewNotes: {}, checkedNotes: [], viewLinks: [], buildsOn: [], supports: [], riseAboveNotes: {}, riseAboveViewNotes: {}, readLinks: [], raViews: {}}
 
 export const noteReducer = createReducer(initState, {
     [addNote]: (notes, action) => {
@@ -152,6 +152,16 @@ export const noteReducer = createReducer(initState, {
     },
     [setReadLinks]: (state, action) =>{
         state.readLinks = action.payload
+    },
+    [addRAView]: (state, action) => {
+        if (!state.raViews[action.payload])
+            state.raViews[action.payload] = {}
+    },
+    [removeRAView]: (state, action) => {
+        delete state.raViews[action.payload]
+    },
+    [addToRAView]: (state, action) => {
+        state.raViews[action.payload.viewId] = {...state.raViews[action.payload], ...action.payload.data}
     }
 });
 
@@ -381,8 +391,12 @@ export const openContribution = (contribId) => async (dispatch, getState) => {
         const note = { attachments: [], fromLinks, toLinks, records: [], annos: {}, ...contrib }
         const noteBody = preProcess(note.data.body, toLinks, fromLinks)
         note.data.body = noteBody
-
         dispatch(addNote(note))
+
+        if (note.data.riseabove){
+            dispatch(addRAView(note.data.riseabove.viewId))
+            loadRiseAboveData(note.data.riseabove.viewId, note.communityId, dispatch)
+        }
         dispatch(fetchAttachments(contribId))
         dispatch(openDialog({
             title: 'Edit Note',

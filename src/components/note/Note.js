@@ -1,14 +1,14 @@
 import React from 'react';
-import { Tabs, Tab, Col, Row } from 'react-bootstrap';
+import { Tabs, Tab, Col, Row, Button } from 'react-bootstrap';
 import WriteTab from '../writeTab/WriteTab'
 import History from '../historyTab/History'
 import Properties from '../propertiesTab/Properties'
 import AuthorTab from '../authorsTab/AuthorTab'
 import Annotator from '../annotator/Annotator'
-import RiseAboveView from '../RiseAboveView/RiseAboveView'
+import GraphView from '../../GraphView'
 import { connect } from 'react-redux'
 import {
-    editNote, setAnnotationsLoaded,
+    setAnnotationsLoaded,
     fetchAttachments, fetchRecords,
     createAnnotation, deleteAnnotation, modifyAnnotation, deleteAttachment, openContribution
 } from '../../store/noteReducer.js'
@@ -31,17 +31,9 @@ class Note extends React.Component {
         this.onAnnotationCreated = this.onAnnotationCreated.bind(this)
         this.onAnnotationDeleted = this.onAnnotationDeleted.bind(this)
         this.onAnnotationUpdated = this.onAnnotationUpdated.bind(this)
-        this.editNote = this.editNote.bind(this)
     }
 
     componentDidMount() {
-        // if (this.props.riseAboveViewNotes[this.props.note._id]) {
-        //     this.setState({
-        //         // riseAboveNotes: this.props.riseAboveViewNotes[this.props.note._id].map((noteId) => this.props.riseAboveNotes[noteId])
-        //         riseAboveNotes: true,
-        //         selectedTab: "read"
-        //     })
-        // }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -131,10 +123,6 @@ class Note extends React.Component {
         this.props.modifyAnnotation(model, this.props.note.communityId, this.props.note._id)
     }
 
-    editNote = (noteId) => {
-        this.props.openContribution(noteId)
-    }
-
     render() {
         const formatter = new Intl.DateTimeFormat('default', dateFormatOptions)
         return (
@@ -143,10 +131,9 @@ class Note extends React.Component {
                     Created By: {this.props.noteAuthor.firstName} {this.props.noteAuthor.lastName} <br />
                     Last modified: {formatter.format(new Date(this.props.note.modified))}
                 </div>
-                <Tabs activeKey={this.state.selectedTab} transition={false} onSelect={this.onTabSelected}>
-                    <Tab eventKey="read" title="read">
-                        <Row>
-                            {!this.state.riseAboveNotes ?
+                <Tabs activeKey={this.state.selectedTab} onSelect={this.onTabSelected}>
+                    <Tab eventKey="read" title="read" mountOnEnter style={{height: '100%'}}>
+                        <Row style={{height: '100%'}}>
                                 <Col>
                                     <Annotator containerId={this.props.dlgId}
                                         content={this.props.note.data.body}
@@ -160,26 +147,25 @@ class Note extends React.Component {
                                     >
                                     </Annotator>
                                 </Col>
-                                :
-                                (<>
-                                    <Col md="6">
-                                        <Annotator containerId={this.props.dlgId}
-                                            content={this.props.note.data.body}
-                                            annots={this.props.note.annos}
-                                            annotsFetched={this.props.note.annotsFetched}
-                                            author={this.props.noteAuthor}
-                                            onCreate={this.onAnnotationCreated}
-                                            onUpdate={this.onAnnotationUpdated}
-                                            onDelete={this.onAnnotationDeleted}
-                                            onAnnotsLoaded={() => this.props.setAnnotationsLoaded({ contribId: this.props.note._id, value: 0 })}
-                                        >
-                                        </Annotator>
-                                    </Col>
-                                    <Col md="5">
-                                        <RiseAboveView riseAboveViewId={this.props.note._id} editNote = {this.editNote}/>
-                                    </Col>
-                                    <Col></Col>
-                                </>)}
+
+                                {this.props.note.data.riseabove && this.props.raViewLinks && this.props.raReadLinks ?
+                                 <Col className="border border-primary border-4 note-ra-col">
+                                     <Row>
+                                         <div className="note-ra-text">Riseabove View:
+                                             <Button className="sm-button" variant="primary" href={`/view/${this.props.note.data.riseabove.viewId}`} target="_blank">Open in Window</Button>
+                                         </div>
+                                     </Row>
+                                     <Row className="note-ra-rowgraph">
+                                         <GraphView
+                                             viewId={this.props.note.data.riseabove.viewId}
+                                             viewLinks={this.props.raViewLinks}
+                                             readLinks={this.props.raReadLinks}
+                                             onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}
+                                             onViewClick={(viewId)=> {}}
+                                         />
+                                     </Row>
+                                 </Col> : ''
+                                }
                         </Row>
                     </Tab>
                     {
@@ -210,15 +196,14 @@ class Note extends React.Component {
 const mapStateToProps = (state, ownProps) => {
     return {
         noteAuthor: ownProps.note && (state.users[ownProps.note.authors[0]] || 'NA'),
-        riseAboveViewNotes: state.notes.riseAboveViewNotes,
-        riseAboveNotes: state.notes.riseAboveNotes,
         currentAuthor: state.globals.author,
-        editable: false || (ownProps.note && ownProps.note.authors.includes(state.globals.author._id))
+        editable: false || (ownProps.note && ownProps.note.authors.includes(state.globals.author._id)),
+        raViewLinks: ownProps.note && ownProps.note.data.riseabove && state.notes.raViews[ownProps.note.data.riseabove.viewId].viewLinks,
+        raReadLinks: ownProps.note && ownProps.note.data.riseabove && state.notes.raViews[ownProps.note.data.riseabove.viewId].readLinks,
     }
 }
 
 const mapDispatchToProps = {
-    editNote,
     fetchAttachments, fetchRecords,
     deleteAnnotation, fetchCommGroups, createAnnotation, modifyAnnotation,
     setAnnotationsLoaded, deleteAttachment, openContribution}

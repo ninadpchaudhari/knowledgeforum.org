@@ -40,7 +40,11 @@ const NoteDialog = props => {
     }
 
     const onNoteChange = (noteChanged) => {
-        setNote(prevNote => ({...prevNote, ...noteChanged}))
+        setNote(prevNote => {
+            const newNote = {...prevNote, ...noteChanged}
+            newNote.data = { ...prevNote.data, ...noteChanged.data}
+            return newNote
+        })
     }
 
     const openDrawDialog = (svg) => {

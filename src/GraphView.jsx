@@ -17,7 +17,6 @@ import unread_riseabove_icon from './assets/icon_riseabove_blue.png';
 import read_riseabove_icon from './assets/icon_riseabove_red.png';
 import attachment_icon from './assets/icon_attachment.gif';
 import view_icon from './assets/icon_view.png';
-
 import {MINZOOM, MAXZOOM} from './config.js';
 
 Cytoscape.use(CytoscapePanZoom);
@@ -203,7 +202,6 @@ class Graph extends Component {
       if(this.hasClass("image")){
         console.log("image");
       } else if(this.hasClass("attachment")){
-        console.log("attachment");
           ref.props.onNoteClick(kfId)
       } else if(this.hasClass("view")){
           ref.props.onViewClick(kfId);
@@ -346,13 +344,9 @@ const mapStateToProps = (state, ownProps) => {
         token: state.globals.token,
         server: state.globals.currentServer,
         viewId: state.globals.viewId,
-        view: state.globals.view,
         author: state.globals.author,
         authors: state.users,
-        viewNotes: state.notes.viewNotes,
-        viewLinks: state.notes.viewLinks,
-        readLinks: state.notes.readLinks,
-        buildsOn: state.notes.buildsOn,
+        buildsOn: state.notes.buildsOn
     }
 }
 

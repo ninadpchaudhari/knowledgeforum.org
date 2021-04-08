@@ -1,5 +1,6 @@
 import * as api from './api.js'
 import { addViewLink, addViewNote, createNote } from './noteReducer.js'
+import { addToRAView } from './noteActions.js'
 
 export const updateViewLink = (link) => async (dispatch, getState) => {
     await api.putLink(link._id, link);
@@ -68,4 +69,11 @@ export const newRiseAbove = (riseAboveTitle) => async (dispatch, getState) => {
     api.postLink(view._id, note._id, 'contains', {x: 200, y: 200}) //TODO get element position
 
     //$community.saveContainsLinktoITM(view._id, note._id);}
+}
+
+export const loadRiseAboveData = async (viewId, communityId, dispatch) => {
+    const viewLinks = await api.getLinks(viewId, 'from')
+    const readLinks = await api.getApiLinksReadStatus(communityId, viewId)
+    dispatch(addToRAView({viewId, data: {viewLinks, readLinks}}))
+
 }
