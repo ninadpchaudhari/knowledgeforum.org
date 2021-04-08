@@ -158,7 +158,7 @@ class Note extends React.Component {
                                              viewLinks={this.props.raViewLinks}
                                              readLinks={this.props.raReadLinks}
                                              onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}
-                                             onViewClick={(viewId)=> {}}
+                                             onViewClick={(viewId)=> {window.open(`/view/${viewId}`, '_blank')}}
                                          />
                                      </Row>
                                  </Col> : ''
