@@ -155,6 +155,7 @@ class GraphView extends Component {
     const si = cy.supportimages();
 
     if(this.state.removedElements !== null) this.state.removedElements.restore();
+    this.setState({removedElements: null});
     var imgs = si.images();
     for(let i in imgs){
       si.setImageVisible(imgs[i], true);
@@ -374,11 +375,8 @@ class GraphView extends Component {
 
       var forceRender = (cases.nodePositionUpdated || cases.switchedToEmptyView);
 
-      if(cases.anyPropUpdated){
-        this.loadElements(prevProps.viewLinks.length, forceRender);
-      } else if(cases.searchTriggered){
-        this.filterNodes();
-      }
+      if(cases.searchTriggered){ this.filterNodes(); }
+      if(cases.anyPropUpdated){ this.loadElements(prevProps.viewLinks.length, forceRender); }
   }
 
   render() {

@@ -58,7 +58,7 @@ class TopNavbar extends Component {
   }
 
   componentDidUpdate(prevProps, prevState){
-    if(this.props.currentView !== prevProps.currentView){
+    if(this.props.currentView !== prevProps.currentView || this.props.viewId !== prevProps.viewId){
       this.setState({query: ''});
       this.props.setSearchQuery('');
       this.props.setSearchFilter('title');
