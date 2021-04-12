@@ -6,7 +6,7 @@ import { Form, FormGroup, Label, Input } from 'reactstrap';
 import Axios from 'axios';
 import { apiUrl, getCommunity, putCommunity, postLink, getViews } from '../store/api.js';
 import { setViewId, fetchViewCommunityData, fetchNewViewDifference } from '../store/globalsReducer.js'
-import { setViewLinks, setBuildsOn, setReadLinks, newNote, openContribution } from '../store/noteReducer.js'
+import { setViewLinks, setBuildsOn, setReadLinks, newNote, openContribution, newDrawing } from '../store/noteReducer.js'
 import { clearAuthors } from '../store/userReducer.js';
 import TopNavBar from '../TopNavBar/TopNavbar';
 import AttachPanel from './attachmentCollapse/AttachPanel.js'
@@ -200,6 +200,10 @@ class View extends Component {
                           <Dropdown.Item onClick={() => this.setState({showAttachPanel: true})}>
                               New Attachment
                           </Dropdown.Item>
+
+                          <Dropdown.Item onClick={() => this.props.newDrawing(this.props.viewId, this.props.communityId, this.props.author._id)}>
+                              New Drawing
+                          </Dropdown.Item>
                       </DropdownButton>
                       </div>
 
@@ -308,7 +312,8 @@ const mapDispatchToProps = {
     fetchViewCommunityData,
     fetchNewViewDifference,
     openContribution,
-    newNote
+    newNote,
+    newDrawing
 };
 
 export default connect(

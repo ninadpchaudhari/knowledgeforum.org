@@ -177,6 +177,7 @@ function handleDrawing(server, token, nodes, nodeData, authorData){
       author: authorName,
       kfId: nodeData.to,
       type: nodeData._to.type,
+      linkId: nodeData._id
     };
 
   });

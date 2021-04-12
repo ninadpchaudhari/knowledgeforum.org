@@ -1,90 +1,147 @@
-import React from 'react';
+import React, {useState} from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import Dialog from '../dialog/Dialog.js'
+import History from '../historyTab/History'
+import Properties from '../propertiesTab/Properties'
+import AuthorTab from '../authorsTab/AuthorTab'
+import { Tabs, Tab, Row, Col, Form } from 'react-bootstrap';
+import {closeDialog } from '../../store/dialogReducer.js'
+import {removeNote, postContribution, buildOnNote, editNote, fetchRecords} from '../../store/noteReducer.js'
+import { dateFormatOptions, fetchCommGroups } from '../../store/globalsReducer.js'
+const DrawDialog = props => {
+    const formatter = new Intl.DateTimeFormat('default', dateFormatOptions)
+    const dialog = props.dialog
+    const drawing = useSelector(state => state.notes[dialog.contribId])
+    const drawingAuthor = useSelector(state => state.users[drawing.authors[0]] || 'NA')
+    const timestamp = formatter.format(new Date(drawing.modified))
+    let iframe_ref;
+    const dispatch = useDispatch();
 
-class DrawDialog extends React.Component {
+    const [selectedTab, setSelectedTab] = useState("write");
 
-    constructor(props) {
-        super(props);
-        this.onConfirm = this.onConfirm.bind(this);
-        this.onLoad = this.onLoad.bind(this);
-        this.getIframeRef = this.getIframeRef.bind(this);
+    const onTabSelected = (tab) => {
+        setSelectedTab(tab)
+        if (tab === 'history') { //Refresh records
+            dispatch(fetchRecords(drawing._id))
+        } if (tab === 'author') { //Refresh groups, and authors?
+            dispatch(fetchCommGroups(drawing.communityId))
+        }
     }
 
-    onConfirm(){
-        var wnd1 = this.iframe_ref.contentWindow;
-        var bg = wnd1.svgCanvas.current_drawing_.all_layers[0];
-        var wnd2 = wnd1.svgCanvas.current_drawing_.all_layers[1];
+    const onDialogConfirm = () => {
+        const wnd = iframe_ref.contentWindow;
+        wnd.svgCanvas.setResolution('fit', 100);
+        const bg = wnd.svgCanvas.current_drawing_.all_layers[0];
+        const point = wnd.svgCanvas.current_drawing_.all_layers[1];
 
-        var widd = wnd2[1].getBBox().width;
-        var heig = wnd2[1].getBBox().height;
+        const widd = point[1].getBBox().width;
+        const heig = point[1].getBBox().height;
         if (widd === 0 || heig === 0){
-            this.props.onClose()
+            onDialogClose()
             return;
         }
-
-        wnd1.svgCanvas.current_drawing_.svgElem_.setAttribute("width", widd);
-        wnd1.svgCanvas.current_drawing_.svgElem_.setAttribute("height", heig);
-        bg[1].childNodes[1].setAttribute("width", widd);
-        bg[1].childNodes[1].setAttribute("height", heig);
-        wnd1.svgCanvas.selectAllInCurrentLayer();
-        wnd1.svgCanvas.groupSelectedElements();
-        wnd1.svgCanvas.alignSelectedElements('l', 'page');
-        wnd1.svgCanvas.alignSelectedElements('t', 'page');
-        wnd1.svgCanvas.ungroupSelectedElement();
-        wnd1.svgCanvas.clearSelection();
-        wnd1.svgCanvas.current_drawing_.svgElem_.setAttribute("padding", '2em');
-        wnd1.svgCanvas.setResolution('fit', 100);
-        var svg = wnd1.svgCanvas.getSvgString();
-
-        var canvas = document.createElement("canvas");
-
-        canvas.width = widd + 4;
-        canvas.height = heig + 4;
-
-        var ctx = canvas.getContext("2d");
-
-        var img = document.createElement("img");
-
-        img.setAttribute("src", "data:image/svg+xml;base64," + btoa(svg));
-
-        img.onload = function () {
-            ctx.drawImage(img, 0, 0);
-            var p = canvas.toDataURL("image/png");
-            const drawing = "<img alt='" + svg + "' src='" + p + "'/>";
-
-            this.props.onConfirm(drawing);
-        }.bind(this);
+        const rec = bg[1].children[1];
+        if (rec.attributes.fill.value === 'none'){
+            const po = wnd.svgCanvas.current_drawing_.all_layers[1];
+            if (po[1].childNodes.length > 1){
+                wnd.svgCanvas.current_drawing_.svgElem_.setAttribute("width", widd + 2);
+                wnd.svgCanvas.current_drawing_.svgElem_.setAttribute("height", heig + 2)
+                const p = wnd.svgCanvas.current_drawing_.all_layers[0];
+                p[1].childNodes[1].setAttribute("width", widd);
+                p[1].childNodes[1].setAttribute("height", heig);
+                wnd.svgCanvas.selectAllInCurrentLayer();
+                wnd.svgCanvas.groupSelectedElements();
+                wnd.svgCanvas.alignSelectedElements('l', 'page')
+                wnd.svgCanvas.alignSelectedElements('t', 'page')
+                wnd.svgCanvas.ungroupSelectedElement();
+                wnd.svgCanvas.clearSelection();
+            }
+        }
+        wnd.svgCanvas.setResolution('fit', 'fit')
+        const newDrawing = {...drawing}
+        newDrawing.data = {...newDrawing.data, svg: wnd.svgCanvas.svgCanvasToString()}
+        dispatch(postContribution(newDrawing, dialog.id))
     }
 
-    getIframeRef(frame) {
+    const onDialogClose = (dlg) => {
+        dispatch(closeDialog(dlg.id));
+        dispatch(removeNote(dlg.noteId));
+    }
+
+    const getIframeRef = (frame) => {
         if(!frame) {
             return
         }
-        this.iframe_ref = frame
+        iframe_ref = frame
     }
 
-    onLoad(e){
-        const svg = this.props.svg
+    const onLoad = (e) => {
+        console.log("on load draw")
+        const svg = drawing.data.svg
         if (svg){
             e.target.contentWindow.svgCanvas.setSvgString(svg)
+            e.target.contentWindow.svgCanvas.setResolution('fit', 'fit')
         }
     }
 
-    render() {
-        return (
-            <Dialog
-                title='DrawTool'
-                style={{zIndex: 3000}}
-                onClose={this.props.onClose}
-                onConfirm={this.onConfirm}
-                editable={true}
-                confirmButton='Add'>
+    const onChange = (drawingChanged) => {
+        dispatch(editNote({"_id": drawing._id, ...drawingChanged}));
+    }
 
+    const onBuildOnClick = (noteId) => {
+        dispatch(buildOnNote(noteId));
+    }
 
-                <iframe onLoad={this.onLoad} title='DrawingTool' src='/drawing-tool/svg/index.html' ref={this.getIframeRef} width='100%' height='100%'></iframe>
+    return (
+            <Dialog key={dialog.id}
+                    id={dialog.id}
+                    onMouseDown={props.onMouseDown}
+                    title={dialog.title}
+                    style={{zIndex: dialog.zIndex}}
+                    onClose={()=>onDialogClose(dialog)}
+                    onConfirm={()=> onDialogConfirm(dialog)}
+                    confirmButton={dialog.confirmButton}
+                    editable={dialog.editable}
+                    buildon={dialog.buildOn}
+                    onBuildOnClick={()=>onBuildOnClick(dialog.contribId)}
+            >
+                <div>
+                    <div className='contrib-info'>
+                        Created By: {drawingAuthor.firstName} {drawingAuthor.lastName} <br />
+                        Last modified: {timestamp}
+                    </div>
+                    <Tabs activeKey={selectedTab} transition={false} onSelect={onTabSelected}>
+                        <Tab eventKey="write" title="write" style={{height: '90%'}}>
+                            {drawing ?
+                             (<>
+                                 <Row>
+                                     <Col>
+                                         <Form.Group className="write-title-form" controlId="note-title">
+                                             <Form.Control type="text"
+                                                           className="write-tab-input"
+                                                           size="sm"
+                                                           placeholder="Enter title"
+                                                           value={drawing.title}
+                                                           onChange={(val) => {onChange({title: val.target.value})}}/>
+                                         </Form.Group>
+                                     </Col>
+                                 </Row>
+                                 <iframe onLoad={onLoad} title='DrawingTool' src='/drawing-tool/svg/index.html' ref={getIframeRef} width='100%' height='100%'></iframe>
+                             </>)
+                            :
+                             ''
+                            }
+                        </Tab>
+                        <Tab eventKey="author" title="author(s)">
+                            <AuthorTab contrib={drawing} onChange={onChange} />
+                        </Tab>
+                        <Tab eventKey='history' title='history'><History records={drawing.records} /></Tab>
+                        <Tab eventKey='properties' title='properties'><Properties contribution={drawing} onChange={onChange} /></Tab>
+                    </Tabs>
+                </div>
+
             </Dialog>
         )
-    }
 }
 
 export default DrawDialog

@@ -3,6 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import {focusDialog } from '../../store/dialogReducer.js'
 import NoteDialog from '../dialog/NoteDialog.js'
 import AttachmentDialog from '../dialog/AttachmentDialog.js'
+import DrawDialog from '../drawDialog/DrawDialog.js'
+
 const DialogHandler = props => {
     const dialogs = useSelector(state => state.dialogs);
     const dispatch = useDispatch();
@@ -22,12 +24,20 @@ const DialogHandler = props => {
                             key={elt.id}
                             dialog={elt}
                             onMouseDown={() => onFocusDialog(elt.id)}
-                        >
-                        </NoteDialog>
+                        />
                     )
                 } else if (elt.type === 'Attachment'){
                     return (
                         <AttachmentDialog
+                            key={elt.id}
+                            dialog={elt}
+                            onMouseDown={() => onFocusDialog(elt.id)}
+                        />
+                    )
+                } else if (elt.type === 'Drawing'){
+
+                    return (
+                        <DrawDialog
                             key={elt.id}
                             dialog={elt}
                             onMouseDown={() => onFocusDialog(elt.id)}

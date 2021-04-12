@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import Dialog from './Dialog.js'
-import DrawDialog from '../drawDialog/DrawDialog.js'
+import DrawTool from '../drawDialog/DrawTool.js'
 import Note from '../note/Note.js'
 import {removeNote, postContribution, buildOnNote} from '../../store/noteReducer.js'
 import {closeDialog } from '../../store/dialogReducer.js'
@@ -91,7 +91,7 @@ const NoteDialog = props => {
 
             </Dialog>
             { drawTool ?
-             <DrawDialog onClose={closeDrawDialog}
+             <DrawTool onClose={closeDrawDialog}
                          onConfirm={onConfirmDrawDialog}
                          svg={svg}
              /> : null}
