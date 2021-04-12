@@ -300,12 +300,8 @@ export const buildOnNote = (noteId) => (dispatch, getState )=> {
 
 
 export const attachmentUploaded = (noteId, attachment, inline, x, y) => dispatch => {
-
     return api.postLink(noteId, attachment._id, 'attach').then((res) => {
-
-        // TODO dispatch(getLinksFrom(noteId))
         dispatch(addAttachment({ noteId, attachment }))
-
     });
 }
 
@@ -336,17 +332,14 @@ export const postContribution = (contrib, dialogId) => async (dispatch, getState
         contrib.data.body = text
         const newNote = await api.putObject(contrib, contrib.communityId, contrib._id)
         newNote.data.body = prev_text
-        dispatch(editNote(newNote))
         dispatch(addViewNote(newNote))
 
-        dispatch(fetchLinks(contrib._id, 'from'))
-        dispatch(fetchLinks(contrib._id, 'to'))
         if (dialogId !== undefined)
             dispatch(closeDialog(dialogId))
         if (!wasActive) //To update builds on hierarchy
             dispatch(fetchBuildsOn(newNote.communityId))
 
-        dispatch(removeNote(contrib._id))
+        dispatch(removeNote(contrib._id))//Remove from redux when dialog is closed
     } else {
         contrib.status = 'active'
          await api.putObject(contrib, contrib.communityId, contrib._id)
