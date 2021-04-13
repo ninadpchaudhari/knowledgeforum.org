@@ -26,6 +26,32 @@
     z-index: 1000 !important;
 }
 
+#viewSettingsPopoverList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#viewSettingsPopoverList > li > input[type='checkbox'] {
+  float: right;
+}
+
+#viewSettingsReset {
+  margin-top: 3px;
+  margin-left: 3px;
+  border: 1px solid #212529;;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+#viewSettingsReset > i {
+  color: #212529;
+}
+
+#viewSettingsReset:hover {
+  cursor: pointer;
+}
+
 .v-scroll{
     height: 86vh !important;
     overflow-y: scroll !important;
@@ -61,7 +87,7 @@
 }
 
 .pd-left{
-    padding-left : -2px !important; 
+    padding-left : -2px !important;
 }
 
 .dropright .dropdown-toggle::after{
@@ -84,7 +110,7 @@
     height: 3.5rem;
     -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
     box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
-    
+
 }
 
 .pad {

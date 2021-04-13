@@ -170,8 +170,6 @@ const mapStateToProps = (state, ownProps) => {
     user: state.globals.author,
     views: state.globals.views,
     view: state.globals.view,
-    viewNotes: state.notes.viewNotes,
-    authors: state.users,
     scaffolds: state.scaffolds.items,
     supports: state.notes.supports,
     query: state.globals.searchQuery,

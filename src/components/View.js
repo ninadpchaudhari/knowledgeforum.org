@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { Link } from "react-router-dom";
-import { DropdownButton, Dropdown, Button, Row, Col, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { DropdownButton, Dropdown, Button, Row, Col, Modal, OverlayTrigger, Tooltip, Popover } from 'react-bootstrap';
 import { Form, FormGroup, Label, Input } from 'reactstrap';
+import $ from 'jquery';
 import Axios from 'axios';
 import { apiUrl, getCommunity, putCommunity, postLink, getViews } from '../store/api.js';
 import { setViewId, fetchViewCommunityData, fetchNewViewDifference } from '../store/globalsReducer.js'
@@ -29,6 +30,8 @@ class View extends Component {
             showModal: false,
             showView: false,
             showAttachPanel: false,
+            showViewSettingsPopover: false,
+            viewSettingsObj: {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true},
         }
 
         this.clearGraphViewProps = this.clearGraphViewProps.bind(this);
@@ -37,6 +40,8 @@ class View extends Component {
         this.handleNewViewSubmit = this.handleNewViewSubmit.bind(this);
         this.newView = this.newView.bind(this);
         this.handleShow = this.handleShow.bind(this);
+        this.initializeViewSettingsObj = this.initializeViewSettingsObj.bind(this);
+        this.handleViewSettingsChange = this.handleViewSettingsChange.bind(this);
     }
 
     componentDidMount() {
@@ -52,6 +57,10 @@ class View extends Component {
                 this.context.unsubscribeToView(prevProps.viewId);
                 this.context.subscribeToView(this.props.viewId);
             }
+        }
+
+        if(this.props.view !== prevProps.view){
+          this.initializeViewSettingsObj();
         }
     }
 
@@ -149,6 +158,37 @@ class View extends Component {
         });
     }
 
+    // function that resets the view settings to the values provided from the server
+    // lots of error checking here as no values are guaranteed in the view object so we default TO:
+    // {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true}
+    initializeViewSettingsObj(){
+      var serverSideViewSettings = this.props.view.data.viewSetting;
+      if(serverSideViewSettings !== undefined){
+        var temp = {};
+        temp.buildson = serverSideViewSettings.buildson !== undefined ? serverSideViewSettings.buildson : true;
+        temp.language = serverSideViewSettings.language !== undefined ? serverSideViewSettings.language : false;
+        temp.references = serverSideViewSettings.references !== undefined ? serverSideViewSettings.references : false;
+        temp.showAuthor = serverSideViewSettings.showAuthor !== undefined ? serverSideViewSettings.showAuthor : true;
+        temp.showGroup = serverSideViewSettings.showGroup !== undefined ? serverSideViewSettings.showGroup : false;
+        temp.showTime = serverSideViewSettings.showTime !== undefined ? serverSideViewSettings.showTime : true;
+        this.setState({viewSettingsObj: temp});
+      } else {
+        this.setState({viewSettingsObj: {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true}});
+      }
+    }
+
+    // handles updating the viewSettingsObj according to the checked values in the popover on the sidebar
+    handleViewSettingsChange(e){
+      var viewSettingsObj = {};
+      const domElem = e.target.parentNode;
+      const siblings = $(domElem).siblings();
+      viewSettingsObj[e.target.name] = e.target.checked;
+      for(let i = 0; i < siblings.length; i++){
+        viewSettingsObj[siblings[i].childNodes[1].name] = siblings[i].childNodes[1].checked;
+      }
+      this.setState({viewSettingsObj: viewSettingsObj});
+    }
+
     goToDashboard = () => {
         this.clearGraphViewProps();
         this.props.history.push("/dashboard");
@@ -167,7 +207,8 @@ class View extends Component {
 
     render(){
       let viewToRender = this.state.currentView === "Enhanced" ?
-                <GraphView currentView={this.state.currentView} onViewClick={this.onViewClick} onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}/> : <LightView/>;
+                <GraphView currentView={this.state.currentView} onViewClick={this.onViewClick} onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")} viewSettings={this.state.viewSettingsObj}/> :
+                <LightView/>;
 
       return(
           <div className="container-fluid d-flex flex-column" id="container-fluid-for-view-js">
@@ -186,7 +227,11 @@ class View extends Component {
                   {/* SIDEBAR */}
                   <div className="col-md" id="sticky-sidebar">
                     <div className="row sidebar-list">
-                      <div className="sidebar-list-col col-4 col-sm-4 col-md-12">
+                      <div className="sidebar-list-col col col-sm col-md-12">
+                      <OverlayTrigger
+                          placement="top"
+                          delay={{ show: 250, hide: 400 }}
+                          overlay={this.renderTooltip({ message: "Create New Contribution" })}>
                       <DropdownButton drop="right" className="dropdown-btn-parent" title={<i className="fas fa-plus-circle"></i>}>
 
                           <Dropdown.Item onClick={() => this.props.newNote(this.props.view, this.props.communityId, this.props.author._id)}>
@@ -205,20 +250,21 @@ class View extends Component {
                               New Drawing
                           </Dropdown.Item>
                       </DropdownButton>
+                      </OverlayTrigger>
                       </div>
 
-                      <div className="sidebar-list-col col-4 col-sm-4 col-md-12">
+                      <div className="sidebar-list-col col col-sm col-md-12">
                       <OverlayTrigger
-                          placement="right"
+                          placement="auto"
                           delay={{ show: 250, hide: 400 }}
                           overlay={this.renderTooltip({ message: "Exit Community" })}>
                           <Button onClick={this.goToDashboard} className="circle-button sidebar-btn"><i className="fa fa-arrow-left"></i></Button>
                       </OverlayTrigger>
                       </div>
 
-                      <div className="sidebar-list-col col-4 col-sm-4 col-md-12">
+                      <div className="sidebar-list-col col col-sm col-md-12">
                       <OverlayTrigger
-                          placement="right"
+                          placement="auto"
                           delay={{ show: 250, hide: 400 }}
                           overlay={this.renderTooltip({ message: "Change View" })}>
                           <Button onClick={this.switchView} className="circle-button pad sidebar-btn">
@@ -226,6 +272,36 @@ class View extends Component {
                           </Button>
                       </OverlayTrigger>
                       </div>
+
+                      {this.state.currentView === "Enhanced" ? (
+                        <div className="sidebar-list-col col col-sm col-md-12">
+                        <OverlayTrigger
+                            placement="auto"
+                            trigger="click"
+                            delay={{ show: 0, hide: 0 }}
+                            rootClose
+                            overlay={
+                              <Popover>
+                                <Popover.Title>View Settings (Temporary)<a id="viewSettingsReset" onClick={this.initializeViewSettingsObj}><i className="fas fa-undo-alt"></i></a></Popover.Title>
+                                <Popover.Content>
+                                  <ul id="viewSettingsPopoverList">
+                                    <li>Buildson <input type="checkbox" name="buildson" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.buildson}></input></li>
+                                    <li>Reference <input type="checkbox" name="references" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.references}></input></li>
+                                    <li>Group <input type="checkbox" name="showGroup" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.showGroup}></input></li>
+                                    <li>Author <input type="checkbox" name="showAuthor" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.showAuthor}></input></li>
+                                    <li>Date <input type="checkbox" name="showTime" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.showTime}></input></li>
+                                    <li>Language <input type="checkbox" name="language" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.language}></input></li>
+                                  </ul>
+                                </Popover.Content>
+                              </Popover>
+                            }>
+                            <Button className="circle-button pad sidebar-btn">
+                                <i className="fas fa-cog"></i>
+                            </Button>
+                        </OverlayTrigger>
+                        </div>
+                      ) : null}
+
                     </div>
                   </div>
                   {/* END SIDEBAR */}
