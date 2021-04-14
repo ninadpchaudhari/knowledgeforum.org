@@ -30,7 +30,6 @@ class View extends Component {
             showModal: false,
             showView: false,
             showAttachPanel: false,
-            showViewSettingsPopover: false,
             viewSettingsObj: {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true},
         }
 
@@ -51,16 +50,13 @@ class View extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (this.props.viewId && this.props.viewId !== prevProps.viewId) {
+        if(this.props.view !== prevProps.view){ this.initializeViewSettingsObj(); }
+        if(this.props.viewId && this.props.viewId !== prevProps.viewId) {
             this.props.fetchNewViewDifference(this.props.viewId);
             if (this.props.socketStatus && prevProps.viewId){//If changing view and socket connection
                 this.context.unsubscribeToView(prevProps.viewId);
                 this.context.subscribeToView(this.props.viewId);
             }
-        }
-
-        if(this.props.view !== prevProps.view){
-          this.initializeViewSettingsObj();
         }
     }
 
@@ -162,7 +158,7 @@ class View extends Component {
     // lots of error checking here as no values are guaranteed in the view object so we default TO:
     // {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true}
     initializeViewSettingsObj(){
-      var serverSideViewSettings = this.props.view.data.viewSetting;
+      var serverSideViewSettings = this.props.view.data !== undefined ? this.props.view.data.viewSetting : undefined;
       if(serverSideViewSettings !== undefined){
         var temp = {};
         temp.buildson = serverSideViewSettings.buildson !== undefined ? serverSideViewSettings.buildson : true;
