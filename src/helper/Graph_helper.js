@@ -30,8 +30,7 @@ export function addEdgesToGraph(nodes, buildson, references, viewSettings){
   for(var i = 0; i < edgeData.length; i++){
     var obj = edgeData[i];
 
-    if(obj._to.type === "Note" && obj._to.status === "active" && obj._to.title !== "" && obj._from.type === "Note" &&
-                                        obj._from.status === "active" && obj._from.title !== "" && viewSettings[obj.type] === true){
+    if(obj._to.type === "Note" && obj._to.status === "active" && obj._to.title !== "" && obj._from.type === "Note" && obj._from.status === "active" && obj._from.title !== ""){
         var fromCount = nodes.get(obj.from);
         var toCount = nodes.get(obj.to);
 
@@ -46,6 +45,7 @@ export function addEdgesToGraph(nodes, buildson, references, viewSettings){
                   target: obj.to + '-' + (parseInt(k) + 1)
                 },
                 classes: obj.type,
+                initialDisplay: viewSettings[obj.type],
               });
             }
           }

@@ -116,7 +116,7 @@ body {
 }
 
 .login-create-account-p {
-  margin-top: 30px;
+  margin-top: 10px;
   margin-bottom: 0;
   left: 30%;
   right: 30%;
@@ -231,8 +231,8 @@ body {
 }
 
 .login-appstore-img{
-  width: 150px;
-  height: 65px;
+  width: 115px;
+  height: 50px;
 }
 
 .login-modal-dialog {

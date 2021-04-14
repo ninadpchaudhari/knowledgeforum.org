@@ -71,11 +71,14 @@ class GraphView extends Component {
 
           Promise.all(graph_nodes.concat(graph_edges)).then((graph_results) => {
               var cy_elements = {nodes: [], edges: []};
+              var initialRemovedEdgeElements = {edges: []};
               for(let i = 0; i < graph_results.length; i++){
                   if(graph_results[i].group === "nodes"){
                       cy_elements.nodes.push(graph_results[i]);
-                  } else if(graph_results[i].group === "edges"){
+                  } else if(graph_results[i].group === "edges" && graph_results[i].initialDisplay === true){
                       cy_elements.edges.push(graph_results[i]);
+                  } else if(graph_results[i].group === "edges" && graph_results[i].initialDisplay === false){
+                      initialRemovedEdgeElements.edges.push(graph_results[i]);
                   } else if(graph_results[i].url && !this.supportImageIsDuplicate(si.images(), graph_results[i])){
                       si.addSupportImage(graph_results[i]);
                   }
@@ -83,6 +86,7 @@ class GraphView extends Component {
 
               self.setState({elements: cy_elements});
               self.setState({kfToCyMap: nodes});
+              self.setState({removedEdgeElements: initialRemovedEdgeElements});
               // support-images extension will not trigger a redraw if there are no images in the view - this line handles that
               if(si.images().length === 0){ si._private.renderer.redraw(); }
               // if a single new element was added to the graph - highlight it
@@ -260,7 +264,8 @@ class GraphView extends Component {
   updateViewSettings(){
     var cy = this.cy;
 
-    if(this.state.removedEdgeElements !== null) this.state.removedEdgeElements.restore();
+    if(this.state.removedEdgeElements !== null && this.state.removedEdgeElements.edges) cy.add(this.state.removedEdgeElements);
+    else if(this.state.removedEdgeElements !== null) this.state.removedEdgeElements.restore();
     this.setState({removedEdgeElements: null});
 
     var nodes = cy.nodes();
