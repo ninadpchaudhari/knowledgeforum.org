@@ -24,12 +24,14 @@ export function addNodesToGraph(server, token, nodes, nodeData, authorData, view
 
 // adds the edges to the cytoscape graph
 // parameters are cytoscape instance, notes map, and postApiLinksCommunityIdSearch results
-export function addEdgesToGraph(nodes, edgeData){
+export function addEdgesToGraph(nodes, buildson, references, viewSettings){
   var graph_edges = [];
+  var edgeData = buildson.concat(references);
   for(var i = 0; i < edgeData.length; i++){
     var obj = edgeData[i];
 
-    if(obj._to.type === "Note" && obj._to.status === "active" && obj._to.title !== "" && obj._from.type === "Note" && obj._from.status === "active" && obj._from.title !== ""){
+    if(obj._to.type === "Note" && obj._to.status === "active" && obj._to.title !== "" && obj._from.type === "Note" &&
+                                        obj._from.status === "active" && obj._from.title !== "" && viewSettings[obj.type] === true){
         var fromCount = nodes.get(obj.from);
         var toCount = nodes.get(obj.to);
 
@@ -43,7 +45,7 @@ export function addEdgesToGraph(nodes, edgeData){
                   source: obj.from + '-' + (parseInt(j) + 1),
                   target: obj.to + '-' + (parseInt(k) + 1)
                 },
-                classes: 'buildson',
+                classes: obj.type,
               });
             }
           }

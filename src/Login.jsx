@@ -67,6 +67,10 @@ class Login extends Component {
 
             <div className = "col-md-6 login-col login" id = "login">
               {formToRender}
+              <div className="login-apps-div">
+                <a href="itms-apps://apps.apple.com/us/app/id1554705711"><img className="login-appstore-img" src={app_store} alt={"Apple App Store"}/></a>
+                <a style={{marginLeft: "10px"}} href="https://play.google.com/store/apps/details?id=com.kf6mobile&hl=en_US&gl=US"><img className="login-appstore-img" src={googleplay_store} alt={"Google Play Store"}/></a>
+              </div>
             </div>
 
 
@@ -85,14 +89,6 @@ class Login extends Component {
                         <div className="login-overlay-text">Demo a Knowledge Forum</div>
                     </div>
                   </div>
-
-                  <div className="login-apps-div">
-                    <a href="itms-apps://apps.apple.com/us/app/id1554705711"><img className="login-appstore-img" src={app_store} alt={"Apple App Store"}/></a>
-                    <a style={{marginLeft: "10px"}} href="https://play.google.com/store/apps/details?id=com.kf6mobile&hl=en_US&gl=US"><img className="login-appstore-img" src={googleplay_store} alt={"Google Play Store"}/></a>
-                  </div>
-
-
-
 
                   <Modal dialogClassName="login-modal-dialog" /*show={this.state.showModal}*/ onHide={this.handleClose}>
                     <Modal.Header closeButton>

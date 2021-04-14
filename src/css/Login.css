@@ -223,6 +223,13 @@ body {
   text-align: center;
 }
 
+@media (max-width: 768px){
+  .login-apps-div {
+    background-color: white;
+    margin-top: 0;
+  }
+}
+
 .login-appstore-img{
   width: 150px;
   height: 65px;

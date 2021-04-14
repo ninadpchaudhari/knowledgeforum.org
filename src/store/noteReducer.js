@@ -26,6 +26,7 @@ export const updateCheckedNotes = createAction('UPDATE_CHECKED_NOTES')
 export const setViewLinks = createAction('SET_VIEW_LINKS')
 export const addViewLink = createAction('ADD_VIEW_LINK')
 export const setBuildsOn = createAction('SET_BUILDS_ON')
+export const setReferences = createAction('SET_REFERENCES')
 export const setSupports = createAction('SET_SUPPORTS')
 export const setRiseAboveViewNotes = createAction('SET_RISEABOVE_VIEW_NOTES')
 export const setRiseAboveNotes = createAction('SET_RISEABOVE_NOTES')
@@ -137,6 +138,9 @@ export const noteReducer = createReducer(initState, {
     },
     [setBuildsOn]: (state, action) => {
         state.buildsOn = action.payload
+    },
+    [setReferences]: (state, action) => {
+        state.references = action.payload
     },
     [setSupports]: (state, action) => {
         state.supports = action.payload
@@ -497,6 +501,12 @@ export const fetchBuildsOn = (communityId) => async (dispatch) => {
             (obj._to.type === "Note" && obj._to.status === "active" && obj._from.type === "Note" && obj._from.status === "active")
     )
     dispatch(setBuildsOn(filteredBuildOn))
+}
+
+export const fetchReferences = (communityId) => async (dispatch) => {
+   let references = await api.linksSearch(communityId, {"type": "references"});
+   const filteredReferences = references.filter((obj) => (obj._to.status === "active" && obj._to.title !== "" && obj._from.status === "active" && obj._from.title !== ""));
+   dispatch(setReferences(filteredReferences));
 }
 
 export const fetchSupports = (communityId) => async (dispatch) => {

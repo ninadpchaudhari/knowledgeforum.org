@@ -63,10 +63,10 @@ class GraphView extends Component {
           // clear the support images extension
           si._private.supportImages = [];
 
-          var viewSettingInfo = this.getViewSettingsInfo();
+          var viewSettings = this.getViewSettingsInfo();
 
-          var graph_nodes = addNodesToGraph(this.props.server, this.props.token, nodes, this.props.viewLinks, this.props.authors, viewSettingInfo);
-          var graph_edges = viewSettingInfo.buildson ? addEdgesToGraph(nodes, this.props.buildsOn) : [];
+          var graph_nodes = addNodesToGraph(this.props.server, this.props.token, nodes, this.props.viewLinks, this.props.authors, viewSettings);
+          var graph_edges = addEdgesToGraph(nodes, this.props.buildsOn, this.props.references, viewSettings);
           var self = this;
 
           Promise.all(graph_nodes.concat(graph_edges)).then((graph_results) => {
@@ -278,7 +278,7 @@ class GraphView extends Component {
             // if it does replace it with the nodeClass in the newInfo object
             var classes = nodes[i][0].classes();
             for(let j in classes){
-              if(classes[j].substring(0,13) === 'nodehtmllabel'){
+              if(classes[j].substring(0,13) === 'nodehtmllabel' && classes[j] !== newInfo.nodeClass){
                 nodes[i].removeClass(classes[j]).addClass(newInfo.nodeClass);
               }
             }
@@ -291,11 +291,11 @@ class GraphView extends Component {
         var edgesToHide = cy.collection();
         for(let i in edges){
           // if the edge is a buildson and buildson are hidden OR if the edge is a reference and references are hidden - add it to the collection of edges to be removed
-          if(edges[i][0] && ((edges[i][0].hasClass('buildson') && newInfo.buildson === false) || ((edges[i][0].hasClass('reference') && newInfo.references === false)))){
+          if(edges[i][0] && ((edges[i][0].hasClass('buildson') && newInfo.buildson === false) || ((edges[i][0].hasClass('references') && newInfo.references === false)))){
             edgesToHide = edgesToHide.union(edges[i][0]);
           }
         }
-        
+
         if(edgesToHide.length !== 0){
           var removedEdgeElements = cy.remove(edgesToHide);
           self.setState({removedEdgeElements: removedEdgeElements});
@@ -469,21 +469,23 @@ class GraphView extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-      // AN OBJECT MAPPING DIFFERENT RENDERING CASES TO BOOLEAN VALUES
-      // this is an attempt to organize and account for all the edge cases when deciding to rerender the graph
+      // AN OBJECT MAPPING DIFFERENT CASES TO BOOLEAN VALUES
+      // this is an attempt to organize and account for all the edge cases when the component updates
       let cases = {
-        anyPropUpdated: (this.props.viewId !== prevProps.viewId || this.props.buildsOn !== prevProps.buildsOn
+
+        anyPropUpdated: (this.props.viewId !== prevProps.viewId || this.props.buildsOn !== prevProps.buildsOn || this.props.references !== prevProps.references
                             || this.props.authors !== prevProps.authors || this.props.viewLinks !== prevProps.viewLinks || this.props.readLinks !== prevProps.readLinks),
 
-        nodePositionUpdated: (this.props.viewId === prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.authors === prevProps.authors
+        nodePositionUpdated: (this.props.viewId === prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.references === prevProps.references && this.props.authors === prevProps.authors
                             && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === prevProps.viewLinks.length && this.props.readLinks === prevProps.readLinks),
 
-        switchedToEmptyView: (this.props.viewId !== prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.authors === prevProps.authors
+        switchedToEmptyView: (this.props.viewId !== prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.references === prevProps.references && this.props.authors === prevProps.authors
                             && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === 0 && prevProps.viewLinks.length !== undefined),
 
         searchTriggered: (this.props.searchQuery !== prevProps.searchQuery || this.props.searchFilter !== prevProps.searchFilter),
 
         viewSettingsChanged: (this.props.viewSettings !== prevProps.viewSettings),
+
       }
 
       var forceRender = (cases.nodePositionUpdated || cases.switchedToEmptyView);
@@ -525,7 +527,8 @@ class GraphView extends Component {
                 'curve-style': 'bezier'
               }
             },
-
+            {selector: '.buildson', style: {'line-color': '#29648f', 'target-arrow-color': '#29648f'}},
+            {selector: '.references', style: {'line-color': 'black', 'target-arrow-color': 'black'}},
             {selector: '.unread-note', style: {'background-image': [unread_note_icon]}},
             {selector: '.read-note', style: {'background-image': [read_note_icon]}},
             {selector: '.unread-riseabove', style: {'background-image': [unread_riseabove_icon]}},
@@ -566,6 +569,7 @@ const mapStateToProps = (state, ownProps) => {
         viewLinks: state.notes.viewLinks,
         readLinks: state.notes.readLinks,
         buildsOn: state.notes.buildsOn,
+        references: state.notes.references,
         supports: state.notes.supports,
         searchQuery: state.globals.searchQuery,
         searchFilter: state.globals.searchFilter,

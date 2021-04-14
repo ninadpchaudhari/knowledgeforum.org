@@ -2,7 +2,7 @@ import { createAction, createReducer } from '@reduxjs/toolkit'
 import { getObject, getCommunity, getGroups, getUser, getAuthor, getCommunityViews, getCommunities, getUserCommunities } from './api.js'
 import { fetchAuthors } from './userReducer.js';
 import { fetchScaffolds } from './scaffoldReducer.js'
-import { fetchViewNotes, fetchBuildsOn, setCheckedNotes, fetchSupports, fetchReadLinks } from './noteReducer.js'
+import { fetchViewNotes, fetchBuildsOn, fetchReferences, setCheckedNotes, fetchSupports, fetchReadLinks } from './noteReducer.js'
 export const setGlobalToken = createAction('SET_TOKEN')
 export const setCurrentLoginForm = createAction('SET_CURRENT_LOGIN_FORM')
 export const setCommunity = createAction('SET_COMMUNITY')
@@ -218,6 +218,7 @@ export const fetchViewCommunityData = (viewId) => async (dispatch) => {
         { groups: [], ...community }
     ))
     dispatch(fetchBuildsOn(commId))
+    dispatch(fetchReferences(commId))
     dispatch(fetchAuthor(commId))
     dispatch(fetchCommunityViews(commId))
     dispatch(fetchAuthors(commId))
