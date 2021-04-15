@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { Link } from "react-router-dom";
-import { DropdownButton, Dropdown, Button, Row, Col, Modal, OverlayTrigger, Tooltip, Popover } from 'react-bootstrap';
+import { DropdownButton, Dropdown, Button, Row, Col, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Form, FormGroup, Label, Input } from 'reactstrap';
 import $ from 'jquery';
 import Axios from 'axios';
@@ -13,6 +13,7 @@ import TopNavBar from '../TopNavBar/TopNavbar';
 import AttachPanel from './attachmentCollapse/AttachPanel.js'
 import GraphView from '../GraphView.jsx';
 import LightView from '../View/LightView.js';
+import ViewSettingsPopover from './ViewSettingsPopover.jsx';
 import '../css/index.css';
 import "./View.css";
 import DialogHandler from './dialogHandler/DialogHandler.js'
@@ -265,29 +266,11 @@ class View extends Component {
 
                       {this.state.currentView === "Enhanced" ? (
                         <div className="sidebar-list-col col col-sm col-md-12">
-                        <OverlayTrigger
-                            placement="auto"
-                            trigger="click"
-                            delay={{ show: 0, hide: 0 }}
-                            rootClose
-                            overlay={
-                              <Popover>
-                                <Popover.Title>View Settings (Temporary)<a id="viewSettingsReset" onClick={this.initializeViewSettingsObj}><i className="fas fa-undo-alt"></i></a></Popover.Title>
-                                <Popover.Content>
-                                  <ul id="viewSettingsPopoverList">
-                                    <li>Buildson <input type="checkbox" name="buildson" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.buildson}></input></li>
-                                    <li>Reference <input type="checkbox" name="references" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.references}></input></li>
-                                    <li>Group <input type="checkbox" name="showGroup" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.showGroup}></input></li>
-                                    <li>Author <input type="checkbox" name="showAuthor" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.showAuthor}></input></li>
-                                    <li>Date <input type="checkbox" name="showTime" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.showTime}></input></li>
-                                  </ul>
-                                </Popover.Content>
-                              </Popover>
-                            }>
-                            <Button className="circle-button pad sidebar-btn">
-                                <i className="fas fa-cog"></i>
-                            </Button>
-                        </OverlayTrigger>
+                          <ViewSettingsPopover
+                              initializeViewSettingsObj={this.initializeViewSettingsObj}
+                              handleViewSettingsChange={this.handleViewSettingsChange}
+                              viewSettingsObj={this.state.viewSettingsObj}
+                          />
                         </div>
                       ) : null}
 

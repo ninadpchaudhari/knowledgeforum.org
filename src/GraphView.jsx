@@ -51,7 +51,7 @@ class GraphView extends Component {
       // ensure we have all the informationn needed to render the graph
       // if ((VIEWLINKS UPDATED OR FORCE RENDER FROM EDGE CASE) AND WE HAVE BUILDSON + AUTHORS INFO)
       // only the viewlinks prop changes between views - buildson and author info stays the same
-      if ((this.props.viewLinks.length !== this.state.currViewLinksLength || forceRender) && this.props.buildsOn.length !== 0 && Object.keys(this.props.authors).length !== 0){
+      if ((this.props.viewLinks.length !== this.state.currViewLinksLength || forceRender) && this.props.buildsOn.length !== 0 && this.props.references !== undefined && Object.keys(this.props.authors).length !== 0){
           this.setState({currViewLinksLength: this.props.viewLinks.length});
           const cy = this.cy;
           const si = cy.supportimages();
@@ -390,7 +390,7 @@ class GraphView extends Component {
         tpl: function(data){
           // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
-            return '<div>' + (data.groupName !== null ? data.groupName : '') + '<br>' + data.date + '</div>';
+            return (data.groupName !== null) ? ('<div>' + data.groupName + '<br>' + data.date + '</div>') : ('<div>' + data.date + '</div>');
           }
           return '';
         }

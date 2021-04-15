@@ -139,11 +139,13 @@ function handleAttachment(server, token, nodes, nodeData, authorData, viewSettin
       };
 
     } else {
-      return {
+
+      var nodeObject = {
         group: 'nodes',
         data: {
           id: id,
           name: nodeData._to.title,
+          groupName: null,
           author: authorName,
           date: date,
           kfId: nodeData.to,
@@ -156,6 +158,16 @@ function handleAttachment(server, token, nodes, nodeData, authorData, viewSettin
           y: nodeData.data.y
         }
       };
+
+      if(nodeData._to.group){
+        return getObject(nodeData._to.group).then(function(result){
+          nodeObject.data.groupName = result.title;
+          return nodeObject;
+        });
+      } else {
+        return nodeObject;
+      }
+
     }
   });
 }
