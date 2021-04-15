@@ -14,7 +14,7 @@ export function addNodesToGraph(server, token, nodes, nodeData, authorData){
     } else if(nodeData[i]._to.type === "Drawing" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
       graph_nodes.push(handleDrawing(server, token, nodes, nodeData[i], authorData));
     } else if(nodeData[i]._to.type === "View" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
-      graph_nodes.push(handleView(nodes, nodeData[i]));
+      graph_nodes.push(handleView(nodes, nodeData[i], authorData));
     }
   }
 
@@ -32,6 +32,7 @@ export function addEdgesToGraph(nodes, edgeData){
     if(obj._to.type === "Note" && obj._to.status === "active" && obj._to.title !== "" && obj._from.type === "Note" && obj._from.status === "active" && obj._from.title !== ""){
         var fromCount = nodes.get(obj.from);
         var toCount = nodes.get(obj.to);
+
         if(fromCount !== 'undefined' && toCount !== 'undefined'){
           for(var j = 0; j < fromCount; j++){
             for(var k = 0; k < toCount; k++){
@@ -104,10 +105,10 @@ function handleAttachment(server, token, nodes, nodeData, authorData){
       }
 
       var bounds = {
-        x: nodeData.data.x || 0,
-        y: nodeData.data.y || 0,
-        width: nodeData.data.width || 0,
-        height: nodeData.data.height || 0,
+        x: nodeData.data ? nodeData.data.x : 0,
+        y: nodeData.data ? nodeData.data.y : 0,
+        width: nodeData.data ? nodeData.data.width : 0,
+        height: nodeData.data ? nodeData.data.height : 0,
       };
 
       return {
@@ -115,7 +116,10 @@ function handleAttachment(server, token, nodes, nodeData, authorData){
         name: nodeData._to.title,
         bounds: bounds,
         locked: false,
-          linkId: nodeData._id
+        linkId: nodeData._id,
+        author: authorName,
+        kfId: nodeData.to,
+        type: nodeData._to.type,
       };
 
     } else {
@@ -143,6 +147,7 @@ function handleAttachment(server, token, nodes, nodeData, authorData){
 
 // handles adding drawings to the cytoscape instance
 function handleDrawing(server, token, nodes, nodeData, authorData){
+  var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
 
   return getApiObjectsObjectId(token, server, nodeData.to).then(function(result){
     var parser = new DOMParser();
@@ -158,18 +163,21 @@ function handleDrawing(server, token, nodes, nodeData, authorData){
     var node_height = node_width/aspect_ratio;
 
     var bounds = {
-      x: nodeData.data.x,
-      y: nodeData.data.y,
-      height: node_height,
-      width: parseInt(nodeData.data.width)
+      x: nodeData.data ? nodeData.data.x : 0,
+      y: nodeData.data ? nodeData.data.y : 0,
+      height: nodeData.data ? node_height : 0,
+      width: nodeData.data ? parseInt(nodeData.data.width) : 0,
     };
 
     return {
-        url: 'data:image/svg+xml;utf8,' + encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>' + result.data.svg),
-        name: nodeData._to.title,
-        bounds: bounds,
-        locked: false,
-        linkId: nodeData._id
+      url: 'data:image/svg+xml;utf8,' + encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>' + result.data.svg),
+      name: nodeData._to.title,
+      bounds: bounds,
+      locked: false,
+      author: authorName,
+      kfId: nodeData.to,
+      type: nodeData._to.type,
+      linkId: nodeData._id
     };
 
   });
@@ -177,12 +185,14 @@ function handleDrawing(server, token, nodes, nodeData, authorData){
 
 
 // handles adding a link to another view
-function handleView(nodes, nodeData){
+function handleView(nodes, nodeData, authorData){
   var id = createCytoscapeId(nodes, nodeData.to);
+  var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   return {
     group: 'nodes',
     data: {
       id: id,
+      author: authorName,
       name: nodeData._to.title,
       kfId: nodeData.to,
       type: nodeData._to.type,
