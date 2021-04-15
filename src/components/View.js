@@ -6,7 +6,7 @@ import { Form, FormGroup, Label, Input } from 'reactstrap';
 import $ from 'jquery';
 import Axios from 'axios';
 import { apiUrl, getCommunity, putCommunity, postLink, getViews } from '../store/api.js';
-import { setViewId, fetchViewCommunityData, fetchNewViewDifference } from '../store/globalsReducer.js'
+import { setViewId, fetchViewCommunityData, fetchNewViewDifference, fetchCommunitySettings } from '../store/globalsReducer.js'
 import { setViewLinks, setBuildsOn, setReadLinks, newNote, openContribution, newDrawing } from '../store/noteReducer.js'
 import { clearAuthors } from '../store/userReducer.js';
 import TopNavBar from '../TopNavBar/TopNavbar';
@@ -50,7 +50,7 @@ class View extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if(this.props.view !== prevProps.view){ this.initializeViewSettingsObj(); }
+        if(this.props.view !== prevProps.view || this.props.communitySettings !== prevProps.communitySettings){ this.initializeViewSettingsObj(); }
         if(this.props.viewId && this.props.viewId !== prevProps.viewId) {
             this.props.fetchNewViewDifference(this.props.viewId);
             if (this.props.socketStatus && prevProps.viewId){//If changing view and socket connection
@@ -155,22 +155,16 @@ class View extends Component {
     }
 
     // function that resets the view settings to the values provided from the server
-    // lots of error checking here as no values are guaranteed in the view object so we default TO:
+    // lots of error checking here as no values are guaranteed so we default TO:
     // {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true}
     initializeViewSettingsObj(){
-      var serverSideViewSettings = this.props.view.data !== undefined ? this.props.view.data.viewSetting : undefined;
-      if(serverSideViewSettings !== undefined){
-        var temp = {};
-        temp.buildson = serverSideViewSettings.buildson !== undefined ? serverSideViewSettings.buildson : true;
-        temp.language = serverSideViewSettings.language !== undefined ? serverSideViewSettings.language : false;
-        temp.references = serverSideViewSettings.references !== undefined ? serverSideViewSettings.references : false;
-        temp.showAuthor = serverSideViewSettings.showAuthor !== undefined ? serverSideViewSettings.showAuthor : true;
-        temp.showGroup = serverSideViewSettings.showGroup !== undefined ? serverSideViewSettings.showGroup : false;
-        temp.showTime = serverSideViewSettings.showTime !== undefined ? serverSideViewSettings.showTime : true;
-        this.setState({viewSettingsObj: temp});
-      } else {
-        this.setState({viewSettingsObj: {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true}});
-      }
+      var viewSettings = (this.props.view != null && this.props.view.data) ? this.props.view.data.viewSetting : undefined;
+      var commSettings = (this.props.communitySettings != null && this.props.communitySettings.data) ? this.props.communitySettings.data.viewSetting : undefined;
+      var temp = {};
+      if(viewSettings !== undefined){ temp = viewSettings; }
+      else if(commSettings !== undefined) { temp = commSettings; }
+      else { temp = {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true}; }
+      this.setState({viewSettingsObj: temp});
     }
 
     // handles updating the viewSettingsObj according to the checked values in the popover on the sidebar
@@ -367,6 +361,7 @@ const mapStateToProps = (state, ownProps) => {
         token: state.globals.token,
         currentServer: state.globals.currentServer,
         communityId: state.globals.communityId,
+        communitySettings: state.globals.communitySettings,
         viewId: state.globals.viewId,
         view: state.globals.view,
         author: state.globals.author,
