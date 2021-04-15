@@ -39,7 +39,7 @@ const initState = {
     view: null,
     views: [],
     community: null,
-    commmunitySettings: null,
+    communitySettings: null,
     userId: '',
     isAuthenticated: sessionStorage.getItem("token") ? true : false,
     communities: [],

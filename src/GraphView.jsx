@@ -250,10 +250,14 @@ class GraphView extends Component {
   getViewSettingsInfo(){
     var viewSettings = this.props.viewSettings;
     var result = {};
-    if(viewSettings.showAuthor && viewSettings.showTime){ result.nodeClass = 'nodehtmllabel-author-date'; }
-    else if(viewSettings.showAuthor && !viewSettings.showTime) { result.nodeClass = 'nodehtmllabel-author-nodate'; }
-    else if(!viewSettings.showAuthor && viewSettings.showTime) { result.nodeClass = 'nodehtmllabel-noauthor-date'; }
-    else if(!viewSettings.showAuthor && !viewSettings.showTime) { result.nodeClass = 'nodehtmllabel-noauthor-nodate'; }
+    if(viewSettings.showGroup && viewSettings.showAuthor && viewSettings.showTime){ result.nodeClass = 'nodehtmllabel-group-author-date'; }
+    else if(viewSettings.showGroup && viewSettings.showAuthor && !viewSettings.showTime){ result.nodeClass = 'nodehtmllabel-group-author-nodate'; }
+    else if(viewSettings.showGroup && !viewSettings.showAuthor && viewSettings.showTime){ result.nodeClass = 'nodehtmllabel-group-noauthor-date'; }
+    else if(viewSettings.showGroup && !viewSettings.showAuthor && !viewSettings.showTime) { result.nodeClass = 'nodehtmllabel-group-noauthor-nodate'; }
+    else if(!viewSettings.showGroup && viewSettings.showAuthor && viewSettings.showTime) { result.nodeClass = 'nodehtmllabel-nogroup-author-date'; }
+    else if(!viewSettings.showGroup && viewSettings.showAuthor && !viewSettings.showTime) { result.nodeClass = 'nodehtmllabel-nogroup-author-nodate'; }
+    else if(!viewSettings.showGroup && !viewSettings.showAuthor && viewSettings.showTime) { result.nodeClass = 'nodehtmllabel-nogroup-noauthor-date'; }
+    else if(!viewSettings.showGroup && !viewSettings.showAuthor && !viewSettings.showTime) { result.nodeClass = 'nodehtmllabel-nogroup-noauthor-nodate'; }
 
     result.buildson = viewSettings.buildson;
     result.references = viewSettings.references;
@@ -347,7 +351,67 @@ class GraphView extends Component {
     // CYTOSCAPE-NODE-HTML-LABEL EXTENSION
     cy.nodeHtmlLabel([
       {
-        query: '.nodehtmllabel-author-date',
+        query: '.nodehtmllabel-group-author-date',
+        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
+        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
+        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        tpl: function(data){
+          // we only want author and creation date listed for notes
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+            return '<div>' + (data.groupName !== null ? data.groupName : data.author) + '<br>' + data.date + '</div>';
+          }
+          return '';
+        }
+      },
+      {
+        query: '.nodehtmllabel-group-author-nodate',
+        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
+        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
+        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        tpl: function(data){
+          // we only want author and creation date listed for notes
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+            return '<div>' + (data.groupName !== null ? data.groupName : data.author) + '</div>';
+          }
+          return '';
+        }
+      },
+      {
+        query: '.nodehtmllabel-group-noauthor-date',
+        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
+        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
+        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        tpl: function(data){
+          // we only want author and creation date listed for notes
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+            return '<div>' + (data.groupName !== null ? data.groupName : '') + '<br>' + data.date + '</div>';
+          }
+          return '';
+        }
+      },
+      {
+        query: '.nodehtmllabel-group-noauthor-nodate',
+        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
+        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
+        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        tpl: function(data){
+          // we only want author and creation date listed for notes
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+            return '<div>' + (data.groupName !== null ? data.groupName : '') + '</div>';
+          }
+          return '';
+        }
+      },
+      {
+        query: '.nodehtmllabel-nogroup-author-date',
         halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
         valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
         halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
@@ -357,13 +421,12 @@ class GraphView extends Component {
           // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
             return '<div>' + data.author + '<br>' + data.date + '</div>';
-          } else {
-            return '';
           }
+          return '';
         }
       },
       {
-        query: '.nodehtmllabel-author-nodate',
+        query: '.nodehtmllabel-nogroup-author-nodate',
         halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
         valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
         halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
@@ -373,13 +436,12 @@ class GraphView extends Component {
           // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
             return '<div>' + data.author + '</div>';
-          } else {
-            return '';
           }
+          return '';
         }
       },
       {
-        query: '.nodehtmllabel-noauthor-date',
+        query: '.nodehtmllabel-nogroup-noauthor-date',
         halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
         valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
         halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
@@ -389,20 +451,19 @@ class GraphView extends Component {
           // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
             return '<div>' + data.date + '</div>';
-          } else {
-            return '';
           }
+          return '';
         }
       },
       {
-        query: '.nodehtmllabel-noauthor-nodate',
+        query: '.nodehtmllabel-nogroup-noauthor-nodate',
         halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
         valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
         halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
         valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
         cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
         tpl: function(data){
-            return '';
+          return '';
         }
       },
     ]);

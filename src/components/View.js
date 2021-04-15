@@ -6,7 +6,7 @@ import { Form, FormGroup, Label, Input } from 'reactstrap';
 import $ from 'jquery';
 import Axios from 'axios';
 import { apiUrl, getCommunity, putCommunity, postLink, getViews } from '../store/api.js';
-import { setViewId, fetchViewCommunityData, fetchNewViewDifference, fetchCommunitySettings } from '../store/globalsReducer.js'
+import { setViewId, fetchViewCommunityData, fetchNewViewDifference } from '../store/globalsReducer.js'
 import { setViewLinks, setBuildsOn, setReadLinks, newNote, openContribution, newDrawing } from '../store/noteReducer.js'
 import { clearAuthors } from '../store/userReducer.js';
 import TopNavBar from '../TopNavBar/TopNavbar';
@@ -248,7 +248,7 @@ class View extends Component {
                           placement="auto"
                           delay={{ show: 250, hide: 400 }}
                           overlay={this.renderTooltip({ message: "Exit Community" })}>
-                          <Button onClick={this.goToDashboard} className="circle-button sidebar-btn"><i className="fa fa-arrow-left"></i></Button>
+                          <Button onClick={this.goToDashboard} className="circle-button sidebar-btn"><i className="fas fa-home"></i></Button>
                       </OverlayTrigger>
                       </div>
 
@@ -280,7 +280,6 @@ class View extends Component {
                                     <li>Group <input type="checkbox" name="showGroup" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.showGroup}></input></li>
                                     <li>Author <input type="checkbox" name="showAuthor" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.showAuthor}></input></li>
                                     <li>Date <input type="checkbox" name="showTime" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.showTime}></input></li>
-                                    <li>Language <input type="checkbox" name="language" onChange={this.handleViewSettingsChange} checked={this.state.viewSettingsObj.language}></input></li>
                                   </ul>
                                 </Popover.Content>
                               </Popover>

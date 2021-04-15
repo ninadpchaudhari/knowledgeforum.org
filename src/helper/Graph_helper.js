@@ -1,4 +1,5 @@
 import {getApiObjectsObjectId} from '../api/object.js';
+import {getObject} from '../store/api.js';
 
 // adds the notes to the cytoscape graph
 // parameters are token, cytoscape instance, cytoscape-supportimage instance, notes map, getApiLinksFromViewId, getApiLinksReadStatus, and getCommunityAuthors results
@@ -8,7 +9,7 @@ export function addNodesToGraph(server, token, nodes, nodeData, authorData, view
     var id = createCytoscapeId(nodes, nodeData[i].to);
 
     if(nodeData[i]._to.type === "Note" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
-      graph_nodes.push(handleNote(id, nodeData[i], authorData, viewSettings));
+      graph_nodes.push(handleNote(server, token, id, nodeData[i], authorData, viewSettings));
     } else if(nodeData[i]._to.type === "Attachment" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
       graph_nodes.push(handleAttachment(server, token, nodes, nodeData[i], authorData, viewSettings));
     } else if(nodeData[i]._to.type === "Drawing" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
@@ -59,10 +60,11 @@ export function addEdgesToGraph(nodes, buildson, references, viewSettings){
 
 
 // handles adding notes to the cytoscape instance
-function handleNote(id, nodeData, authorData, viewSettings){
+function handleNote(server, token, id, nodeData, authorData, viewSettings){
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var date = parseDate(nodeData.created);
   var readStatus, type;
+
 
   // handles whether it is a note or a riseabove
   if(nodeData._to.data === undefined){
@@ -73,11 +75,12 @@ function handleNote(id, nodeData, authorData, viewSettings){
     type = "riseabove";
   }
 
-  return {
+  var noteObject = {
       group: 'nodes',
       data: {
         id: id,
         name: nodeData._to.title,
+        groupName: null,
         author: authorName,
         date: date,
         kfId: nodeData.to,
@@ -89,6 +92,16 @@ function handleNote(id, nodeData, authorData, viewSettings){
         y: nodeData.data.y
       }
   };
+
+  // handles whether a group is specified or not
+  if(nodeData._to.group){
+    return getObject(nodeData._to.group).then(function(result){
+      noteObject.data.groupName = result.title;
+      return noteObject;
+    });
+  } else {
+    return noteObject;
+  }
 }
 
 
