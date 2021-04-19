@@ -33,7 +33,7 @@ class GraphView extends Component {
       kfToCyMap: null,
       removedSearchElements: null,
       removedEdgeElements: null,
-      currViewLinksLength: 0
+      currViewLinksLength: 0,
     };
 
     this.loadElements = this.loadElements.bind(this);
@@ -248,7 +248,7 @@ class GraphView extends Component {
 
   // formats the view settings to be used in cytoscape
   getViewSettingsInfo(){
-    var viewSettings = this.props.viewSettings;
+    var viewSettings = this.props.currViewSettingsObj;
     var result = {};
     if(viewSettings.showGroup && viewSettings.showAuthor && viewSettings.showTime){ result.nodeClass = 'nodehtmllabel-group-author-date'; }
     else if(viewSettings.showGroup && viewSettings.showAuthor && !viewSettings.showTime){ result.nodeClass = 'nodehtmllabel-group-author-nodate'; }
@@ -550,7 +550,7 @@ class GraphView extends Component {
 
         searchTriggered: (this.props.searchQuery !== prevProps.searchQuery || this.props.searchFilter !== prevProps.searchFilter),
 
-        viewSettingsChanged: (this.props.viewSettings !== prevProps.viewSettings),
+        viewSettingsChanged: (this.props.currViewSettingsObj !== prevProps.currViewSettingsObj),
 
       }
 
@@ -639,6 +639,7 @@ const mapStateToProps = (state, ownProps) => {
         supports: state.notes.supports,
         searchQuery: state.globals.searchQuery,
         searchFilter: state.globals.searchFilter,
+        currViewSettingsObj: state.globals.currViewSettingsObj,
     }
 }
 

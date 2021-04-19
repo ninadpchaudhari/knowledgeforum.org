@@ -12,6 +12,7 @@ export const setCurrentServer = createAction('SET_CURRENT_SERVER')
 export const setViewId = createAction('SET_VIEW_ID')
 export const setLoggedUser = createAction('SET_AUTHOR')
 export const setView = createAction('SET_VIEW')
+export const setCurrViewSettingsObj = createAction('SET_CURRENT_VIEW_SETTINGS_OBJ');
 export const setAuthor = createAction('SET_AUTHOR')
 export const setViews = createAction('SET_VIEWS')
 export const editCommunity = createAction('EDIT_COMMUNITY')
@@ -38,6 +39,9 @@ const initState = {
     user: null,
     view: null,
     views: [],
+    currViewSettingsObj: {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true},
+    thisViewsViewSettingsObj: null,
+    communityViewSettingsObj: null,
     community: null,
     communitySettings: null,
     userId: '',
@@ -115,6 +119,12 @@ export const globalsReducer = createReducer(initState, {
     },
     [setView]: (state, action) => {
         state.view = action.payload
+        if(action.payload.data && action.payload.data.viewSetting){
+          state.thisViewsViewSettingsObj = action.payload.data.viewSetting
+        }
+    },
+    [setCurrViewSettingsObj]: (state, action) => {
+        state.currViewSettingsObj = action.payload
     },
     [setViews]: (state, action) => {
         state.views = action.payload
@@ -126,6 +136,9 @@ export const globalsReducer = createReducer(initState, {
     },
     [setCommunitySettings]: (state, action) => {
         state.communitySettings = action.payload
+        if(action.payload.data && action.payload.data.viewSetting){
+          state.communityViewSettingsObj = action.payload.data.viewSetting
+        }
     },
     [editCommunity]: (state, action) => {
         state.community = { ...state.community, ...action.payload }

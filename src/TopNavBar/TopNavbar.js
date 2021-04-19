@@ -93,6 +93,7 @@ class TopNavbar extends Component {
 
     return (
       <Navbar className="viewNavBar">
+        <Button className='mr-2 viewNavBar-logout-btn' onClick={this.props.goToDashboard}><i className="fas fa-home"></i></Button>
         <Navbar.Brand className="viewNavBar-brand d-none d-sm-block">{this.props.communityTitle}</Navbar.Brand>
 
         <Navbar.Text className="viewNavBar-dropdown-title">View:</Navbar.Text>

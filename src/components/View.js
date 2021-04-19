@@ -3,7 +3,6 @@ import { connect } from 'react-redux'
 import { Link } from "react-router-dom";
 import { DropdownButton, Dropdown, Button, Row, Col, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Form, FormGroup, Label, Input } from 'reactstrap';
-import $ from 'jquery';
 import Axios from 'axios';
 import { apiUrl, getCommunity, putCommunity, postLink, getViews } from '../store/api.js';
 import { setViewId, fetchViewCommunityData, fetchNewViewDifference } from '../store/globalsReducer.js'
@@ -31,7 +30,6 @@ class View extends Component {
             showModal: false,
             showView: false,
             showAttachPanel: false,
-            viewSettingsObj: {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true},
         }
 
         this.clearGraphViewProps = this.clearGraphViewProps.bind(this);
@@ -40,8 +38,6 @@ class View extends Component {
         this.handleNewViewSubmit = this.handleNewViewSubmit.bind(this);
         this.newView = this.newView.bind(this);
         this.handleShow = this.handleShow.bind(this);
-        this.initializeViewSettingsObj = this.initializeViewSettingsObj.bind(this);
-        this.handleViewSettingsChange = this.handleViewSettingsChange.bind(this);
     }
 
     componentDidMount() {
@@ -51,7 +47,6 @@ class View extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if(this.props.view !== prevProps.view || this.props.communitySettings !== prevProps.communitySettings){ this.initializeViewSettingsObj(); }
         if(this.props.viewId && this.props.viewId !== prevProps.viewId) {
             this.props.fetchNewViewDifference(this.props.viewId);
             if (this.props.socketStatus && prevProps.viewId){//If changing view and socket connection
@@ -155,31 +150,6 @@ class View extends Component {
         });
     }
 
-    // function that resets the view settings to the values provided from the server
-    // lots of error checking here as no values are guaranteed so we default TO:
-    // {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true}
-    initializeViewSettingsObj(){
-      var viewSettings = (this.props.view != null && this.props.view.data) ? this.props.view.data.viewSetting : undefined;
-      var commSettings = (this.props.communitySettings != null && this.props.communitySettings.data) ? this.props.communitySettings.data.viewSetting : undefined;
-      var temp = {};
-      if(viewSettings !== undefined){ temp = viewSettings; }
-      else if(commSettings !== undefined) { temp = commSettings; }
-      else { temp = {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true}; }
-      this.setState({viewSettingsObj: temp});
-    }
-
-    // handles updating the viewSettingsObj according to the checked values in the popover on the sidebar
-    handleViewSettingsChange(e){
-      var viewSettingsObj = {};
-      const domElem = e.target.parentNode;
-      const siblings = $(domElem).siblings();
-      viewSettingsObj[e.target.name] = e.target.checked;
-      for(let i = 0; i < siblings.length; i++){
-        viewSettingsObj[siblings[i].childNodes[1].name] = siblings[i].childNodes[1].checked;
-      }
-      this.setState({viewSettingsObj: viewSettingsObj});
-    }
-
     goToDashboard = () => {
         this.clearGraphViewProps();
         this.props.history.push("/dashboard");
@@ -198,7 +168,7 @@ class View extends Component {
 
     render(){
       let viewToRender = this.state.currentView === "Enhanced" ?
-                <GraphView currentView={this.state.currentView} onViewClick={this.onViewClick} onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")} viewSettings={this.state.viewSettingsObj}/> :
+                <GraphView currentView={this.state.currentView} onViewClick={this.onViewClick} onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}/> :
                 <LightView/>;
 
       return(
@@ -210,7 +180,7 @@ class View extends Component {
                   onClose={() => this.setState({showAttachPanel: false})}
               />
               <div className="row">
-                  {<TopNavBar currentView={this.state.currentView} onViewClick={this.onViewClick} communityTitle={this.state.communityTitle}></TopNavBar>}
+                  {<TopNavBar currentView={this.state.currentView} onViewClick={this.onViewClick} goToDashboard={this.goToDashboard} communityTitle={this.state.communityTitle}></TopNavBar>}
               </div>
 
               <div className="row flex-grow-1">
@@ -244,35 +214,21 @@ class View extends Component {
                       </OverlayTrigger>
                       </div>
 
-                      <div className="sidebar-list-col col col-sm col-md-12">
+                      {/*<div className="sidebar-list-col col col-sm col-md-12">
                       <OverlayTrigger
                           placement="auto"
                           delay={{ show: 250, hide: 400 }}
                           overlay={this.renderTooltip({ message: "Exit Community" })}>
                           <Button onClick={this.goToDashboard} className="circle-button sidebar-btn"><i className="fas fa-home"></i></Button>
                       </OverlayTrigger>
-                      </div>
+                      </div>*/}
 
                       <div className="sidebar-list-col col col-sm col-md-12">
-                      <OverlayTrigger
-                          placement="auto"
-                          delay={{ show: 250, hide: 400 }}
-                          overlay={this.renderTooltip({ message: "Change View" })}>
-                          <Button onClick={this.switchView} className="circle-button pad sidebar-btn">
-                              <i className="fa fa-globe"></i>
-                          </Button>
-                      </OverlayTrigger>
+                        <ViewSettingsPopover
+                            currentView={this.state.currentView}
+                            switchView={this.switchView}
+                        />
                       </div>
-
-                      {this.state.currentView === "Enhanced" ? (
-                        <div className="sidebar-list-col col col-sm col-md-12">
-                          <ViewSettingsPopover
-                              initializeViewSettingsObj={this.initializeViewSettingsObj}
-                              handleViewSettingsChange={this.handleViewSettingsChange}
-                              viewSettingsObj={this.state.viewSettingsObj}
-                          />
-                        </div>
-                      ) : null}
 
                     </div>
                   </div>
@@ -343,7 +299,6 @@ const mapStateToProps = (state, ownProps) => {
         token: state.globals.token,
         currentServer: state.globals.currentServer,
         communityId: state.globals.communityId,
-        communitySettings: state.globals.communitySettings,
         viewId: state.globals.viewId,
         view: state.globals.view,
         author: state.globals.author,
