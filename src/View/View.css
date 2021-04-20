@@ -26,7 +26,7 @@
     z-index: 1000 !important;
 }
 
-#viewSettingsPopoverList, #communitySettingsPopoverList {
+.settingsPopoverList {
   list-style: none !important;
   padding: 0;
   margin: 0;
@@ -63,7 +63,7 @@
   border-right: 1px solid #ebebeb;
 }
 
-#viewSettingsPopoverList > li > input[type='checkbox'], #communitySettingsPopoverList > li > input[type='checkbox'] {
+.settingsPopoverList > li > input[type='checkbox'] {
   float: right;
 }
 
@@ -72,12 +72,14 @@
   margin-left: 3px;
 }
 
-#saveCommunitySettingsIcon {
+.saveCommunitySettingsIcon {
   float: right;
+  margin-left: 3px;
 }
 
-#saveCommunitySettingsIcon > i {
+.saveCommunitySettingsIcon > i {
   font-size: 1.5rem;
+  color: #212529;
 }
 
 #viewSettingsReset > i {
@@ -85,7 +87,7 @@
   color: #212529;
 }
 
-#viewSettingsReset:hover, #saveCommunitySettingsIcon:hover {
+#viewSettingsReset:hover, .saveCommunitySettingsIcon:hover {
   cursor: pointer;
 }
 
