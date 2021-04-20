@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import { Row, Col, OverlayTrigger, Popover, Button } from 'react-bootstrap';
-//import { Input } from 'reactstrap'
 import { connect } from 'react-redux'
 import $ from 'jquery';
 import { putObject } from '../store/api.js';
+import { updateViewObject, updateCommunityContextObject } from '../store/async_actions.js';
 import { setView, setCommunitySettings, setCurrViewSettingsObj } from '../store/globalsReducer.js';
 
 class ViewSettingsPopover extends Component {
@@ -80,16 +80,14 @@ class ViewSettingsPopover extends Component {
   pushViewSettingsChange(){
     var newObject = JSON.parse(JSON.stringify(this.props.view));
     newObject.data.viewSetting = Object.assign({}, this.state.thisViewsViewSettingObj);
-    this.props.setView(newObject);
-    console.log(newObject);
+    this.props.updateViewObject(newObject);
   }
 
   // updates this communitys context setting object in redux and on the backend
   pushCommunitySettingsChange(){
     var newObject = JSON.parse(JSON.stringify(this.props.communitySettings));
     newObject.data.viewSetting = Object.assign({}, this.state.communityViewSettingsObj);
-    this.props.setCommunitySettings(newObject);
-    console.log(newObject);
+    this.props.updateCommunityContextObject(newObject);
   }
 
   render() {
@@ -183,7 +181,9 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = {
     setView,
     setCommunitySettings,
-    setCurrViewSettingsObj
+    setCurrViewSettingsObj,
+    updateViewObject,
+    updateCommunityContextObject,
 }
 
 export default connect(
