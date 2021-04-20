@@ -70,16 +70,22 @@
 #viewSettingsReset {
   margin-top: 3px;
   margin-left: 3px;
-  border: 1px solid #212529;;
-  border-radius: 4px;
-  padding: 2px;
+}
+
+#saveCommunitySettingsIcon {
+  float: right;
+}
+
+#saveCommunitySettingsIcon > i {
+  font-size: 1.5rem;
 }
 
 #viewSettingsReset > i {
+  font-size: 1.2rem;
   color: #212529;
 }
 
-#viewSettingsReset:hover {
+#viewSettingsReset:hover, #saveCommunitySettingsIcon:hover {
   cursor: pointer;
 }
 
