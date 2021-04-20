@@ -63,32 +63,36 @@
   border-right: 1px solid #ebebeb;
 }
 
+.viewSettingsPopoverContent {
+  padding: 0;
+}
+
+.viewSettingsCardHeader {
+  padding: 0;
+}
+
+.viewSettingsCardHeader > button, .viewSettingsCardHeader > button:hover {
+  color: #212529;
+}
+
+.viewSettingsCardBody {
+  padding: 0.5rem 0.75rem;
+}
+
+.viewSettingsPopoverButton {
+  background-color: #2d5085;
+  border-color: #2d5085;
+  color: white;
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: 0.875rem;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
 .settingsPopoverList > li > input[type='checkbox'] {
   float: right;
-}
-
-#viewSettingsReset {
-  margin-top: 3px;
-  margin-left: 3px;
-}
-
-.saveCommunitySettingsIcon {
-  float: right;
-  margin-left: 3px;
-}
-
-.saveCommunitySettingsIcon > i {
-  font-size: 1.5rem;
-  color: #212529;
-}
-
-#viewSettingsReset > i {
-  font-size: 1.2rem;
-  color: #212529;
-}
-
-#viewSettingsReset:hover, .saveCommunitySettingsIcon:hover {
-  cursor: pointer;
 }
 
 .v-scroll{

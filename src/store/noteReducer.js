@@ -263,6 +263,7 @@ export const newDrawing = (viewId, communityId, authorId) => async dispatch => {
         status: 'unsaved',
         permission: 'protected',
         data: {
+            // eslint-disable-next-line
             svg: '<svg width="200" height="200" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g><title>Layer 1<\/title><\/g><\/svg>',
         }
     }
