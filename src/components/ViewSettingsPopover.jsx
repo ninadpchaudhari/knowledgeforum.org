@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import { Row, Col, OverlayTrigger, Popover, Accordion, Card, Button } from 'react-bootstrap';
-import { connect } from 'react-redux'
+import { connect } from 'react-redux';
 import $ from 'jquery';
 import { updateViewObject, updateCommunityContextObject } from '../store/async_actions.js';
 import { setView, setCommunitySettings, setCurrViewSettingsObj } from '../store/globalsReducer.js';
@@ -11,19 +11,21 @@ class ViewSettingsPopover extends Component {
     super(props);
     this.state = {
       tempViewSettingObj: {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true},
-      thisViewsViewSettingObj: {buildson: false, language: false, references: false, showAuthor: false, showGroup: false, showTime: false},
-      communityViewSettingsObj: {buildson: false, language: false, references: false, showAuthor: false, showGroup: false, showTime: false}
+      thisViewsViewSettingObj: null,
+      communityViewSettingsObj: {buildson: false, language: false, references: false, showAuthor: false, showGroup: false, showTime: false},
     }
 
     this.initializeSettings = this.initializeSettings.bind(this);
     this.handleViewTypeChange = this.handleViewTypeChange.bind(this);
     this.handleViewSettingsChange = this.handleViewSettingsChange.bind(this);
+    this.toggleViewSettingEnable = this.toggleViewSettingEnable.bind(this);
     this.pushViewSettingsChange = this.pushViewSettingsChange.bind(this);
     this.pushCommunitySettingsChange = this.pushCommunitySettingsChange.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState){
-    if(this.props.view !== prevProps.view || this.props.communitySettings !== prevProps.communitySettings){
+    if(this.props.thisViewsViewSettingObj !== prevProps.thisViewsViewSettingObj || this.props.communityViewSettingsObj !== prevProps.communityViewSettingsObj
+            || this.props.view !== prevProps.view || this.props.communitySettings !== prevProps.communitySettings){
       this.initializeSettings();
     }
   }
@@ -31,7 +33,7 @@ class ViewSettingsPopover extends Component {
   // used to set initial values for each of the viewSettingObj states
   initializeSettings(){
     // assign values for this specific view and the community settings if they exist
-    if(this.props.thisViewsViewSettingObj !== null){ this.setState({thisViewsViewSettingObj: this.props.thisViewsViewSettingObj}); }
+    this.setState({thisViewsViewSettingObj: (this.props.thisViewsViewSettingObj !== null ? this.props.thisViewsViewSettingObj : null)})
     if(this.props.communityViewSettingsObj !== null){ this.setState({communityViewSettingsObj: this.props.communityViewSettingsObj}); }
 
     // set the current view setting values (tempViewSettingObj) to the settings
@@ -75,11 +77,27 @@ class ViewSettingsPopover extends Component {
     }
   }
 
+  // handles the enabling and disabling of specific view settings by the manager
+  // if a view objects viewSetting attribute is null the option is disabled
+  // when enabling we just default all values to false, if the user sets values and saves them then it will update the view object and enable specific view settings
+  toggleViewSettingEnable(){
+    var isCurrentlyEnabled = this.state.thisViewsViewSettingObj !== null;
+    if(isCurrentlyEnabled){
+      var newObject = JSON.parse(JSON.stringify(this.props.view));
+      newObject.data.viewSetting = null;
+      this.props.setView(newObject);
+      // this.props.updateViewObject(newObject);
+    } else {
+      this.setState({thisViewsViewSettingObj: {buildson: false, language: false, references: false, showAuthor: false, showGroup: false, showTime: false}});
+    }
+  }
+
   // updates this specific views settings in redux and on the backend
   pushViewSettingsChange(){
     var newObject = JSON.parse(JSON.stringify(this.props.view));
     newObject.data.viewSetting = Object.assign({}, this.state.thisViewsViewSettingObj);
-    this.props.updateViewObject(newObject);
+    this.props.setView(newObject);
+    //this.props.updateViewObject(newObject);
   }
 
   // updates this communitys context setting object in redux and on the backend
@@ -90,6 +108,8 @@ class ViewSettingsPopover extends Component {
   }
 
   render() {
+    var thisViewsViewSettingEnabled = this.state.thisViewsViewSettingObj !== null;
+
     return (
       <OverlayTrigger
           placement="auto"
@@ -116,7 +136,7 @@ class ViewSettingsPopover extends Component {
                     {/* TEMPORARY VIEW SETTINGS */}
                     <Card>
                         <Card.Header className="viewSettingsCardHeader">
-                          <Accordion.Toggle as={Button} variant="link" eventKey="0">View Settings (Temporary)</Accordion.Toggle>
+                          <Accordion.Toggle as={Button} variant="link" eventKey="0">View Settings (Temporary) <i className="fas fa-angle-down"/></Accordion.Toggle>
                         </Card.Header>
                         <Accordion.Collapse eventKey="0">
                           <Card.Body className="viewSettingsCardBody">
@@ -137,18 +157,25 @@ class ViewSettingsPopover extends Component {
                     {(this.props.author && this.props.author.role === "manager") ? (
                       <Card>
                           <Card.Header className="viewSettingsCardHeader">
-                            <Accordion.Toggle as={Button} variant="link" eventKey="1">View Settings (Permanent)</Accordion.Toggle>
+                            <Accordion.Toggle as={Button} variant="link" eventKey="1">View Settings (Permanent) <i className="fas fa-angle-down"/></Accordion.Toggle>
                           </Card.Header>
                           <Accordion.Collapse eventKey="1">
                             <Card.Body className="viewSettingsCardBody">
                                 <ul id="viewSettingsPopoverList" className="settingsPopoverList">
-                                  <li>Buildson <input type="checkbox" name="buildson" onChange={this.handleViewSettingsChange} checked={this.state.thisViewsViewSettingObj.buildson}></input></li>
-                                  <li>Reference <input type="checkbox" name="references" onChange={this.handleViewSettingsChange} checked={this.state.thisViewsViewSettingObj.references}></input></li>
-                                  <li>Group <input type="checkbox" name="showGroup" onChange={this.handleViewSettingsChange} checked={this.state.thisViewsViewSettingObj.showGroup}></input></li>
-                                  <li>Author <input type="checkbox" name="showAuthor" onChange={this.handleViewSettingsChange} checked={this.state.thisViewsViewSettingObj.showAuthor}></input></li>
-                                  <li>Date <input type="checkbox" name="showTime" onChange={this.handleViewSettingsChange} checked={this.state.thisViewsViewSettingObj.showTime}></input></li>
+                                  <li>Buildson <input type="checkbox" name="buildson" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
+                                            checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.buildson : false}></input></li>
+                                  <li>Reference <input type="checkbox" name="references" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
+                                            checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.references : false}></input></li>
+                                  <li>Group <input type="checkbox" name="showGroup" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
+                                            checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.showGroup : false}></input></li>
+                                  <li>Author <input type="checkbox" name="showAuthor" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
+                                            checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.showAuthor : false}></input></li>
+                                  <li>Date <input type="checkbox" name="showTime" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
+                                            checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.showTime : false}></input></li>
                                 </ul>
-                                <Button className="viewSettingsPopoverButton" onClick={this.pushViewSettingsChange}>Save <i className="far fa-save"></i></Button>
+                                <Button className={thisViewsViewSettingEnabled ? "viewSettingsPopoverButton" : "viewSettingsPopoverButton vsDisabled"} style={{width: "50%",}}
+                                                                                                      onClick={this.pushViewSettingsChange}>Save <i className="far fa-save"></i></Button>
+                                <Button className="viewSettingsPopoverButton" style={{width: "50%",}} onClick={this.toggleViewSettingEnable}>{thisViewsViewSettingEnabled ? "Disable" : "Enable"}</Button>
                             </Card.Body>
                           </Accordion.Collapse>
                       </Card>
@@ -159,7 +186,7 @@ class ViewSettingsPopover extends Component {
                     {(this.props.author && this.props.author.role === "manager") ? (
                       <Card>
                           <Card.Header className="viewSettingsCardHeader">
-                            <Accordion.Toggle as={Button} variant="link" eventKey="2">Community Settings</Accordion.Toggle>
+                            <Accordion.Toggle as={Button} variant="link" eventKey="2">Community Settings <i className="fas fa-angle-down"/></Accordion.Toggle>
                           </Card.Header>
                           <Accordion.Collapse eventKey="2">
                             <Card.Body className="viewSettingsCardBody">

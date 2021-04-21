@@ -121,6 +121,8 @@ export const globalsReducer = createReducer(initState, {
         state.view = action.payload
         if(action.payload.data && action.payload.data.viewSetting){
           state.thisViewsViewSettingsObj = action.payload.data.viewSetting
+        } else {
+          state.thisViewsViewSettingsObj = null
         }
     },
     [setCurrViewSettingsObj]: (state, action) => {
@@ -138,6 +140,8 @@ export const globalsReducer = createReducer(initState, {
         state.communitySettings = action.payload
         if(action.payload.data && action.payload.data.viewSetting){
           state.communityViewSettingsObj = action.payload.data.viewSetting
+        } else {
+          state.communityViewSettingsObj = null
         }
     },
     [editCommunity]: (state, action) => {

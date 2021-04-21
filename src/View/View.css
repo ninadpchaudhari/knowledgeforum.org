@@ -73,6 +73,7 @@
 
 .viewSettingsCardHeader > button, .viewSettingsCardHeader > button:hover {
   color: #212529;
+  width: 100%;
 }
 
 .viewSettingsCardBody {
@@ -89,6 +90,12 @@
   margin-left: auto;
   margin-right: auto;
   width: 100%;
+}
+
+.vsDisabled, .vsDisabled:hover {
+  cursor: not-allowed !important;
+  background-color: rgb(170, 170, 170);
+  border-color: rgb(170, 170, 170);
 }
 
 .settingsPopoverList > li > input[type='checkbox'] {
