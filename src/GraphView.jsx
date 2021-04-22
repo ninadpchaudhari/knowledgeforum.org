@@ -23,21 +23,24 @@ Cytoscape.use(CytoscapePanZoom);
 Cytoscape.use(CytoscapeNodeHtmlLabel);
 Cytoscape.use(CytoscapeSupportImages);
 
-class Graph extends Component {
+class GraphView extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       elements: {nodes: [], edges: []},
+      kfToCyMap: null,
+      removedElements: null,
       currViewLinksLength: 0
     };
 
     this.loadElements = this.loadElements.bind(this);
     this.supportImageIsDuplicate = this.supportImageIsDuplicate.bind(this);
     this.compareSupportImages = this.compareSupportImages.bind(this);
-    this.findCyElemFromKfId = this.findCyElemFromKfId.bind(this);
+    this.findCyIdsFromKfId = this.findCyIdsFromKfId.bind(this);
     this.updateReadLinks = this.updateReadLinks.bind(this);
     this.focusRecentAddition = this.focusRecentAddition.bind(this);
+    this.filterNodes = this.filterNodes.bind(this);
   };
 
   loadElements(prevViewLinksLength, forceRender) {
@@ -73,6 +76,7 @@ class Graph extends Component {
               }
 
               self.setState({elements: cy_elements});
+              self.setState({kfToCyMap: nodes});
               // support-images extension will not trigger a redraw if there are no images in the view - this line handles that
               if(si.images().length === 0){ si._private.renderer.redraw(); }
               // if a single new element was added to the graph - highlight it
@@ -96,10 +100,16 @@ class Graph extends Component {
         && a.name === b.name && a.url === b.url;
   }
 
-  findCyElemFromKfId(kfId){
-    var cy_elements_nodes = this.state.elements.nodes;
-    for(let i = cy_elements_nodes.length - 1; i >= 0; i--){
-      if(cy_elements_nodes[i].data.kfId === kfId) return cy_elements_nodes[i];
+  // returns an array of cytoscapeIds corresponding to the given kfId
+  findCyIdsFromKfId(kfId){
+    var map = this.state.kfToCyMap;
+    if(map.has(kfId)){
+      var cytoscapeIds = [];
+      var countInstances = map.get(kfId);
+      for(let i = 1; i <= countInstances; i++){
+        cytoscapeIds.push(kfId+'-'+i);
+      }
+      return cytoscapeIds;
     }
     return null;
   }
@@ -114,12 +124,14 @@ class Graph extends Component {
     cy.batch(function(){
 
       for(let i in readLinks){
-        var cy_elem = self.findCyElemFromKfId(readLinks[i]); // the element will either be a riseabove or a regular note
-        if(cy_elem !== null){
-          var isRiseAbove = cy.$('#'+cy_elem.data.id).hasClass('unread-riseabove') ? true : false;
+        var cy_elems = self.findCyIdsFromKfId(readLinks[i]); // the element will either be a riseabove or a regular note
+        if(cy_elems !== null && cy_elems.length !== 0){
+          var isRiseAbove = cy.$('#'+cy_elems[0]).hasClass('unread-riseabove') ? true : false;
           var classToRemove = isRiseAbove ? 'unread-riseabove' : 'unread-note';
           var classToAdd = isRiseAbove ? 'read-riseabove' : 'read-note';
-          cy.$('#'+cy_elem.data.id).removeClass(classToRemove).addClass(classToAdd);
+          for(let i in cy_elems){
+            cy.$('#'+cy_elems[i]).removeClass(classToRemove).addClass(classToAdd);
+          }
         }
       }
 
@@ -129,11 +141,98 @@ class Graph extends Component {
   focusRecentAddition(note){
     var cy = this.cy;
     var kfId = note.to;
-    var cyElem = this.findCyElemFromKfId(kfId);
+    var cyIds = this.findCyIdsFromKfId(kfId);
+    if(cyIds !== null){
+      var newestCyElem = cy.$('#'+cyIds[cyIds.length - 1]);
+      cy.center(newestCyElem);
+      newestCyElem.flashClass('recentAddition', 10000);
+    }
+  }
 
-    if(cyElem !== null){
-      cy.center(cyElem);
-      cy.$('#'+cyElem.data.id).flashClass('recentAddition', 10000);
+  filterNodes(q){
+    var cy = this.cy;
+    const si = cy.supportimages();
+
+    if(this.state.removedElements !== null) this.state.removedElements.restore();
+    this.setState({removedElements: null});
+    var imgs = si.images();
+    for(let i in imgs){
+      si.setImageVisible(imgs[i], true);
+    }
+
+    var nodesToHide = cy.collection();
+    const query = q || this.props.searchQuery;
+    const notes = Object.values(this.props.viewNotes);
+    var filter = this.props.searchFilter;
+    var self = this;
+    switch (filter) {
+        case "title":
+            // eslint-disable-next-line
+            nodesToHide = cy.filter(function(elem, i){
+               const elem_type = elem.data('type');
+               const elem_title = elem.data('name');
+               if((elem_type === "note" || elem_type === "View" || elem_type === "riseabove" || elem_type === "Attachment") && !elem_title.toLowerCase().includes(query.toLowerCase())){
+                 return elem;
+               }
+            });
+
+            // for(let i in imgs){
+            //   var supportImg = imgs[i];
+            //   if(!supportImg.name.toLowerCase().includes(query.toLowerCase())){
+            //     si.setImageVisible(supportImg, false);
+            //   }
+            // }
+
+            break;
+
+        case "content":
+            // eslint-disable-next-line
+            notes.filter(function (obj) {
+                if (obj.data && ( (obj.data.English && !obj.data.English.includes(query)) || (obj.data.body && !obj.data.body.includes(query)) ) ) {
+                  var cy_ids = self.findCyIdsFromKfId(obj._id);
+                  for(let j in cy_ids){ nodesToHide = nodesToHide.union(cy.$('#'+cy_ids[j])); }
+                }
+            });
+
+            break;
+
+        case "author":
+            // eslint-disable-next-line
+            nodesToHide = cy.filter(function(elem, i){
+               const elem_type = elem.data('type');
+               const elem_author = elem.data('author');
+               if((elem_type === "note" || elem_type === "View" || elem_type === "riseabove" || elem_type === "Attachment") && !elem_author.toLowerCase().includes(query.toLowerCase())){
+                 return elem;
+               }
+            });
+
+            // for(let i in imgs){
+            //   var supportImg = imgs[i];
+            //   if(!supportImg.author.toLowerCase().includes(query.toLowerCase())){
+            //     si.setImageVisible(supportImg, false);
+            //   }
+            // }
+
+            break;
+
+        case "scaffold":
+            const noteIds = this.props.supports.filter(support => support.from === query).map(support => support.to);
+            // eslint-disable-next-line
+            notes.filter(function(note){
+              if(!noteIds.includes(note._id)){
+                var cy_ids = self.findCyIdsFromKfId(note._id);
+                for(let j in cy_ids){ nodesToHide = nodesToHide.union(cy.$('#'+cy_ids[j])); }
+              }
+            });
+            break;
+
+        default:
+            break;
+    }
+
+    if(nodesToHide.length !== 0){
+      var removedElements = cy.remove(nodesToHide);
+      this.setState({removedElements: removedElements});
     }
   }
 
@@ -268,14 +367,15 @@ class Graph extends Component {
                             && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === prevProps.viewLinks.length && this.props.readLinks === prevProps.readLinks),
 
         switchedToEmptyView: (this.props.viewId !== prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.authors === prevProps.authors
-                            && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === 0 && prevProps.viewLinks.length !== undefined)
+                            && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === 0 && prevProps.viewLinks.length !== undefined),
+
+        searchTriggered: (this.props.searchQuery !== prevProps.searchQuery || this.props.searchFilter !== prevProps.searchFilter),
       }
 
-      if(cases.nodePositionUpdated || cases.switchedToEmptyView){
-        this.loadElements(prevProps.viewLinks.length, true);
-      } else if(cases.anyPropUpdated) {
-        this.loadElements(prevProps.viewLinks.length, false);
-      }
+      var forceRender = (cases.nodePositionUpdated || cases.switchedToEmptyView);
+
+      if(cases.searchTriggered){ this.filterNodes(); }
+      if(cases.anyPropUpdated){ this.loadElements(prevProps.viewLinks.length, forceRender); }
   }
 
   render() {
@@ -346,7 +446,13 @@ const mapStateToProps = (state, ownProps) => {
         viewId: state.globals.viewId,
         author: state.globals.author,
         authors: state.users,
-        buildsOn: state.notes.buildsOn
+        viewNotes: state.notes.viewNotes,
+        viewLinks: state.notes.viewLinks,
+        readLinks: state.notes.readLinks,
+        buildsOn: state.notes.buildsOn,
+        supports: state.notes.supports,
+        searchQuery: state.globals.searchQuery,
+        searchFilter: state.globals.searchFilter
     }
 }
 
@@ -357,4 +463,4 @@ const mapDispatchToProps = {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(Graph)
+)(GraphView)

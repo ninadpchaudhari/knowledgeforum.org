@@ -189,7 +189,7 @@ class View extends Component {
               />
               <NewRiseAboveModal show={this.state.showRiseAboveModal} handleClose={() => this.setState({showRiseAboveModal: false})}/>
               <div className="row">
-                  {<TopNavBar onViewClick={this.onViewClick} communityTitle={this.state.communityTitle}></TopNavBar>}
+                  {<TopNavBar currentView={this.state.currentView} onViewClick={this.onViewClick} communityTitle={this.state.communityTitle}></TopNavBar>}
               </div>
 
               <div className="row flex-grow-1">

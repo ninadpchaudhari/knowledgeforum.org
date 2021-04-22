@@ -18,6 +18,8 @@ export const setUserId = createAction('SET_USERID')
 export const setIsAuthenticated = createAction('SET_ISAUTHENTICATED')
 export const setCommunities = createAction('SET_COMMUNITIES')
 export const setUserCommunities = createAction('SET_USER_COMMUNITIES')
+export const setSearchQuery = createAction('SET_SEARCH_QUERY')
+export const setSearchFilter = createAction('SET_SEARCH_FILTER')
 export const setSocketStatus = createAction('SET_SOCKET_STATUS')
 export const dateFormatOptions = {
     year: 'numeric', month: 'numeric', day: 'numeric',
@@ -40,6 +42,8 @@ const initState = {
     isAuthenticated: sessionStorage.getItem("token") ? true : false,
     communities: [],
     userCommunities: [],
+    searchQuery: '',
+    searchFilter: 'title',
     servers: [
         {
             id: 0,
@@ -126,6 +130,12 @@ export const globalsReducer = createReducer(initState, {
     },
     [setUserCommunities]: (state, action) => {
         state.userCommunities = action.payload
+    },
+    [setSearchQuery]: (state, action) => {
+        state.searchQuery = action.payload
+    },
+    [setSearchFilter]: (state, action) => {
+        state.searchFilter = action.payload
     },
     [setAuthor]: (state, action) => {
         state.author = action.payload
