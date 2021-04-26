@@ -251,6 +251,7 @@ export const fetchViewCommunityData = (viewId) => async (dispatch) => {
     dispatch(fetchBuildsOn(commId))
     dispatch(fetchReferences(commId))
     dispatch(fetchAuthor(commId))
+    dispatch(fetchCommGroups(commId))
     dispatch(fetchCommunityViews(commId))
     dispatch(fetchAuthors(commId))
     dispatch(fetchReadLinks(commId, view._id))

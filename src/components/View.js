@@ -23,9 +23,13 @@ class View extends Component {
     constructor(props){
         super(props)
         this.state = {
+            isDemo: this.props.isDemo !== undefined ? this.props.isDemo : false,
             token: sessionStorage.getItem('token'),
-            currentView: this.props.location.state === undefined ? "Enhanced" : this.props.location.state.currentView,
-            communityTitle: this.props.location.state === undefined ? null : this.props.location.state.communityTitle,
+            currentView: (this.props.location !== undefined && this.props.location.state !== undefined) ? this.props.location.state.currentView : "Enhanced",
+            communityTitle: (this.props.location !== undefined && this.props.location.state !== undefined) ?
+                              (this.props.location.state.communityTitle)
+                              : 
+                              (this.props.demoCommunityTitle !== undefined ? this.props.demoCommunityTitle : null),
             addView: '',
             showModal: false,
             showView: false,
@@ -74,10 +78,12 @@ class View extends Component {
     onViewClick(viewId){
         this.handleShow(false);
         this.props.setViewId(viewId);
-        this.props.history.push({
-          pathname: `/view/${viewId}`,
-          state: { currentView: this.state.currentView, communityTitle: this.state.communityTitle }
-        });
+        if(this.state.isDemo === false){
+          this.props.history.push({
+            pathname: `/view/${viewId}`,
+            state: { currentView: this.state.currentView, communityTitle: this.state.communityTitle }
+          });
+        }
     }
 
     newView() {
@@ -180,7 +186,7 @@ class View extends Component {
                   onClose={() => this.setState({showAttachPanel: false})}
               />
               <div className="row">
-                  {<TopNavBar currentView={this.state.currentView} onViewClick={this.onViewClick} goToDashboard={this.goToDashboard} communityTitle={this.state.communityTitle}></TopNavBar>}
+                  {<TopNavBar isDemo={this.state.isDemo} currentView={this.state.currentView} onViewClick={this.onViewClick} goToDashboard={this.goToDashboard} communityTitle={this.state.communityTitle}></TopNavBar>}
               </div>
 
               <div className="row flex-grow-1">
@@ -188,31 +194,33 @@ class View extends Component {
                   {/* SIDEBAR */}
                   <div className="col-md" id="sticky-sidebar">
                     <div className="row sidebar-list">
-                      <div className="sidebar-list-col col col-sm col-md-12">
-                      <OverlayTrigger
-                          placement="top"
-                          delay={{ show: 250, hide: 400 }}
-                          overlay={this.renderTooltip({ message: "Create New Contribution" })}>
-                      <DropdownButton drop="right" className="dropdown-btn-parent" title={<i className="fas fa-plus-circle"></i>}>
+                      {this.state.isDemo === false ? (
+                        <div className="sidebar-list-col col col-sm col-md-12">
+                        <OverlayTrigger
+                            placement="top"
+                            delay={{ show: 250, hide: 400 }}
+                            overlay={this.renderTooltip({ message: "Create New Contribution" })}>
+                        <DropdownButton drop="right" className="dropdown-btn-parent" title={<i className="fas fa-plus-circle"></i>}>
 
-                          <Dropdown.Item onClick={() => this.props.newNote(this.props.view, this.props.communityId, this.props.author._id)}>
-                              New Note
-                          </Dropdown.Item>
+                            <Dropdown.Item onClick={() => this.props.newNote(this.props.view, this.props.communityId, this.props.author._id)}>
+                                New Note
+                            </Dropdown.Item>
 
-                          <Dropdown.Item onClick={() => this.newView()}>
-                              New View
-                          </Dropdown.Item>
+                            <Dropdown.Item onClick={() => this.newView()}>
+                                New View
+                            </Dropdown.Item>
 
-                          <Dropdown.Item onClick={() => this.setState({showAttachPanel: true})}>
-                              New Attachment
-                          </Dropdown.Item>
+                            <Dropdown.Item onClick={() => this.setState({showAttachPanel: true})}>
+                                New Attachment
+                            </Dropdown.Item>
 
-                          <Dropdown.Item onClick={() => this.props.newDrawing(this.props.viewId, this.props.communityId, this.props.author._id)}>
-                              New Drawing
-                          </Dropdown.Item>
-                      </DropdownButton>
-                      </OverlayTrigger>
-                      </div>
+                            <Dropdown.Item onClick={() => this.props.newDrawing(this.props.viewId, this.props.communityId, this.props.author._id)}>
+                                New Drawing
+                            </Dropdown.Item>
+                        </DropdownButton>
+                        </OverlayTrigger>
+                        </div>
+                      ) : null}
 
                       {/*<div className="sidebar-list-col col col-sm col-md-12">
                       <OverlayTrigger

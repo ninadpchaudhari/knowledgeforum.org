@@ -93,7 +93,9 @@ class TopNavbar extends Component {
 
     return (
       <Navbar className="viewNavBar">
-        <Button className='mr-2 viewNavBar-logout-btn' onClick={this.props.goToDashboard}><i className="fas fa-home"></i></Button>
+        {this.props.isDemo === false ? (
+          <Button className='mr-2 viewNavBar-logout-btn' onClick={this.props.goToDashboard}><i className="fas fa-home"></i></Button>
+        ) : null}
         <Navbar.Brand className="viewNavBar-brand d-none d-sm-block">{this.props.communityTitle}</Navbar.Brand>
 
         <Navbar.Text className="viewNavBar-dropdown-title">View:</Navbar.Text>
@@ -146,7 +148,9 @@ class TopNavbar extends Component {
           <>
             <Nav className="ml-auto">
               <Nav.Link className="white mr-auto d-none d-sm-block"> {userName} </Nav.Link>
-              <Button className='ml-2 viewNavBar-logout-btn' href="/" onClick={this.logout}>Logout</Button>
+              {this.props.isDemo === false ? (
+                <Button className='ml-2 viewNavBar-logout-btn' href="/" onClick={this.logout}>Logout</Button>
+              ) : null}
             </Nav>
           </>
         ) :

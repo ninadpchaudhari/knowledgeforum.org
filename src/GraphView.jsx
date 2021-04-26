@@ -64,8 +64,9 @@ class GraphView extends Component {
           si._private.supportImages = [];
 
           var viewSettings = this.getViewSettingsInfo();
+          var groups = this.props.community ? this.props.community.groups : [];
 
-          var graph_nodes = addNodesToGraph(this.props.server, this.props.token, nodes, this.props.viewLinks, this.props.authors, viewSettings);
+          var graph_nodes = addNodesToGraph(this.props.server, this.props.token, nodes, this.props.viewLinks, this.props.authors, viewSettings, groups);
           var graph_edges = addEdgesToGraph(nodes, this.props.buildsOn, this.props.references, viewSettings);
           var self = this;
 
@@ -84,9 +85,11 @@ class GraphView extends Component {
                   }
               }
 
-              self.setState({elements: cy_elements});
-              self.setState({kfToCyMap: nodes});
-              self.setState({removedEdgeElements: initialRemovedEdgeElements});
+              self.setState({
+                elements: cy_elements,
+                kfToCyMap: nodes,
+                removedEdgeElements: initialRemovedEdgeElements
+              });
               // support-images extension will not trigger a redraw if there are no images in the view - this line handles that
               if(si.images().length === 0){ si._private.renderer.redraw(); }
               // if a single new element was added to the graph - highlight it
@@ -296,8 +299,8 @@ class GraphView extends Component {
       }
 
       if(edges.length !== 0){
-        // iterate cytoscape edges
         var edgesToHide = cy.collection();
+        // iterate cytoscape edges
         for(let i in edges){
           // if the edge is a buildson and buildson are hidden OR if the edge is a reference and references are hidden - add it to the collection of edges to be removed
           if(edges[i][0] && ((edges[i][0].hasClass('buildson') && newInfo.buildson === false) || ((edges[i][0].hasClass('references') && newInfo.references === false)))){
@@ -540,7 +543,8 @@ class GraphView extends Component {
       let cases = {
 
         anyPropUpdated: (this.props.viewId !== prevProps.viewId || this.props.buildsOn !== prevProps.buildsOn || this.props.references !== prevProps.references
-                            || this.props.authors !== prevProps.authors || this.props.viewLinks !== prevProps.viewLinks || this.props.readLinks !== prevProps.readLinks),
+                            || this.props.authors !== prevProps.authors || this.props.viewLinks !== prevProps.viewLinks || this.props.readLinks !== prevProps.readLinks
+                            || this.props.community !== prevProps.community),
 
         nodePositionUpdated: (this.props.viewId === prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.references === prevProps.references && this.props.authors === prevProps.authors
                             && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === prevProps.viewLinks.length && this.props.readLinks === prevProps.readLinks),
@@ -627,6 +631,7 @@ const mapStateToProps = (state, ownProps) => {
     return {
         token: state.globals.token,
         server: state.globals.currentServer,
+        community: state.globals.community,
         viewId: state.globals.viewId,
         view: state.globals.view,
         author: state.globals.author,
