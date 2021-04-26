@@ -63,7 +63,10 @@ class Login extends Component {
     this.props.setBuildsOn([]);
     this.props.setReadLinks([]);
     this.props.clearAuthors([]);
-    this.setState({showModal: false});
+    this.setState({
+      showModal: false,
+      modalContent: null,
+    });
   }
 
   componentDidMount(){
