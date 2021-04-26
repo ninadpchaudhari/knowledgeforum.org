@@ -84,3 +84,17 @@
     margin-right: 20px;
     font-size: 0.6rem;
 }
+.note-ra-col {
+    display: flex;
+    flex-direction: column;
+}
+.note-ra-rowgraph {
+    flex-grow: 1
+}
+.note-ra-text {
+    font-size: 0.8rem;
+}
+.sm-button {
+    padding: 0.1rem;
+    font-size: 0.8rem;
+}

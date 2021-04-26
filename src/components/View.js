@@ -15,6 +15,7 @@ import LightView from '../View/LightView.js';
 import '../css/index.css';
 import "./View.css";
 import DialogHandler from './dialogHandler/DialogHandler.js'
+import NewRiseAboveModal from './modals/NewRiseAboveModal.js'
 import { WebSocketContext } from '../WebSocket.js'
 
 class View extends Component {
@@ -29,6 +30,7 @@ class View extends Component {
             showModal: false,
             showView: false,
             showAttachPanel: false,
+            showRiseAboveModal: false,
         }
 
         this.clearGraphViewProps = this.clearGraphViewProps.bind(this);
@@ -167,7 +169,15 @@ class View extends Component {
 
     render(){
       let viewToRender = this.state.currentView === "Enhanced" ?
-                <GraphView currentView={this.state.currentView} onViewClick={this.onViewClick} onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}/> : <LightView/>;
+                         <GraphView
+                             viewId={this.props.viewId}
+                             viewLinks={this.props.viewLinks}
+                             readLinks={this.props.readLinks}
+                             onViewClick={this.onViewClick}
+                             onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}
+                         />
+                      :
+                         <LightView/>;
 
       return(
           <div className="container-fluid d-flex flex-column" id="container-fluid-for-view-js">
@@ -177,6 +187,7 @@ class View extends Component {
                   viewId={this.props.viewId}
                   onClose={() => this.setState({showAttachPanel: false})}
               />
+              <NewRiseAboveModal show={this.state.showRiseAboveModal} handleClose={() => this.setState({showRiseAboveModal: false})}/>
               <div className="row">
                   {<TopNavBar currentView={this.state.currentView} onViewClick={this.onViewClick} communityTitle={this.state.communityTitle}></TopNavBar>}
               </div>
@@ -203,6 +214,10 @@ class View extends Component {
 
                           <Dropdown.Item onClick={() => this.props.newDrawing(this.props.viewId, this.props.communityId, this.props.author._id)}>
                               New Drawing
+                          </Dropdown.Item>
+
+                          <Dropdown.Item onClick={() => this.setState({showRiseAboveModal: true})}>
+                              New RiseAbove
                           </Dropdown.Item>
                       </DropdownButton>
                       </div>
@@ -299,7 +314,9 @@ const mapStateToProps = (state, ownProps) => {
         view: state.globals.view,
         author: state.globals.author,
         myViews: state.globals.views,
-        socketStatus: state.globals.socketStatus
+        socketStatus: state.globals.socketStatus,
+        viewLinks: state.notes.viewLinks,
+        readLinks: state.notes.readLinks,
     }
 }
 

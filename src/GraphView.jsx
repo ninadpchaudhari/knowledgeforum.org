@@ -17,7 +17,6 @@ import unread_riseabove_icon from './assets/icon_riseabove_blue.png';
 import read_riseabove_icon from './assets/icon_riseabove_red.png';
 import attachment_icon from './assets/icon_attachment.gif';
 import view_icon from './assets/icon_view.png';
-
 import {MINZOOM, MAXZOOM} from './config.js';
 
 Cytoscape.use(CytoscapePanZoom);
@@ -302,12 +301,12 @@ class GraphView extends Component {
       if(this.hasClass("image")){
         console.log("image");
       } else if(this.hasClass("attachment")){
-        console.log("attachment");
           ref.props.onNoteClick(kfId)
       } else if(this.hasClass("view")){
           ref.props.onViewClick(kfId);
       } else {
         if(type === "riseabove"){
+            ref.props.onNoteClick(kfId)
             this.removeClass("unread-riseabove");
             this.addClass("read-riseabove");
         } else if(type === "note"){
@@ -445,7 +444,6 @@ const mapStateToProps = (state, ownProps) => {
         token: state.globals.token,
         server: state.globals.currentServer,
         viewId: state.globals.viewId,
-        view: state.globals.view,
         author: state.globals.author,
         authors: state.users,
         viewNotes: state.notes.viewNotes,
@@ -454,7 +452,7 @@ const mapStateToProps = (state, ownProps) => {
         buildsOn: state.notes.buildsOn,
         supports: state.notes.supports,
         searchQuery: state.globals.searchQuery,
-        searchFilter: state.globals.searchFilter,
+        searchFilter: state.globals.searchFilter
     }
 }
 
