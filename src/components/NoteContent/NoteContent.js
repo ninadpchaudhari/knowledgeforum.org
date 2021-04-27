@@ -147,13 +147,18 @@ class NoteContent extends Component {
                             </FormGroup>
                         </Col>
 
-                        <Col md="3">
-                            <Button onClick={this.handleSubmit} >Add to View</Button>
-                        </Col>
+                        {this.props.isDemo ? null : (
+                          <Col md="3">
+                              <Button onClick={this.handleSubmit} >Add to View</Button>
+                          </Col>
+                        )}
 
-                        <Col md="3">
-                            <Button onClick={this.handleRiseAbove} >create RiseAbove</Button>
-                        </Col>
+                        {this.props.isDemo ? null : (
+                          <Col md="3">
+                              <Button onClick={this.handleRiseAbove} >create RiseAbove</Button>
+                          </Col>
+                        )}
+
                     </Row>
                     <Row>
                         <Col>
@@ -234,7 +239,7 @@ class NoteContent extends Component {
                                     <Row>
                                         <Col>
                                             <Col><div className="primary-600 sz-075 pd-05 float-left">{this.props.users[obj.authors[0]].firstName + " "+ this.props.users[obj.authors[0]].lastName } &nbsp; {formatter.format(new Date(obj.created))}</div></Col>
-                                            <Col><Button className="float-right mrg-1-left" variant="outline-info" onClick={() => this.props.buildOn(obj._id)}>BuildOn</Button></Col>
+                                            {this.props.isDemo ? null : (<Col><Button className="float-right mrg-1-left" variant="outline-info" onClick={() => this.props.buildOn(obj._id)}>BuildOn</Button></Col>)}
                                             <Col>{EditNoteButton}</Col>
                                         </Col>
                                     </Row>
@@ -253,6 +258,7 @@ const mapStateToProps = (state, ownProps) => {
     const viewNotes = state.notes.viewNotes
     const users = state.users
     return {
+        isDemo: state.globals.isDemo,
         viewId: state.globals.viewId,
         views: state.globals.views,
         view: state.globals.view,

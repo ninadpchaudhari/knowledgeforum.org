@@ -379,6 +379,7 @@ export const openContribution = (contribId) => async (dispatch, getState) => {
 
     const contrib = await api.getObject(contribId)
     const author = getState().globals.author;
+    const isDemo = getState().globals.isDemo;
     if (contrib.type === 'Note'){
         const [fromLinks, toLinks] = await Promise.all([
             api.getLinks(contribId, 'from'),
@@ -395,7 +396,7 @@ export const openContribution = (contribId) => async (dispatch, getState) => {
             contribId: note._id,
             type: 'Note',
             editable: author && (note.authors.includes(author._id) || author.role === "manager"), // read or write tab
-            buildOn: true
+            buildOn: !isDemo
         }))
         //annotations
         const annoLinks = toLinks.filter((link) => link.type === 'annotates')
@@ -425,7 +426,6 @@ export const openContribution = (contribId) => async (dispatch, getState) => {
             buildOn: true
         }))
     }
-    console.log(contrib)
 
     if (contrib.status === 'active') {
         api.read(contrib.communityId, contrib._id)

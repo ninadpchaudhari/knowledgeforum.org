@@ -8,7 +8,7 @@ import SignUpForm from './SignUpForm';
 import View from './components/View.js';
 import $ from 'jquery';
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
-import { setGlobalToken, setCurrentServer, setCommunityId, setViewId, fetchLoggedUser } from './store/globalsReducer.js';
+import { setDemoStatus, setGlobalToken, setCurrentServer, setCommunityId, setViewId, fetchLoggedUser } from './store/globalsReducer.js';
 import { setViewLinks, setBuildsOn, setReadLinks } from './store/noteReducer.js'
 import { clearAuthors } from './store/userReducer.js';
 import { setToken, setServer } from './store/api';
@@ -46,19 +46,21 @@ class Login extends Component {
       sessionStorage.setItem('token', token);
       sessionStorage.setItem('communityId', self.state.demoCommunityId);
       sessionStorage.setItem('viewId', self.state.demoViewId);
+      self.props.setDemoStatus(true);
       self.props.setGlobalToken(token);
       self.props.fetchLoggedUser();
       self.props.setCommunityId(self.state.demoCommunityId);
       self.props.setViewId(self.state.demoViewId);
       self.props.setCurrentServer(self.state.demoServer);
       self.setState({
-        modalContent: <View isDemo={true} demoCommunityTitle={self.state.demoCommunityTitle}></View>
+        modalContent: <View demoCommunityTitle={self.state.demoCommunityTitle}></View>
       })
     });
   }
 
   handleClose(){
     // clear the redux store values from the demo
+    this.props.setDemoStatus(false);
     this.props.setViewLinks([]);
     this.props.setBuildsOn([]);
     this.props.setReadLinks([]);
@@ -120,7 +122,7 @@ class Login extends Component {
                       {this.state.modalContent}
                     </Modal.Body>
                     <Modal.Footer>
-                      <Button variant="primary" onClick={this.handleClose} className="login-modal-btn" style={{'background-color': '#2d5085'}}>
+                      <Button variant="primary" onClick={this.handleClose} className="login-modal-btn" style={{'backgroundColor': '#2d5085'}}>
                         Close
                       </Button>
                     </Modal.Footer>
@@ -143,6 +145,7 @@ const mapStateToProps = (state, ownProps) => {
 }
 
 const mapDispatchToProps = {
+    setDemoStatus,
     setGlobalToken,
     setCurrentServer,
     setCommunityId,

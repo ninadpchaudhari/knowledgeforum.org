@@ -23,12 +23,11 @@ class View extends Component {
     constructor(props){
         super(props)
         this.state = {
-            isDemo: this.props.isDemo !== undefined ? this.props.isDemo : false,
             token: sessionStorage.getItem('token'),
             currentView: (this.props.location !== undefined && this.props.location.state !== undefined) ? this.props.location.state.currentView : "Enhanced",
             communityTitle: (this.props.location !== undefined && this.props.location.state !== undefined) ?
                               (this.props.location.state.communityTitle)
-                              : 
+                              :
                               (this.props.demoCommunityTitle !== undefined ? this.props.demoCommunityTitle : null),
             addView: '',
             showModal: false,
@@ -78,7 +77,7 @@ class View extends Component {
     onViewClick(viewId){
         this.handleShow(false);
         this.props.setViewId(viewId);
-        if(this.state.isDemo === false){
+        if(this.props.isDemo === false){
           this.props.history.push({
             pathname: `/view/${viewId}`,
             state: { currentView: this.state.currentView, communityTitle: this.state.communityTitle }
@@ -186,7 +185,7 @@ class View extends Component {
                   onClose={() => this.setState({showAttachPanel: false})}
               />
               <div className="row">
-                  {<TopNavBar isDemo={this.state.isDemo} currentView={this.state.currentView} onViewClick={this.onViewClick} goToDashboard={this.goToDashboard} communityTitle={this.state.communityTitle}></TopNavBar>}
+                  {<TopNavBar currentView={this.state.currentView} onViewClick={this.onViewClick} goToDashboard={this.goToDashboard} communityTitle={this.state.communityTitle}></TopNavBar>}
               </div>
 
               <div className="row flex-grow-1">
@@ -194,7 +193,7 @@ class View extends Component {
                   {/* SIDEBAR */}
                   <div className="col-md" id="sticky-sidebar">
                     <div className="row sidebar-list">
-                      {this.state.isDemo === false ? (
+                      {this.props.isDemo === false ? (
                         <div className="sidebar-list-col col col-sm col-md-12">
                         <OverlayTrigger
                             placement="top"
@@ -304,6 +303,7 @@ View.contextType = WebSocketContext;
 
 const mapStateToProps = (state, ownProps) => {
     return {
+        isDemo: state.globals.isDemo,
         token: state.globals.token,
         currentServer: state.globals.currentServer,
         communityId: state.globals.communityId,

@@ -85,7 +85,9 @@ class ViewSettingsPopover extends Component {
     if(isCurrentlyEnabled){
       var newObject = JSON.parse(JSON.stringify(this.props.view));
       newObject.data.viewSetting = null;
-      this.props.updateViewObject(newObject);
+      this.props.setView(newObject);
+      //this.props.updateViewObject(newObject);
+      // ^^^ TEMPORARILY DISABLED THE UPDATE TO THE BACKEND UNTIL FIX IS FOUND FOR WEBSOCKET ISSUE ^^^
     } else {
       this.setState({thisViewsViewSettingObj: {buildson: false, language: false, references: false, showAuthor: false, showGroup: false, showTime: false}});
     }
@@ -95,7 +97,9 @@ class ViewSettingsPopover extends Component {
   pushViewSettingsChange(){
     var newObject = JSON.parse(JSON.stringify(this.props.view));
     newObject.data.viewSetting = Object.assign({}, this.state.thisViewsViewSettingObj);
-    this.props.updateViewObject(newObject);
+    this.props.setView(newObject);
+    //this.props.updateViewObject(newObject);
+    // ^^^ TEMPORARILY DISABLED THE UPDATE TO THE BACKEND UNTIL FIX IS FOUND FOR WEBSOCKET ISSUE ^^^
   }
 
   // updates this communitys context setting object in redux and on the backend

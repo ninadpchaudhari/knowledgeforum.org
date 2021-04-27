@@ -67,9 +67,7 @@ class TopNavbar extends Component {
   }
 
   render() {
-    const isLoggedIn = this.props.isAuthenticated
     const userName = this.props.user ? `${this.props.user.firstName} ${this.props.user.lastName}` : null
-    const isViewUrl = this.props.location.pathname.startsWith('/view/')
 
     var searchInput;
     if(this.props.filter === "scaffold"){
@@ -99,25 +97,21 @@ class TopNavbar extends Component {
         <Navbar.Brand className="viewNavBar-brand d-none d-sm-block">{this.props.communityTitle}</Navbar.Brand>
 
         <Navbar.Text className="viewNavBar-dropdown-title">View:</Navbar.Text>
-        {isViewUrl ?
-          (
-            <Nav className="viewNavBar-dropdown">
-              {this.props.view ?
-                <Form>
-                    <FormGroup className="viewNavBar-dropdown-formgroup">
-                      <Input type="select" name="viewId" value={this.props.view._id} onChange={this.handleChange}>
-                        {
-                          this.props.views.map((obj) => {
-                            return <option key={obj._id} value={obj._id}> {obj.title} </option>
-                          })
-                        }
-                      </Input>
-                    </FormGroup>
-                </Form>
-                : null}
-            </Nav>
-          )
-          : null}
+        <Nav className="viewNavBar-dropdown">
+          {this.props.view ?
+            <Form>
+                <FormGroup className="viewNavBar-dropdown-formgroup">
+                  <Input type="select" name="viewId" value={this.props.view._id} onChange={this.handleChange}>
+                    {
+                      this.props.views.map((obj) => {
+                        return <option key={obj._id} value={obj._id}> {obj.title} </option>
+                      })
+                    }
+                  </Input>
+                </FormGroup>
+            </Form>
+            : null}
+        </Nav>
 
           <Navbar.Text className="viewNavBar-dropdown-title">Search:</Navbar.Text>
           <Form id={"queryForm"} onSubmit={this.handleSearchSubmit}>
@@ -144,23 +138,12 @@ class TopNavbar extends Component {
               </Row>
           </Form>
 
-        {isLoggedIn ? (
-          <>
-            <Nav className="ml-auto">
-              <Nav.Link className="white mr-auto d-none d-sm-block"> {userName} </Nav.Link>
-              {this.props.isDemo === false ? (
-                <Button className='ml-2 viewNavBar-logout-btn' href="/" onClick={this.logout}>Logout</Button>
-              ) : null}
-            </Nav>
-          </>
-        ) :
-          <>
-            <Nav className="ml-auto">
-              <Nav.Link onClick={this.signUp}>Signup</Nav.Link>
-              <Nav.Link href="/">Login</Nav.Link>
-            </Nav>
-          </>
-        }
+          <Nav className="ml-auto">
+            <Nav.Link className="white mr-auto d-none d-sm-block"> {userName} </Nav.Link>
+            {this.props.isDemo === false ? (
+              <Button className='ml-2 viewNavBar-logout-btn' href="/" onClick={this.logout}>Logout</Button>
+            ) : null}
+         </Nav>
 
       </Navbar>
     );
@@ -169,6 +152,7 @@ class TopNavbar extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   return {
+    isDemo: state.globals.isDemo,
     communityId: state.globals.communityId,
     viewId: state.globals.viewId,
     isAuthenticated: state.globals.isAuthenticated,
