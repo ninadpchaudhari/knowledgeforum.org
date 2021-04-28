@@ -30,6 +30,8 @@ export const updateViewObject = (object) => async (dispatch, getState) => {
 export const updateCommunityContextObject = (object) => async (dispatch, getState) => {
     await api.putObject(object, object.communityId, object._id);
     dispatch(setCommunitySettings(object));
+}
+
 
 export const createView = async (title, authorId, communityId, options, registerToCommunity) => {
     const newobj = {
