@@ -20,8 +20,8 @@ const NoteDialog = props => {
         setNote(prevNote => {
             if (prevNote === null) //Initialize once
                 return {...reduxNote}
-            else //Only update attachmets
-                return {...prevNote, attachments: reduxNote.attachments }
+            else //Only update attachmets and records
+                return {...prevNote, attachments: reduxNote.attachments, records: reduxNote.records }
         })
     }, [reduxNote])
 
@@ -40,7 +40,11 @@ const NoteDialog = props => {
     }
 
     const onNoteChange = (noteChanged) => {
-        setNote(prevNote => ({...prevNote, ...noteChanged}))
+        setNote(prevNote => {
+            const newNote = {...prevNote, ...noteChanged}
+            newNote.data = { ...prevNote.data, ...noteChanged.data}
+            return newNote
+        })
     }
 
     const openDrawDialog = (svg) => {

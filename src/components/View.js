@@ -16,6 +16,7 @@ import ViewSettingsPopover from './ViewSettingsPopover.jsx';
 import '../css/index.css';
 import "./View.css";
 import DialogHandler from './dialogHandler/DialogHandler.js'
+import NewRiseAboveModal from './modals/NewRiseAboveModal.js'
 import { WebSocketContext } from '../WebSocket.js'
 
 class View extends Component {
@@ -33,6 +34,7 @@ class View extends Component {
             showModal: false,
             showView: false,
             showAttachPanel: false,
+            showRiseAboveModal: false,
         }
 
         this.clearGraphViewProps = this.clearGraphViewProps.bind(this);
@@ -173,8 +175,15 @@ class View extends Component {
 
     render(){
       let viewToRender = this.state.currentView === "Enhanced" ?
-                <GraphView currentView={this.state.currentView} onViewClick={this.onViewClick} onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}/> :
-                <LightView/>;
+                         <GraphView
+                             viewId={this.props.viewId}
+                             viewLinks={this.props.viewLinks}
+                             readLinks={this.props.readLinks}
+                             onViewClick={this.onViewClick}
+                             onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}
+                         />
+                      :
+                         <LightView/>;
 
       return(
           <div className="container-fluid d-flex flex-column" id="container-fluid-for-view-js">
@@ -184,6 +193,7 @@ class View extends Component {
                   viewId={this.props.viewId}
                   onClose={() => this.setState({showAttachPanel: false})}
               />
+              <NewRiseAboveModal show={this.state.showRiseAboveModal} handleClose={() => this.setState({showRiseAboveModal: false})}/>
               <div className="row">
                   {<TopNavBar currentView={this.state.currentView} onViewClick={this.onViewClick} goToDashboard={this.goToDashboard} communityTitle={this.state.communityTitle}></TopNavBar>}
               </div>
@@ -193,6 +203,7 @@ class View extends Component {
                   {/* SIDEBAR */}
                   <div className="col-md" id="sticky-sidebar">
                     <div className="row sidebar-list">
+
                       {this.props.isDemo === false ? (
                         <div className="sidebar-list-col col col-sm col-md-12">
                         <OverlayTrigger
@@ -311,7 +322,9 @@ const mapStateToProps = (state, ownProps) => {
         view: state.globals.view,
         author: state.globals.author,
         myViews: state.globals.views,
-        socketStatus: state.globals.socketStatus
+        socketStatus: state.globals.socketStatus,
+        viewLinks: state.notes.viewLinks,
+        readLinks: state.notes.readLinks,
     }
 }
 
