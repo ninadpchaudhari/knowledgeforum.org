@@ -50,8 +50,9 @@ class GraphView extends Component {
       // ensure we have all the informationn needed to render the graph
       // if ((VIEWLINKS UPDATED OR FORCE RENDER FROM EDGE CASE) AND WE HAVE BUILDSON + AUTHORS INFO)
       // only the viewlinks prop changes between views - buildson and author info stays the same
-      if ((this.props.viewLinks.length !== this.state.currViewLinksLength || forceRender) && this.props.buildsOn.length !== 0 && this.props.references !== undefined && Object.keys(this.props.authors).length !== 0){
-          this.setState({currViewLinksLength: this.props.viewLinks.length});
+      if ((Object.keys(this.props.viewLinks).length !== this.state.currViewLinksLength || forceRender) && this.props.buildsOn.length !== 0
+                                          && this.props.references !== undefined && Object.keys(this.props.authors).length !== 0){
+          this.setState({currViewLinksLength: Object.keys(this.props.viewLinks).length});
           const cy = this.cy;
           const si = cy.supportimages();
 
@@ -65,7 +66,7 @@ class GraphView extends Component {
           var viewSettings = this.getViewSettingsInfo();
           var groups = this.props.community ? this.props.community.groups : [];
 
-          var graph_nodes = addNodesToGraph(this.props.server, this.props.token, nodes, this.props.viewLinks, this.props.authors, viewSettings, groups);
+          var graph_nodes = addNodesToGraph(this.props.server, this.props.token, nodes, Object.values(this.props.viewLinks), this.props.authors, viewSettings, groups);
           var graph_edges = addEdgesToGraph(nodes, this.props.buildsOn, this.props.references, viewSettings);
           var self = this;
 
@@ -92,8 +93,7 @@ class GraphView extends Component {
               // support-images extension will not trigger a redraw if there are no images in the view - this line handles that
               if(si.images().length === 0){ si._private.renderer.redraw(); }
               // if a single new element was added to the graph - highlight it
-              if(this.props.viewLinks.length === prevViewLinksLength + 1){ this.focusRecentAddition(this.props.viewLinks[this.props.viewLinks.length - 1]); }
-              this.updateReadLinks();
+              if(Object.keys(this.props.viewLinks).length === prevViewLinksLength + 1){ this.focusRecentAddition(Object.keys(this.props.viewLinks)[Object.keys(this.props.viewLinks).length - 1]); }
           });
       }
   }
@@ -132,22 +132,22 @@ class GraphView extends Component {
     var readLinks = this.props.readLinks;
     var self = this;
 
-    // cy.batch() updates all the elements one time instead of triggering multiple redraws
-    cy.batch(function(){
-
-      for(let i in readLinks){
-        var cy_elems = self.findCyIdsFromKfId(readLinks[i]); // the element will either be a riseabove or a regular note
-        if(cy_elems !== null && cy_elems.length !== 0){
-          var isRiseAbove = cy.$('#'+cy_elems[0]).hasClass('unread-riseabove') ? true : false;
-          var classToRemove = isRiseAbove ? 'unread-riseabove' : 'unread-note';
-          var classToAdd = isRiseAbove ? 'read-riseabove' : 'read-note';
-          for(let i in cy_elems){
-            cy.$('#'+cy_elems[i]).removeClass(classToRemove).addClass(classToAdd);
+    if(this.state.kfToCyMap !== null){
+      // cy.batch() updates all the elements one time instead of triggering multiple redraws
+      cy.batch(function(){
+        for(let i in readLinks){
+          var cy_elems = self.findCyIdsFromKfId(readLinks[i]); // the element will either be a riseabove or a regular note
+          if(cy_elems !== null && cy_elems.length !== 0){
+            var isRiseAbove = cy.$('#'+cy_elems[0]).hasClass('unread-riseabove') ? true : false;
+            var classToRemove = isRiseAbove ? 'unread-riseabove' : 'unread-note';
+            var classToAdd = isRiseAbove ? 'read-riseabove' : 'read-note';
+            for(let i in cy_elems){
+              cy.$('#'+cy_elems[i]).removeClass(classToRemove).addClass(classToAdd);
+            }
           }
         }
-      }
-
-    });
+      });
+    }
   }
 
   focusRecentAddition(note){
@@ -502,8 +502,8 @@ class GraphView extends Component {
 
           var kfId = evt.target.data().kfId;
 
-          let viewLink = this.props.viewLinks.filter((link) => link.to === kfId)
-          if (viewLink.length) {
+          let viewLink = Object.values(this.props.viewLinks).filter((link) => link.to === kfId)
+          if (viewLink !== undefined) {
               viewLink = viewLink[0];
               const data = {x, y}
               const newViewLink = { ...viewLink }
@@ -514,9 +514,8 @@ class GraphView extends Component {
 
       //Update view link of image if position is changed
       cy.on('cysupportimages.imagemoved', (evt, img) => {
-          let viewLink = this.props.viewLinks.filter((link) => link._id === img.linkId)
-          if (viewLink.length) {
-              viewLink = viewLink[0];
+          let viewLink = this.props.viewLinks[img.linkId]
+          if (viewLink !== undefined) {
               const data = {x: img.bounds.x, y: img.bounds.y}
               const newViewLink = { ...viewLink }
               newViewLink.data = { ...newViewLink.data, ...data };
@@ -525,9 +524,8 @@ class GraphView extends Component {
       })
 
       cy.on('cysupportimages.imageresized', (evt, img, b1, b2) => {
-          let viewLink = this.props.viewLinks.filter((link) => link._id === img.linkId)
-          if (viewLink.length) {
-              viewLink = viewLink[0];
+          let viewLink = this.props.viewLinks[img.linkId]
+          if (viewLink !== undefined) {
               const data = {width: img.bounds.width, height: img.bounds.height}
               const newViewLink = { ...viewLink }
               newViewLink.data = { ...newViewLink.data, ...data };
@@ -542,26 +540,28 @@ class GraphView extends Component {
       let cases = {
 
         anyPropUpdated: (this.props.viewId !== prevProps.viewId || this.props.buildsOn !== prevProps.buildsOn || this.props.references !== prevProps.references
-                            || this.props.authors !== prevProps.authors || this.props.viewLinks !== prevProps.viewLinks || this.props.readLinks !== prevProps.readLinks
-                            || this.props.community !== prevProps.community),
+                            || this.props.authors !== prevProps.authors || this.props.viewLinks !== prevProps.viewLinks || this.props.community !== prevProps.community),
 
-        nodePositionUpdated: (this.props.viewId === prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.references === prevProps.references && this.props.authors === prevProps.authors
-                            && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === prevProps.viewLinks.length && this.props.readLinks === prevProps.readLinks),
+        currViewLinkUpdated: (this.props.viewId === prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.references === prevProps.references && this.props.authors === prevProps.authors
+                            && this.props.viewLinks !== prevProps.viewLinks && Object.keys(this.props.viewLinks).length === Object.keys(prevProps.viewLinks).length && this.props.readLinks === prevProps.readLinks),
 
         switchedToEmptyView: (this.props.viewId !== prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.references === prevProps.references && this.props.authors === prevProps.authors
-                            && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === 0 && prevProps.viewLinks.length !== undefined),
+                            && this.props.viewLinks !== prevProps.viewLinks && Object.keys(this.props.viewLinks).length === 0 && Object.keys(prevProps.viewLinks).length !== undefined),
 
         searchTriggered: (this.props.searchQuery !== prevProps.searchQuery || this.props.searchFilter !== prevProps.searchFilter),
+
+        updateReadLinks: (this.props.readLinks.length !== 0 && Object.keys(this.props.viewLinks) !== 0 && this.state.kfToCyMap !== prevState.kfToCyMap),
 
         viewSettingsChanged: (this.props.currViewSettingsObj !== prevProps.currViewSettingsObj),
 
       }
 
-      var forceRender = (cases.nodePositionUpdated || cases.switchedToEmptyView);
+      var forceRender = (cases.currViewLinkUpdated || cases.switchedToEmptyView);
 
       if(cases.searchTriggered){ this.filterNodes(); }
       if(cases.viewSettingsChanged){ this.updateViewSettings(); }
-      if(cases.anyPropUpdated){ this.loadElements(prevProps.viewLinks.length, forceRender); }
+      if(cases.updateReadLinks){ this.updateReadLinks(); }
+      if(cases.anyPropUpdated){ this.loadElements(Object.keys(prevProps.viewLinks).length, forceRender); }
   }
 
   render() {
