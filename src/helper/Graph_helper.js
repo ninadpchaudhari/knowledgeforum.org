@@ -4,9 +4,9 @@ import {getApiObjectsObjectId} from '../api/object.js';
 export function addNodesToGraph(server, token, nodes, nodeData, authorData, viewSettings, groups){
   var graph_nodes = [];
   for(var i = 0; i < nodeData.length; i++){
-    var id = createCytoscapeId(nodes, nodeData[i].to);
 
     if(nodeData[i]._to.type === "Note" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
+      var id = createCytoscapeId(nodes, nodeData[i].to);
       graph_nodes.push(handleNote(server, token, id, nodeData[i], authorData, viewSettings, groups));
     } else if(nodeData[i]._to.type === "Attachment" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
       graph_nodes.push(handleAttachment(server, token, nodes, nodeData[i], authorData, viewSettings, groups));
@@ -81,6 +81,7 @@ function handleNote(server, token, id, nodeData, authorData, viewSettings, group
         author: authorName,
         date: date,
         kfId: nodeData.to,
+        linkId: nodeData._id,
         type: type
       },
       classes: [readStatus, viewSettings.nodeClass],
@@ -97,7 +98,6 @@ function handleAttachment(server, token, nodes, nodeData, authorData, viewSettin
 
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var date = parseDate(nodeData.created);
-  var id = createCytoscapeId(nodes, nodeData.to);
   var groupName = nodeData._to.group ? groups.find(group => group._id === nodeData._to.group).title : null;
 
   return getApiObjectsObjectId(token, server, nodeData.to).then(function(result){
@@ -127,7 +127,7 @@ function handleAttachment(server, token, nodes, nodeData, authorData, viewSettin
       };
 
     } else {
-
+      var id = createCytoscapeId(nodes, nodeData.to);
       return {
         group: 'nodes',
         data: {
@@ -137,6 +137,7 @@ function handleAttachment(server, token, nodes, nodeData, authorData, viewSettin
           author: authorName,
           date: date,
           kfId: nodeData.to,
+          linkId: nodeData._id,
           type: nodeData._to.type,
           download: server + result.data.url.substring(1,)
         },
@@ -202,6 +203,7 @@ function handleView(nodes, nodeData, authorData){
       author: authorName,
       name: nodeData._to.title,
       kfId: nodeData.to,
+      linkId: nodeData._id,
       type: nodeData._to.type,
       communityId: nodeData.communityId,
     },

@@ -34,7 +34,7 @@ export const setRiseAboveNotes = createAction('SET_RISEABOVE_NOTES')
 export const setReadLinks = createAction('SET_READ_LINKS')
 export const removeViewLink = createAction('REMOVE_READ_LINKS')
 export const removeViewNote = createAction('REMOVE_VIEW_NOTE')
-const initState = {attachments: {}, viewNotes: {}, checkedNotes: [], viewLinks: [], buildsOn: [], supports: [], riseAboveNotes: {}, riseAboveViewNotes: {}, readLinks: [], raViews: {}}
+const initState = {attachments: {}, viewNotes: {}, checkedNotes: [], viewLinks: {}, buildsOn: [], supports: [], riseAboveNotes: {}, riseAboveViewNotes: {}, readLinks: [], raViews: {}}
 
 export const noteReducer = createReducer(initState, {
     [addNote]: (notes, action) => {
@@ -129,15 +129,11 @@ export const noteReducer = createReducer(initState, {
         state.viewLinks = action.payload
     },
     [addViewLink]: (state, action) => {
-        const matchLink = state.viewLinks.filter((link) => link._id === action.payload._id)
-        if (matchLink.length === 0){
-            state.viewLinks.push(action.payload)
-        } else {//update view link
-            state.viewLinks = state.viewLinks.map((link) => link._id === action.payload._id ? action.payload : link);
-        }
+        delete state.viewLinks[action.payload._id]
+        state.viewLinks[action.payload._id] = action.payload
     },
     [removeViewLink]: (state, action) => {
-        state.viewLinks = state.viewLinks.filter((link) => link._id !== action.payload._id)
+        delete state.viewLinks[action.payload._id]
     },
     [setBuildsOn]: (state, action) => {
         state.buildsOn = action.payload
@@ -150,11 +146,8 @@ export const noteReducer = createReducer(initState, {
     },
     [setRiseAboveViewNotes]: (state, action) => {
         state.riseAboveViewNotes[action.payload.noteId] = [...action.payload.notes]
-        // state.riseAboveViewNotes = [...state.riseAboveViewNotes, action.payload]
     },
     [setRiseAboveNotes]: (state, action) => {
-        // let viewId = action.payload.viewId
-        // state.riseAboveNotes[viewId] = [...action.payload.notes]
         action.payload.forEach(note => state.riseAboveNotes[note._id] = note)
     },
     [setReadLinks]: (state, action) =>{
@@ -481,7 +474,12 @@ export const fetchViewNotes = (viewId) => async (dispatch) => {
     const noteLinks = links
         .filter(obj => (obj._to.type === "Note" && obj._to.title !== "" && obj._to.status === "active"))
 
-    dispatch(setViewLinks(links))
+    const linksMap = links.reduce(function(map, obj){
+      map[obj._id] = obj;
+      return map
+    }, {});
+
+    dispatch(setViewLinks(linksMap))
     const notes = await Promise.all(noteLinks.map((filteredObj) => api.getObject(filteredObj.to)))
 
     dispatch(setViewNotes(notes))
