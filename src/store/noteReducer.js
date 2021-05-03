@@ -131,16 +131,9 @@ export const noteReducer = createReducer(initState, {
     [addViewLink]: (state, action) => {
         delete state.viewLinks[action.payload._id]
         state.viewLinks[action.payload._id] = action.payload
-        // const matchLink = state.viewLinks.filter((link) => link._id === action.payload._id)
-        // if (matchLink.length === 0){
-        //     state.viewLinks.push(action.payload)
-        // } else {//update view link
-        //     state.viewLinks = state.viewLinks.map((link) => link._id === action.payload._id ? action.payload : link);
-        // }
     },
     [removeViewLink]: (state, action) => {
         delete state.viewLinks[action.payload._id]
-        //state.viewLinks = state.viewLinks.filter((link) => link._id !== action.payload._id)
     },
     [setBuildsOn]: (state, action) => {
         state.buildsOn = action.payload
@@ -153,11 +146,8 @@ export const noteReducer = createReducer(initState, {
     },
     [setRiseAboveViewNotes]: (state, action) => {
         state.riseAboveViewNotes[action.payload.noteId] = [...action.payload.notes]
-        // state.riseAboveViewNotes = [...state.riseAboveViewNotes, action.payload]
     },
     [setRiseAboveNotes]: (state, action) => {
-        // let viewId = action.payload.viewId
-        // state.riseAboveNotes[viewId] = [...action.payload.notes]
         action.payload.forEach(note => state.riseAboveNotes[note._id] = note)
     },
     [setReadLinks]: (state, action) =>{

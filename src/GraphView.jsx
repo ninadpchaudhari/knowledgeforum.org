@@ -501,7 +501,7 @@ class GraphView extends Component {
           var kfId = evt.target.data().kfId;
 
           let viewLink = Object.values(this.props.viewLinks).filter((link) => link.to === kfId)
-          if (viewLink !== undefined) {
+          if (viewLink !== undefined && viewLink.length) {
               viewLink = viewLink[0];
               const data = {x, y}
               const newViewLink = { ...viewLink }
