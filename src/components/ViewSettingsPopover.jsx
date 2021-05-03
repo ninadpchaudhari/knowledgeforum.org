@@ -3,7 +3,7 @@ import { Row, Col, OverlayTrigger, Popover, Accordion, Card, Button } from 'reac
 import { connect } from 'react-redux';
 import $ from 'jquery';
 import { updateViewObject, updateCommunityContextObject } from '../store/async_actions.js';
-import { setView, setCommunitySettings, setCurrViewSettingsObj } from '../store/globalsReducer.js';
+import { setCurrViewSettingsObj } from '../store/globalsReducer.js';
 
 class ViewSettingsPopover extends Component {
 
@@ -226,8 +226,6 @@ const mapStateToProps = (state, ownProps) => {
 }
 
 const mapDispatchToProps = {
-    setView,
-    setCommunitySettings,
     setCurrViewSettingsObj,
     updateViewObject,
     updateCommunityContextObject,

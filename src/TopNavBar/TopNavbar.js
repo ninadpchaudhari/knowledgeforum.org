@@ -155,7 +155,6 @@ const mapStateToProps = (state, ownProps) => {
     isDemo: state.globals.isDemo,
     communityId: state.globals.communityId,
     viewId: state.globals.viewId,
-    isAuthenticated: state.globals.isAuthenticated,
     user: state.globals.author,
     views: state.globals.views,
     view: state.globals.view,
