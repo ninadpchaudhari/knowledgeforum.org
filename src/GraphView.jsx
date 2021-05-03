@@ -7,7 +7,7 @@ import CytoscapeNodeHtmlLabel from 'cytoscape-node-html-label';
 import CytoscapeSupportImages from 'cytoscape-supportimages';
 
 import { updateViewLink } from './store/async_actions.js'
-import {addNodesToGraph, addEdgesToGraph, matchAuthorId, parseDate } from './helper/Graph_helper.js';
+import {addNodesToGraph, addEdgesToGraph } from './helper/Graph_helper.js';
 import './css/cytoscape.js-panzoom.css';
 import './css/Graph.css';
 
@@ -36,7 +36,6 @@ class GraphView extends Component {
     };
 
     this.loadElements = this.loadElements.bind(this);
-    this.updateCurrElement = this.updateCurrElement.bind(this);
     this.supportImageIsDuplicate = this.supportImageIsDuplicate.bind(this);
     this.compareSupportImages = this.compareSupportImages.bind(this);
     this.findCyIdsFromKfId = this.findCyIdsFromKfId.bind(this);
@@ -53,7 +52,6 @@ class GraphView extends Component {
       // only the viewlinks prop changes between views - buildson and author info stays the same
       if ((Object.keys(this.props.viewLinks).length !== this.state.currViewLinksLength || forceRender) && this.props.buildsOn.length !== 0
                                           && this.props.references !== undefined && Object.keys(this.props.authors).length !== 0){
-          console.log("test");
           this.setState({currViewLinksLength: Object.keys(this.props.viewLinks).length});
           const cy = this.cy;
           const si = cy.supportimages();
@@ -98,45 +96,6 @@ class GraphView extends Component {
               if(Object.keys(this.props.viewLinks).length === prevViewLinksLength + 1){ this.focusRecentAddition(Object.keys(this.props.viewLinks)[Object.keys(this.props.viewLinks).length - 1]); }
           });
       }
-  }
-
-  updateCurrElement(elem){
-    var cy = this.cy;
-    if(this.state.kfToCyMap !== null){
-      var cy_matches = this.findCyIdsFromKfId(elem.to);
-
-      // if cy_matches isnt null the updated element is a cytoscape element
-      // otherwise it would be an element in the support images extension
-      if(cy_matches !== null){
-        var cy_elem;
-
-        // gather all these values to set again in case they were updated
-        var groups = this.props.community ? this.props.community.groups : [];
-        var authorName = matchAuthorId(elem._to.authors[0], this.props.authors);
-        var groupName = elem._to.group ? groups.find(group => group._id === elem._to.group).title : null;
-        var date = parseDate(elem.created);
-
-        // match the kf view link id to the corresponding cytoscape element with the same linkId
-        for(let i in cy_matches){
-          if(cy.$('#'+cy_matches[i]).data('linkId') === elem._id){
-            cy_elem = cy.$('#'+cy_matches[i]);
-          }
-        }
-
-        // update the element
-        if(cy_elem !== undefined && cy_elem !== null){
-          cy_elem.data({
-            name: elem._to.title,
-            groupName: groupName,
-            author: authorName,
-            date: date,
-          });
-          cy_elem.position({x: elem.data.x, y: elem.data.y});
-        }
-      } else {
-
-      }
-    }
   }
 
   // checks if the given image a is already present in the list of support images
@@ -595,9 +554,8 @@ class GraphView extends Component {
 
       }
 
-      var forceRender = (cases.switchedToEmptyView);
+      var forceRender = (cases.switchedToEmptyView || cases.currViewLinkUpdated);
 
-      if(cases.currViewLinkUpdated){ this.updateCurrElement(Object.values(this.props.viewLinks)[Object.values(this.props.viewLinks).length - 1]); }
       if(cases.searchTriggered){ this.filterNodes(); }
       if(cases.viewSettingsChanged){ this.updateViewSettings(); }
       if(cases.updateReadLinks){ this.updateReadLinks(); }

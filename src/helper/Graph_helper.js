@@ -217,7 +217,7 @@ function handleView(nodes, nodeData, authorData){
 
 
 // helper function to find an authors name from their author id using the getCommunityAuthors data
-export function matchAuthorId(authorId, authorsInfo){
+function matchAuthorId(authorId, authorsInfo){
     for(let i in authorsInfo){
       if(authorId === authorsInfo[i]._id){
         return authorsInfo[i].firstName + " " + authorsInfo[i].lastName;
@@ -228,7 +228,7 @@ export function matchAuthorId(authorId, authorsInfo){
 
 
 // helper function to return formatted creation date of a note
-export function parseDate(date){
+function parseDate(date){
   var year = date.substring(0, 4);
   var month = date.substring(5, 7);
   var day = date.substring(8, 10);
