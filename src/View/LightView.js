@@ -51,11 +51,6 @@ class LightView extends Component {
         return final_h
     }
 
-    componentDidMount() {
-
-    }
-
-
     componentDidUpdate(prevProps, prevState) {
       if(this.props.searchQuery !== prevProps.searchQuery || this.props.searchFilter !== prevProps.searchFilter){
         this.filterResults(this.props.searchQuery);

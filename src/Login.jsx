@@ -1,28 +1,33 @@
 import React, {Component} from 'react';
-import {withRouter} from 'react-router';
+import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { Modal, Button } from 'react-bootstrap';
 import LoginForm from './LoginForm';
 import SignUpForm from './SignUpForm';
-import Graph from './GraphView';
+import View from './components/View.js';
 import $ from 'jquery';
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
-import {getUserToken} from './api/user.js';
+import { setDemoStatus, setGlobalToken, setCurrentServer, setCommunityId, setViewId, fetchLoggedUser } from './store/globalsReducer.js';
+import { setViewLinks, setBuildsOn, setReadLinks } from './store/noteReducer.js'
+import { clearAuthors } from './store/userReducer.js';
+import { setToken, setServer } from './store/api';
+import { getUserToken } from './api/user.js';
 
 import './css/Login.css';
 import sample_view from './assets/sample_view.gif';
-import app_store from './assets/appstore.svg';
-import googleplay_store from './assets/googleplaystore.png';
 
 class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      demoToken: null,
+      demoUserName: "kfhowdemouser",
+      demoUserPassword: "demouser123",
       demoServer: "https://kf6-stage.ikit.org/",
       demoCommunityId: "5ea995a6cbdc04a6f53a1b5c",
+      demoCommunityTitle: "KF How To - KB Resources",
       demoViewId: "5ea995a7cbdc04a6f53a1b5f",
+      modalContent: null,
       showModal: false,
     }
 
@@ -32,15 +37,38 @@ class Login extends Component {
 
   handleShow(){
     this.setState({showModal: true});
-    var ref = this;
-    var demoTokenPromise = getUserToken("demo1", "demo1", this.state.demoServer);
+    var self = this;
+    var demoTokenPromise = getUserToken(this.state.demoUserName, this.state.demoUserPassword, this.state.demoServer);
     demoTokenPromise.then(function(result) {
-      ref.setState({demoToken: result.token});
+      var token = result.token;
+      setServer(self.state.demoServer);
+      setToken(token);
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('communityId', self.state.demoCommunityId);
+      sessionStorage.setItem('viewId', self.state.demoViewId);
+      self.props.setDemoStatus(true);
+      self.props.setGlobalToken(token);
+      self.props.fetchLoggedUser();
+      self.props.setCommunityId(self.state.demoCommunityId);
+      self.props.setViewId(self.state.demoViewId);
+      self.props.setCurrentServer(self.state.demoServer);
+      self.setState({
+        modalContent: <View demoCommunityTitle={self.state.demoCommunityTitle}></View>
+      })
     });
   }
 
   handleClose(){
-    this.setState({showModal: false});
+    // clear the redux store values from the demo
+    this.props.setDemoStatus(false);
+    this.props.setViewLinks([]);
+    this.props.setBuildsOn([]);
+    this.props.setReadLinks([]);
+    this.props.clearAuthors([]);
+    this.setState({
+      showModal: false,
+      modalContent: null,
+    });
   }
 
   componentDidMount(){
@@ -86,23 +114,15 @@ class Login extends Component {
                     </div>
                   </div>
 
-                  <div className="login-apps-div">
-                    <a href="itms-apps://apps.apple.com/us/app/id1554705711"><img className="login-appstore-img" src={app_store} alt={"Apple App Store"}/></a>
-                    <a style={{marginLeft: "10px"}} href="https://play.google.com/store/apps/details?id=com.kf6mobile&hl=en_US&gl=US"><img className="login-appstore-img" src={googleplay_store} alt={"Google Play Store"}/></a>
-                  </div>
-
-
-
-
-                  <Modal dialogClassName="login-modal-dialog" /*show={this.state.showModal}*/ onHide={this.handleClose}>
+                  <Modal dialogClassName="login-modal-dialog" show={this.state.showModal} onHide={this.handleClose}>
                     <Modal.Header closeButton>
                       <Modal.Title>Knowledge Forum Demo</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body className="login-modal-body">
-                      <Graph style={{width: '100%', height: '100%'}} token={this.state.demoToken} server={this.state.demoServer} communityId={this.state.demoCommunityId} viewId={this.state.demoViewId}/>
+                    <Modal.Body className="login-modal-body" style={{padding: 0}}>
+                      {this.state.modalContent}
                     </Modal.Body>
                     <Modal.Footer>
-                      <Button variant="primary" onClick={this.handleClose} className="login-modal-btn">
+                      <Button variant="primary" onClick={this.handleClose} className="login-modal-btn" style={{'backgroundColor': '#2d5085'}}>
                         Close
                       </Button>
                     </Modal.Footer>
@@ -124,7 +144,20 @@ const mapStateToProps = (state, ownProps) => {
     }
 }
 
+const mapDispatchToProps = {
+    setDemoStatus,
+    setGlobalToken,
+    setCurrentServer,
+    setCommunityId,
+    setViewId,
+    setViewLinks,
+    setBuildsOn,
+    setReadLinks,
+    clearAuthors,
+    fetchLoggedUser,
+}
+
 export default compose(
     withRouter,
-    connect(mapStateToProps, null)
+    connect(mapStateToProps, mapDispatchToProps)
 )(Login)

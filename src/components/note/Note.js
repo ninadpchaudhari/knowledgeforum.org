@@ -179,11 +179,16 @@ class Note extends React.Component {
                         :
                         ''
                     }
-                    <Tab eventKey="author" title="author(s)">
-                        <AuthorTab contrib={this.props.note} onChange={this.onNoteChange} />
-                    </Tab>
+                    {this.props.isDemo ? null : (
+                      <Tab eventKey="author" title="author(s)">
+                          <AuthorTab contrib={this.props.note} onChange={this.onNoteChange} />
+                      </Tab>
+                    )}
                     <Tab eventKey='history' title='history'><History records={this.props.note.records} /></Tab>
-                    <Tab eventKey='properties' title='properties'><Properties contribution={this.props.note} onChange={this.props.onNoteChange} /></Tab>
+                    {this.props.isDemo ? null : (
+                      <Tab eventKey='properties' title='properties'><Properties contribution={this.props.note} onChange={this.props.onNoteChange} /></Tab>
+                    )}
+
                 </Tabs>
             </div>
         );
@@ -192,6 +197,7 @@ class Note extends React.Component {
 
 const mapStateToProps = (state, ownProps) => {
     return {
+        isDemo: state.globals.isDemo,
         noteAuthor: ownProps.note && (state.users[ownProps.note.authors[0]] || 'NA'),
         currentAuthor: state.globals.author,
         editable: false || (ownProps.note && ownProps.note.authors.includes(state.globals.author._id)),
@@ -209,4 +215,3 @@ export default connect(
     mapStateToProps,
     mapDispatchToProps
 )(Note)
-

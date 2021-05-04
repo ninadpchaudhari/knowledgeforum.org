@@ -7,7 +7,7 @@ import CytoscapeNodeHtmlLabel from 'cytoscape-node-html-label';
 import CytoscapeSupportImages from 'cytoscape-supportimages';
 
 import { updateViewLink } from './store/async_actions.js'
-import {addNodesToGraph, addEdgesToGraph} from './helper/Graph_helper.js';
+import {addNodesToGraph, addEdgesToGraph } from './helper/Graph_helper.js';
 import './css/cytoscape.js-panzoom.css';
 import './css/Graph.css';
 
@@ -30,8 +30,9 @@ class GraphView extends Component {
     this.state = {
       elements: {nodes: [], edges: []},
       kfToCyMap: null,
-      removedElements: null,
-      currViewLinksLength: 0
+      removedSearchElements: null,
+      removedEdgeElements: null,
+      currViewLinksLength: 0,
     };
 
     this.loadElements = this.loadElements.bind(this);
@@ -41,14 +42,17 @@ class GraphView extends Component {
     this.updateReadLinks = this.updateReadLinks.bind(this);
     this.focusRecentAddition = this.focusRecentAddition.bind(this);
     this.filterNodes = this.filterNodes.bind(this);
+    this.getViewSettingsInfo = this.getViewSettingsInfo.bind(this);
+    this.updateViewSettings = this.updateViewSettings.bind(this);
   };
 
   loadElements(prevViewLinksLength, forceRender) {
       // ensure we have all the informationn needed to render the graph
       // if ((VIEWLINKS UPDATED OR FORCE RENDER FROM EDGE CASE) AND WE HAVE BUILDSON + AUTHORS INFO)
       // only the viewlinks prop changes between views - buildson and author info stays the same
-      if ((this.props.viewLinks.length !== this.state.currViewLinksLength || forceRender) && this.props.buildsOn.length !== 0 && Object.keys(this.props.authors).length !== 0){
-          this.setState({currViewLinksLength: this.props.viewLinks.length});
+      if ((Object.keys(this.props.viewLinks).length !== this.state.currViewLinksLength || forceRender) && this.props.buildsOn.length !== 0
+                                          && this.props.references !== undefined && Object.keys(this.props.authors).length !== 0){
+          this.setState({currViewLinksLength: Object.keys(this.props.viewLinks).length});
           const cy = this.cy;
           const si = cy.supportimages();
 
@@ -59,29 +63,37 @@ class GraphView extends Component {
           // clear the support images extension
           si._private.supportImages = [];
 
-          var graph_nodes = addNodesToGraph(this.props.server, this.props.token, nodes, this.props.viewLinks, this.props.authors);
-          var graph_edges = addEdgesToGraph(nodes, this.props.buildsOn);
+          var viewSettings = this.getViewSettingsInfo();
+          var groups = this.props.community ? this.props.community.groups : [];
+
+          var graph_nodes = addNodesToGraph(this.props.server, this.props.token, nodes, Object.values(this.props.viewLinks), this.props.authors, viewSettings, groups);
+          var graph_edges = addEdgesToGraph(nodes, this.props.buildsOn, this.props.references, viewSettings);
           var self = this;
 
           Promise.all(graph_nodes.concat(graph_edges)).then((graph_results) => {
               var cy_elements = {nodes: [], edges: []};
+              var initialRemovedEdgeElements = {edges: []};
               for(let i = 0; i < graph_results.length; i++){
                   if(graph_results[i].group === "nodes"){
                       cy_elements.nodes.push(graph_results[i]);
-                  } else if(graph_results[i].group === "edges"){
+                  } else if(graph_results[i].group === "edges" && graph_results[i].initialDisplay === true){
                       cy_elements.edges.push(graph_results[i]);
+                  } else if(graph_results[i].group === "edges" && graph_results[i].initialDisplay === false){
+                      initialRemovedEdgeElements.edges.push(graph_results[i]);
                   } else if(graph_results[i].url && !this.supportImageIsDuplicate(si.images(), graph_results[i])){
                       si.addSupportImage(graph_results[i]);
                   }
               }
 
-              self.setState({elements: cy_elements});
-              self.setState({kfToCyMap: nodes});
+              self.setState({
+                elements: cy_elements,
+                kfToCyMap: nodes,
+                removedEdgeElements: initialRemovedEdgeElements
+              });
               // support-images extension will not trigger a redraw if there are no images in the view - this line handles that
               if(si.images().length === 0){ si._private.renderer.redraw(); }
               // if a single new element was added to the graph - highlight it
-              if(this.props.viewLinks.length === prevViewLinksLength + 1){ this.focusRecentAddition(this.props.viewLinks[this.props.viewLinks.length - 1]); }
-              this.updateReadLinks();
+              if(Object.keys(this.props.viewLinks).length === prevViewLinksLength + 1){ this.focusRecentAddition(Object.keys(this.props.viewLinks)[Object.keys(this.props.viewLinks).length - 1]); }
           });
       }
   }
@@ -120,22 +132,22 @@ class GraphView extends Component {
     var readLinks = this.props.readLinks;
     var self = this;
 
-    // cy.batch() updates all the elements one time instead of triggering multiple redraws
-    cy.batch(function(){
-
-      for(let i in readLinks){
-        var cy_elems = self.findCyIdsFromKfId(readLinks[i]); // the element will either be a riseabove or a regular note
-        if(cy_elems !== null && cy_elems.length !== 0){
-          var isRiseAbove = cy.$('#'+cy_elems[0]).hasClass('unread-riseabove') ? true : false;
-          var classToRemove = isRiseAbove ? 'unread-riseabove' : 'unread-note';
-          var classToAdd = isRiseAbove ? 'read-riseabove' : 'read-note';
-          for(let i in cy_elems){
-            cy.$('#'+cy_elems[i]).removeClass(classToRemove).addClass(classToAdd);
+    if(this.state.kfToCyMap !== null){
+      // cy.batch() updates all the elements one time instead of triggering multiple redraws
+      cy.batch(function(){
+        for(let i in readLinks){
+          var cy_elems = self.findCyIdsFromKfId(readLinks[i]); // the element will either be a riseabove or a regular note
+          if(cy_elems !== null && cy_elems.length !== 0){
+            var isRiseAbove = cy.$('#'+cy_elems[0]).hasClass('unread-riseabove') ? true : false;
+            var classToRemove = isRiseAbove ? 'unread-riseabove' : 'unread-note';
+            var classToAdd = isRiseAbove ? 'read-riseabove' : 'read-note';
+            for(let i in cy_elems){
+              cy.$('#'+cy_elems[i]).removeClass(classToRemove).addClass(classToAdd);
+            }
           }
         }
-      }
-
-    });
+      });
+    }
   }
 
   focusRecentAddition(note){
@@ -153,8 +165,8 @@ class GraphView extends Component {
     var cy = this.cy;
     const si = cy.supportimages();
 
-    if(this.state.removedElements !== null) this.state.removedElements.restore();
-    this.setState({removedElements: null});
+    if(this.state.removedSearchElements !== null) this.state.removedSearchElements.restore();
+    this.setState({removedSearchElements: null});
     var imgs = si.images();
     for(let i in imgs){
       si.setImageVisible(imgs[i], true);
@@ -231,9 +243,77 @@ class GraphView extends Component {
     }
 
     if(nodesToHide.length !== 0){
-      var removedElements = cy.remove(nodesToHide);
-      this.setState({removedElements: removedElements});
+      var removedSearchElements = cy.remove(nodesToHide);
+      this.setState({removedSearchElements: removedSearchElements});
     }
+  }
+
+  // formats the view settings to be used in cytoscape
+  getViewSettingsInfo(){
+    var viewSettings = this.props.currViewSettingsObj;
+    var result = {};
+    if(viewSettings.showGroup && viewSettings.showAuthor && viewSettings.showTime){ result.nodeClass = 'nodehtmllabel-group-author-date'; }
+    else if(viewSettings.showGroup && viewSettings.showAuthor && !viewSettings.showTime){ result.nodeClass = 'nodehtmllabel-group-author-nodate'; }
+    else if(viewSettings.showGroup && !viewSettings.showAuthor && viewSettings.showTime){ result.nodeClass = 'nodehtmllabel-group-noauthor-date'; }
+    else if(viewSettings.showGroup && !viewSettings.showAuthor && !viewSettings.showTime) { result.nodeClass = 'nodehtmllabel-group-noauthor-nodate'; }
+    else if(!viewSettings.showGroup && viewSettings.showAuthor && viewSettings.showTime) { result.nodeClass = 'nodehtmllabel-nogroup-author-date'; }
+    else if(!viewSettings.showGroup && viewSettings.showAuthor && !viewSettings.showTime) { result.nodeClass = 'nodehtmllabel-nogroup-author-nodate'; }
+    else if(!viewSettings.showGroup && !viewSettings.showAuthor && viewSettings.showTime) { result.nodeClass = 'nodehtmllabel-nogroup-noauthor-date'; }
+    else if(!viewSettings.showGroup && !viewSettings.showAuthor && !viewSettings.showTime) { result.nodeClass = 'nodehtmllabel-nogroup-noauthor-nodate'; }
+
+    result.buildson = viewSettings.buildson;
+    result.references = viewSettings.references;
+    return result;
+  }
+
+  // batch updates the nodes and edges corresponding to the view settings
+  updateViewSettings(){
+    var cy = this.cy;
+
+    if(this.state.removedEdgeElements !== null && this.state.removedEdgeElements.edges) cy.add(this.state.removedEdgeElements);
+    else if(this.state.removedEdgeElements !== null) this.state.removedEdgeElements.restore();
+    this.setState({removedEdgeElements: null});
+
+    var nodes = cy.nodes();
+    var edges = cy.edges();
+    var newInfo = this.getViewSettingsInfo();
+    var self = this;
+    cy.batch(function(){
+
+      if(nodes.length !== 0){
+        // iterate cytoscape nodes
+        for(let i in nodes){
+          if(nodes[i][0] && nodes[i][0].classes()){
+
+            // iterate the nodes classes to see if it has a class with prefix 'nodehtmllabel'
+            // if it does replace it with the nodeClass in the newInfo object
+            var classes = nodes[i][0].classes();
+            for(let j in classes){
+              if(classes[j].substring(0,13) === 'nodehtmllabel' && classes[j] !== newInfo.nodeClass){
+                nodes[i].removeClass(classes[j]).addClass(newInfo.nodeClass);
+              }
+            }
+          }
+        }
+      }
+
+      if(edges.length !== 0){
+        var edgesToHide = cy.collection();
+        // iterate cytoscape edges
+        for(let i in edges){
+          // if the edge is a buildson and buildson are hidden OR if the edge is a reference and references are hidden - add it to the collection of edges to be removed
+          if(edges[i][0] && ((edges[i][0].hasClass('buildson') && newInfo.buildson === false) || ((edges[i][0].hasClass('references') && newInfo.references === false)))){
+            edgesToHide = edgesToHide.union(edges[i][0]);
+          }
+        }
+
+        if(edgesToHide.length !== 0){
+          var removedEdgeElements = cy.remove(edgesToHide);
+          self.setState({removedEdgeElements: removedEdgeElements});
+        }
+      }
+    });
+
   }
 
   componentDidMount() {
@@ -273,7 +353,67 @@ class GraphView extends Component {
     // CYTOSCAPE-NODE-HTML-LABEL EXTENSION
     cy.nodeHtmlLabel([
       {
-        query: 'node',
+        query: '.nodehtmllabel-group-author-date',
+        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
+        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
+        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        tpl: function(data){
+          // we only want author and creation date listed for notes
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+            return '<div>' + (data.groupName !== null ? data.groupName : data.author) + '<br>' + data.date + '</div>';
+          }
+          return '';
+        }
+      },
+      {
+        query: '.nodehtmllabel-group-author-nodate',
+        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
+        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
+        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        tpl: function(data){
+          // we only want author and creation date listed for notes
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+            return '<div>' + (data.groupName !== null ? data.groupName : data.author) + '</div>';
+          }
+          return '';
+        }
+      },
+      {
+        query: '.nodehtmllabel-group-noauthor-date',
+        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
+        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
+        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        tpl: function(data){
+          // we only want author and creation date listed for notes
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+            return (data.groupName !== null) ? ('<div>' + data.groupName + '<br>' + data.date + '</div>') : ('<div>' + data.date + '</div>');
+          }
+          return '';
+        }
+      },
+      {
+        query: '.nodehtmllabel-group-noauthor-nodate',
+        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
+        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
+        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        tpl: function(data){
+          // we only want author and creation date listed for notes
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+            return '<div>' + (data.groupName !== null ? data.groupName : '') + '</div>';
+          }
+          return '';
+        }
+      },
+      {
+        query: '.nodehtmllabel-nogroup-author-date',
         halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
         valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
         halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
@@ -283,14 +423,52 @@ class GraphView extends Component {
           // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
             return '<div>' + data.author + '<br>' + data.date + '</div>';
-          } else {
-            return '';
           }
+          return '';
+        }
+      },
+      {
+        query: '.nodehtmllabel-nogroup-author-nodate',
+        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
+        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
+        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        tpl: function(data){
+          // we only want author and creation date listed for notes
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+            return '<div>' + data.author + '</div>';
+          }
+          return '';
+        }
+      },
+      {
+        query: '.nodehtmllabel-nogroup-noauthor-date',
+        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
+        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
+        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        tpl: function(data){
+          // we only want author and creation date listed for notes
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+            return '<div>' + data.date + '</div>';
+          }
+          return '';
+        }
+      },
+      {
+        query: '.nodehtmllabel-nogroup-noauthor-nodate',
+        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
+        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
+        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
+        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
+        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        tpl: function(data){
+          return '';
         }
       },
     ]);
-
-    this.loadElements();
 
     var ref = this;
     // on single click of node log its kf id and mark it as read
@@ -322,8 +500,8 @@ class GraphView extends Component {
 
           var kfId = evt.target.data().kfId;
 
-          let viewLink = this.props.viewLinks.filter((link) => link.to === kfId)
-          if (viewLink.length) {
+          let viewLink = Object.values(this.props.viewLinks).filter((link) => link.to === kfId)
+          if (viewLink !== undefined && viewLink.length) {
               viewLink = viewLink[0];
               const data = {x, y}
               const newViewLink = { ...viewLink }
@@ -334,9 +512,8 @@ class GraphView extends Component {
 
       //Update view link of image if position is changed
       cy.on('cysupportimages.imagemoved', (evt, img) => {
-          let viewLink = this.props.viewLinks.filter((link) => link._id === img.linkId)
-          if (viewLink.length) {
-              viewLink = viewLink[0];
+          let viewLink = this.props.viewLinks[img.linkId]
+          if (viewLink !== undefined) {
               const data = {x: img.bounds.x, y: img.bounds.y}
               const newViewLink = { ...viewLink }
               newViewLink.data = { ...newViewLink.data, ...data };
@@ -345,9 +522,8 @@ class GraphView extends Component {
       })
 
       cy.on('cysupportimages.imageresized', (evt, img, b1, b2) => {
-          let viewLink = this.props.viewLinks.filter((link) => link._id === img.linkId)
-          if (viewLink.length) {
-              viewLink = viewLink[0];
+          let viewLink = this.props.viewLinks[img.linkId]
+          if (viewLink !== undefined) {
               const data = {width: img.bounds.width, height: img.bounds.height}
               const newViewLink = { ...viewLink }
               newViewLink.data = { ...newViewLink.data, ...data };
@@ -357,25 +533,33 @@ class GraphView extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-      // AN OBJECT MAPPING DIFFERENT RENDERING CASES TO BOOLEAN VALUES
-      // this is an attempt to organize and account for all the edge cases when deciding to rerender the graph
+      // AN OBJECT MAPPING DIFFERENT CASES TO BOOLEAN VALUES
+      // this is an attempt to organize and account for all the edge cases when the component updates
       let cases = {
-        anyPropUpdated: (this.props.viewId !== prevProps.viewId || this.props.buildsOn !== prevProps.buildsOn
-                            || this.props.authors !== prevProps.authors || this.props.viewLinks !== prevProps.viewLinks || this.props.readLinks !== prevProps.readLinks),
 
-        nodePositionUpdated: (this.props.viewId === prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.authors === prevProps.authors
-                            && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === prevProps.viewLinks.length && this.props.readLinks === prevProps.readLinks),
+        anyPropUpdated: (this.props.viewId !== prevProps.viewId || this.props.buildsOn !== prevProps.buildsOn || this.props.references !== prevProps.references
+                            || this.props.authors !== prevProps.authors || this.props.viewLinks !== prevProps.viewLinks || this.props.community !== prevProps.community),
 
-        switchedToEmptyView: (this.props.viewId !== prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.authors === prevProps.authors
-                            && this.props.viewLinks !== prevProps.viewLinks && this.props.viewLinks.length === 0 && prevProps.viewLinks.length !== undefined),
+        currViewLinkUpdated: (this.props.viewId === prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.references === prevProps.references && this.props.authors === prevProps.authors
+                            && this.props.viewLinks !== prevProps.viewLinks && Object.keys(this.props.viewLinks).length === Object.keys(prevProps.viewLinks).length && this.props.readLinks === prevProps.readLinks),
+
+        switchedToEmptyView: (this.props.viewId !== prevProps.viewId && this.props.buildsOn === prevProps.buildsOn && this.props.references === prevProps.references && this.props.authors === prevProps.authors
+                            && this.props.viewLinks !== prevProps.viewLinks && Object.keys(this.props.viewLinks).length === 0 && Object.keys(prevProps.viewLinks).length !== undefined),
 
         searchTriggered: (this.props.searchQuery !== prevProps.searchQuery || this.props.searchFilter !== prevProps.searchFilter),
+
+        updateReadLinks: (this.props.readLinks.length !== 0 && Object.keys(this.props.viewLinks) !== 0 && this.state.kfToCyMap !== prevState.kfToCyMap),
+
+        viewSettingsChanged: (this.props.currViewSettingsObj !== prevProps.currViewSettingsObj),
+
       }
 
-      var forceRender = (cases.nodePositionUpdated || cases.switchedToEmptyView);
+      var forceRender = (cases.switchedToEmptyView || cases.currViewLinkUpdated);
 
       if(cases.searchTriggered){ this.filterNodes(); }
-      if(cases.anyPropUpdated){ this.loadElements(prevProps.viewLinks.length, forceRender); }
+      if(cases.viewSettingsChanged){ this.updateViewSettings(); }
+      if(cases.updateReadLinks){ this.updateReadLinks(); }
+      if(cases.anyPropUpdated){ this.loadElements(Object.keys(prevProps.viewLinks).length, forceRender); }
   }
 
   render() {
@@ -410,7 +594,8 @@ class GraphView extends Component {
                 'curve-style': 'bezier'
               }
             },
-
+            {selector: '.buildson', style: {'line-color': '#29648f', 'target-arrow-color': '#29648f'}},
+            {selector: '.references', style: {'line-color': 'black', 'target-arrow-color': 'black'}},
             {selector: '.unread-note', style: {'background-image': [unread_note_icon]}},
             {selector: '.read-note', style: {'background-image': [read_note_icon]}},
             {selector: '.unread-riseabove', style: {'background-image': [unread_riseabove_icon]}},
@@ -443,6 +628,7 @@ const mapStateToProps = (state, ownProps) => {
     return {
         token: state.globals.token,
         server: state.globals.currentServer,
+        community: state.globals.community,
         viewId: state.globals.viewId,
         author: state.globals.author,
         authors: state.users,
@@ -450,9 +636,11 @@ const mapStateToProps = (state, ownProps) => {
         viewLinks: state.notes.viewLinks,
         readLinks: state.notes.readLinks,
         buildsOn: state.notes.buildsOn,
+        references: state.notes.references,
         supports: state.notes.supports,
         searchQuery: state.globals.searchQuery,
-        searchFilter: state.globals.searchFilter
+        searchFilter: state.globals.searchFilter,
+        currViewSettingsObj: state.globals.currViewSettingsObj,
     }
 }
 

@@ -26,6 +26,82 @@
     z-index: 1000 !important;
 }
 
+.settingsPopoverList {
+  list-style: none !important;
+  padding: 0;
+  margin: 0;
+}
+
+#viewTypeContent {
+  padding: 0;
+}
+
+#viewTypeContent > .row, #viewTypeContent > .row > .col {
+  margin-left: 0;
+  margin-right: 0;
+  padding: 0;
+}
+
+#viewTypeContent > .row > .col > button  {
+  width: 100%;
+  border-radius: 0;
+  background-color: #ebebeb;
+  border-color: #ebebeb;
+  color: #2d5085;
+}
+
+#viewTypeContent > .row > .col > .activeView  {
+  width: 100%;
+  border-radius: 0;
+  background-color: #2d5085;
+  border-color: #2d5085;
+  color: white !important;
+  box-shadow: none;
+}
+
+#viewTypeContent > .row > .col:first-child {
+  border-right: 1px solid #ebebeb;
+}
+
+.viewSettingsPopoverContent {
+  padding: 0;
+}
+
+.viewSettingsCardHeader {
+  padding: 0;
+}
+
+.viewSettingsCardHeader > button, .viewSettingsCardHeader > button:hover {
+  color: #212529;
+  width: 100%;
+}
+
+.viewSettingsCardBody {
+  padding: 0.5rem 0.75rem;
+}
+
+.viewSettingsPopoverButton {
+  background-color: #2d5085;
+  border-color: #2d5085;
+  color: white;
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: 0.875rem;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.vsDisabled, .vsDisabled:hover {
+  cursor: not-allowed !important;
+  background-color: rgb(170, 170, 170);
+  border-color: rgb(170, 170, 170);
+}
+
+.settingsPopoverList > li > input[type='checkbox'] {
+  float: right;
+}
+
 .v-scroll{
     height: 86vh !important;
     overflow-y: scroll !important;
@@ -61,7 +137,7 @@
 }
 
 .pd-left{
-    padding-left : -2px !important; 
+    padding-left : -2px !important;
 }
 
 .dropright .dropdown-toggle::after{
@@ -84,7 +160,7 @@
     height: 3.5rem;
     -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
     box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
-    
+
 }
 
 .pad {

@@ -12,6 +12,7 @@ import TopNavBar from '../TopNavBar/TopNavbar';
 import AttachPanel from './attachmentCollapse/AttachPanel.js'
 import GraphView from '../GraphView.jsx';
 import LightView from '../View/LightView.js';
+import ViewSettingsPopover from './ViewSettingsPopover.jsx';
 import '../css/index.css';
 import "./View.css";
 import DialogHandler from './dialogHandler/DialogHandler.js'
@@ -24,8 +25,11 @@ class View extends Component {
         super(props)
         this.state = {
             token: sessionStorage.getItem('token'),
-            currentView: this.props.location.state === undefined ? "Enhanced" : this.props.location.state.currentView,
-            communityTitle: this.props.location.state === undefined ? null : this.props.location.state.communityTitle,
+            currentView: (this.props.location !== undefined && this.props.location.state !== undefined) ? this.props.location.state.currentView : "Enhanced",
+            communityTitle: (this.props.location !== undefined && this.props.location.state !== undefined) ?
+                              (this.props.location.state.communityTitle)
+                              :
+                              (this.props.demoCommunityTitle !== undefined ? this.props.demoCommunityTitle : null),
             addView: '',
             showModal: false,
             showView: false,
@@ -48,7 +52,7 @@ class View extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (this.props.viewId && this.props.viewId !== prevProps.viewId) {
+        if(this.props.viewId && this.props.viewId !== prevProps.viewId) {
             this.props.fetchNewViewDifference(this.props.viewId);
             if (this.props.socketStatus && prevProps.viewId){//If changing view and socket connection
                 this.context.unsubscribeToView(prevProps.viewId);
@@ -75,10 +79,12 @@ class View extends Component {
     onViewClick(viewId){
         this.handleShow(false);
         this.props.setViewId(viewId);
-        this.props.history.push({
-          pathname: `/view/${viewId}`,
-          state: { currentView: this.state.currentView, communityTitle: this.state.communityTitle }
-        });
+        if(this.props.isDemo === false){
+          this.props.history.push({
+            pathname: `/view/${viewId}`,
+            state: { currentView: this.state.currentView, communityTitle: this.state.communityTitle }
+          });
+        }
     }
 
     newView() {
@@ -189,7 +195,7 @@ class View extends Component {
               />
               <NewRiseAboveModal show={this.state.showRiseAboveModal} handleClose={() => this.setState({showRiseAboveModal: false})}/>
               <div className="row">
-                  {<TopNavBar currentView={this.state.currentView} onViewClick={this.onViewClick} communityTitle={this.state.communityTitle}></TopNavBar>}
+                  {<TopNavBar currentView={this.state.currentView} onViewClick={this.onViewClick} goToDashboard={this.goToDashboard} communityTitle={this.state.communityTitle}></TopNavBar>}
               </div>
 
               <div className="row flex-grow-1">
@@ -197,50 +203,51 @@ class View extends Component {
                   {/* SIDEBAR */}
                   <div className="col-md" id="sticky-sidebar">
                     <div className="row sidebar-list">
-                      <div className="sidebar-list-col col-4 col-sm-4 col-md-12">
-                      <DropdownButton drop="right" className="dropdown-btn-parent" title={<i className="fas fa-plus-circle"></i>}>
 
-                          <Dropdown.Item onClick={() => this.props.newNote(this.props.view, this.props.communityId, this.props.author._id)}>
-                              New Note
-                          </Dropdown.Item>
+                      {this.props.isDemo === false ? (
+                        <div className="sidebar-list-col col col-sm col-md-12">
+                        <OverlayTrigger
+                            placement="top"
+                            delay={{ show: 250, hide: 400 }}
+                            overlay={this.renderTooltip({ message: "Create New Contribution" })}>
+                        <DropdownButton drop="right" className="dropdown-btn-parent" title={<i className="fas fa-plus-circle"></i>}>
 
-                          <Dropdown.Item onClick={() => this.newView()}>
-                              New View
-                          </Dropdown.Item>
+                            <Dropdown.Item onClick={() => this.props.newNote(this.props.view, this.props.communityId, this.props.author._id)}>
+                                New Note
+                            </Dropdown.Item>
 
-                          <Dropdown.Item onClick={() => this.setState({showAttachPanel: true})}>
-                              New Attachment
-                          </Dropdown.Item>
+                            <Dropdown.Item onClick={() => this.newView()}>
+                                New View
+                            </Dropdown.Item>
 
-                          <Dropdown.Item onClick={() => this.props.newDrawing(this.props.viewId, this.props.communityId, this.props.author._id)}>
-                              New Drawing
-                          </Dropdown.Item>
+                            <Dropdown.Item onClick={() => this.setState({showAttachPanel: true})}>
+                                New Attachment
+                            </Dropdown.Item>
 
-                          <Dropdown.Item onClick={() => this.setState({showRiseAboveModal: true})}>
-                              New RiseAbove
-                          </Dropdown.Item>
-                      </DropdownButton>
-                      </div>
+                            <Dropdown.Item onClick={() => this.props.newDrawing(this.props.viewId, this.props.communityId, this.props.author._id)}>
+                                New Drawing
+                            </Dropdown.Item>
+                        </DropdownButton>
+                        </OverlayTrigger>
+                        </div>
+                      ) : null}
 
-                      <div className="sidebar-list-col col-4 col-sm-4 col-md-12">
+                      {/*<div className="sidebar-list-col col col-sm col-md-12">
                       <OverlayTrigger
-                          placement="right"
+                          placement="auto"
                           delay={{ show: 250, hide: 400 }}
                           overlay={this.renderTooltip({ message: "Exit Community" })}>
-                          <Button onClick={this.goToDashboard} className="circle-button sidebar-btn"><i className="fa fa-arrow-left"></i></Button>
+                          <Button onClick={this.goToDashboard} className="circle-button sidebar-btn"><i className="fas fa-home"></i></Button>
                       </OverlayTrigger>
+                      </div>*/}
+
+                      <div className="sidebar-list-col col col-sm col-md-12">
+                        <ViewSettingsPopover
+                            currentView={this.state.currentView}
+                            switchView={this.switchView}
+                        />
                       </div>
 
-                      <div className="sidebar-list-col col-4 col-sm-4 col-md-12">
-                      <OverlayTrigger
-                          placement="right"
-                          delay={{ show: 250, hide: 400 }}
-                          overlay={this.renderTooltip({ message: "Change View" })}>
-                          <Button onClick={this.switchView} className="circle-button pad sidebar-btn">
-                              <i className="fa fa-globe"></i>
-                          </Button>
-                      </OverlayTrigger>
-                      </div>
                     </div>
                   </div>
                   {/* END SIDEBAR */}
@@ -307,6 +314,7 @@ View.contextType = WebSocketContext;
 
 const mapStateToProps = (state, ownProps) => {
     return {
+        isDemo: state.globals.isDemo,
         token: state.globals.token,
         currentServer: state.globals.currentServer,
         communityId: state.globals.communityId,

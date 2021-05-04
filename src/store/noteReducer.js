@@ -27,13 +27,14 @@ export const updateCheckedNotes = createAction('UPDATE_CHECKED_NOTES')
 export const setViewLinks = createAction('SET_VIEW_LINKS')
 export const addViewLink = createAction('ADD_VIEW_LINK')
 export const setBuildsOn = createAction('SET_BUILDS_ON')
+export const setReferences = createAction('SET_REFERENCES')
 export const setSupports = createAction('SET_SUPPORTS')
 export const setRiseAboveViewNotes = createAction('SET_RISEABOVE_VIEW_NOTES')
 export const setRiseAboveNotes = createAction('SET_RISEABOVE_NOTES')
 export const setReadLinks = createAction('SET_READ_LINKS')
 export const removeViewLink = createAction('REMOVE_READ_LINKS')
 export const removeViewNote = createAction('REMOVE_VIEW_NOTE')
-const initState = {attachments: {}, viewNotes: {}, checkedNotes: [], viewLinks: [], buildsOn: [], supports: [], riseAboveNotes: {}, riseAboveViewNotes: {}, readLinks: [], raViews: {}}
+const initState = {attachments: {}, viewNotes: {}, checkedNotes: [], viewLinks: {}, buildsOn: [], supports: [], riseAboveNotes: {}, riseAboveViewNotes: {}, readLinks: [], raViews: {}}
 
 export const noteReducer = createReducer(initState, {
     [addNote]: (notes, action) => {
@@ -128,29 +129,25 @@ export const noteReducer = createReducer(initState, {
         state.viewLinks = action.payload
     },
     [addViewLink]: (state, action) => {
-        const matchLink = state.viewLinks.filter((link) => link._id === action.payload._id)
-        if (matchLink.length === 0){
-            state.viewLinks.push(action.payload)
-        } else {//update view link
-            state.viewLinks = state.viewLinks.map((link) => link._id === action.payload._id ? action.payload : link);
-        }
+        delete state.viewLinks[action.payload._id]
+        state.viewLinks[action.payload._id] = action.payload
     },
     [removeViewLink]: (state, action) => {
-        state.viewLinks = state.viewLinks.filter((link) => link._id !== action.payload._id)
+        delete state.viewLinks[action.payload._id]
     },
     [setBuildsOn]: (state, action) => {
         state.buildsOn = action.payload
+    },
+    [setReferences]: (state, action) => {
+        state.references = action.payload
     },
     [setSupports]: (state, action) => {
         state.supports = action.payload
     },
     [setRiseAboveViewNotes]: (state, action) => {
         state.riseAboveViewNotes[action.payload.noteId] = [...action.payload.notes]
-        // state.riseAboveViewNotes = [...state.riseAboveViewNotes, action.payload]
     },
     [setRiseAboveNotes]: (state, action) => {
-        // let viewId = action.payload.viewId
-        // state.riseAboveNotes[viewId] = [...action.payload.notes]
         action.payload.forEach(note => state.riseAboveNotes[note._id] = note)
     },
     [setReadLinks]: (state, action) =>{
@@ -272,6 +269,7 @@ export const newDrawing = (viewId, communityId, authorId) => async dispatch => {
         status: 'unsaved',
         permission: 'protected',
         data: {
+            // eslint-disable-next-line
             svg: '<svg width="200" height="200" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g><title>Layer 1<\/title><\/g><\/svg>',
         }
     }
@@ -382,6 +380,7 @@ export const openContribution = (contribId) => async (dispatch, getState) => {
 
     const contrib = await api.getObject(contribId)
     const author = getState().globals.author;
+    const isDemo = getState().globals.isDemo;
     if (contrib.type === 'Note'){
         const [fromLinks, toLinks] = await Promise.all([
             api.getLinks(contribId, 'from'),
@@ -402,7 +401,7 @@ export const openContribution = (contribId) => async (dispatch, getState) => {
             contribId: note._id,
             type: 'Note',
             editable: author && (note.authors.includes(author._id) || author.role === "manager"), // read or write tab
-            buildOn: true
+            buildOn: !isDemo
         }))
         //annotations
         const annoLinks = toLinks.filter((link) => link.type === 'annotates')
@@ -432,7 +431,6 @@ export const openContribution = (contribId) => async (dispatch, getState) => {
             buildOn: true
         }))
     }
-    console.log(contrib)
 
     if (contrib.status === 'active') {
         api.read(contrib.communityId, contrib._id)
@@ -476,7 +474,12 @@ export const fetchViewNotes = (viewId) => async (dispatch) => {
     const noteLinks = links
         .filter(obj => (obj._to.type === "Note" && obj._to.title !== "" && obj._to.status === "active"))
 
-    dispatch(setViewLinks(links))
+    const linksMap = links.reduce(function(map, obj){
+      map[obj._id] = obj;
+      return map
+    }, {});
+
+    dispatch(setViewLinks(linksMap))
     const notes = await Promise.all(noteLinks.map((filteredObj) => api.getObject(filteredObj.to)))
 
     dispatch(setViewNotes(notes))
@@ -509,6 +512,12 @@ export const fetchBuildsOn = (communityId) => async (dispatch) => {
             (obj._to.type === "Note" && obj._to.status === "active" && obj._from.type === "Note" && obj._from.status === "active")
     )
     dispatch(setBuildsOn(filteredBuildOn))
+}
+
+export const fetchReferences = (communityId) => async (dispatch) => {
+   let references = await api.linksSearch(communityId, {"type": "references"});
+   const filteredReferences = references.filter((obj) => (obj._to.status === "active" && obj._to.title !== "" && obj._from.status === "active" && obj._from.title !== ""));
+   dispatch(setReferences(filteredReferences));
 }
 
 export const fetchSupports = (communityId) => async (dispatch) => {

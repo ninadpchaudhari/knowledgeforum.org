@@ -2,15 +2,18 @@ import { createAction, createReducer } from '@reduxjs/toolkit'
 import { getObject, getCommunity, getGroups, getUser, getAuthor, getCommunityViews, getCommunities, getUserCommunities } from './api.js'
 import { fetchAuthors } from './userReducer.js';
 import { fetchScaffolds } from './scaffoldReducer.js'
-import { fetchViewNotes, fetchBuildsOn, setCheckedNotes, fetchSupports, fetchReadLinks } from './noteReducer.js'
+import { fetchViewNotes, fetchBuildsOn, fetchReferences, setCheckedNotes, fetchSupports, fetchReadLinks } from './noteReducer.js'
+export const setDemoStatus = createAction('SET_DEMO_STATUS')
 export const setGlobalToken = createAction('SET_TOKEN')
 export const setCurrentLoginForm = createAction('SET_CURRENT_LOGIN_FORM')
 export const setCommunity = createAction('SET_COMMUNITY')
+export const setCommunitySettings = createAction('SET_COMMUNITY_SETTING')
 export const setCommunityId = createAction('SET_COMMUNITY_ID')
 export const setCurrentServer = createAction('SET_CURRENT_SERVER')
 export const setViewId = createAction('SET_VIEW_ID')
 export const setLoggedUser = createAction('SET_AUTHOR')
 export const setView = createAction('SET_VIEW')
+export const setCurrViewSettingsObj = createAction('SET_CURRENT_VIEW_SETTINGS_OBJ');
 export const setAuthor = createAction('SET_AUTHOR')
 export const setViews = createAction('SET_VIEWS')
 export const editCommunity = createAction('EDIT_COMMUNITY')
@@ -28,6 +31,7 @@ export const dateFormatOptions = {
 };
 
 const initState = {
+    isDemo: false,
     token: sessionStorage.getItem("token"),
     currentLoginForm: "Login",
     communityId: null,
@@ -37,7 +41,11 @@ const initState = {
     user: null,
     view: null,
     views: [],
+    currViewSettingsObj: {buildson: true, language: false, references: false, showAuthor: true, showGroup: false, showTime: true},
+    thisViewsViewSettingsObj: null,
+    communityViewSettingsObj: null,
     community: null,
+    communitySettings: null,
     userId: '',
     isAuthenticated: sessionStorage.getItem("token") ? true : false,
     communities: [],
@@ -86,6 +94,9 @@ const initState = {
 }
 
 export const globalsReducer = createReducer(initState, {
+    [setDemoStatus]: (state, action) => {
+        state.isDemo = action.payload
+    },
     [setGlobalToken]: (state, action) => {
         state.token = action.payload
         state.isAuthenticated = state.token ? true : false
@@ -113,6 +124,14 @@ export const globalsReducer = createReducer(initState, {
     },
     [setView]: (state, action) => {
         state.view = action.payload
+        if(action.payload.data && action.payload.data.viewSetting){
+          state.thisViewsViewSettingsObj = action.payload.data.viewSetting
+        } else {
+          state.thisViewsViewSettingsObj = null
+        }
+    },
+    [setCurrViewSettingsObj]: (state, action) => {
+        state.currViewSettingsObj = action.payload
     },
     [setViews]: (state, action) => {
         state.views = action.payload
@@ -121,6 +140,14 @@ export const globalsReducer = createReducer(initState, {
         state.community = action.payload
         state.communityId = action.payload._id
         state.contextId = action.payload.rootContextId
+    },
+    [setCommunitySettings]: (state, action) => {
+        state.communitySettings = action.payload
+        if(action.payload.data && action.payload.data.viewSetting){
+          state.communityViewSettingsObj = action.payload.data.viewSetting
+        } else {
+          state.communityViewSettingsObj = null
+        }
     },
     [editCommunity]: (state, action) => {
         state.community = { ...state.community, ...action.payload }
@@ -184,6 +211,14 @@ export const fetchCommunity = (communityId) => {
     }
 }
 
+export const fetchCommunitySettings = (contextId) => {
+    return dispatch => {
+        return getObject(contextId).then(res => {
+            dispatch(setCommunitySettings(res))
+        })
+    }
+}
+
 export const fetchCommGroups = (communityId) => async (dispatch) => {
     const groups = await getGroups(communityId)
     dispatch(editCommunity({ groups }))
@@ -214,11 +249,14 @@ export const fetchViewCommunityData = (viewId) => async (dispatch) => {
     dispatch(setView(view))
     dispatch(fetchViewNotes(view._id))
     const community = (await getCommunity(commId)).data
+    dispatch(fetchCommunitySettings(community.rootContextId))
     dispatch(setCommunity(
         { groups: [], ...community }
     ))
     dispatch(fetchBuildsOn(commId))
+    dispatch(fetchReferences(commId))
     dispatch(fetchAuthor(commId))
+    dispatch(fetchCommGroups(commId))
     dispatch(fetchCommunityViews(commId))
     dispatch(fetchAuthors(commId))
     dispatch(fetchReadLinks(commId, view._id))

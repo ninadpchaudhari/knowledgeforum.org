@@ -6,6 +6,8 @@ import { setCurrentLoginForm, setGlobalToken } from './store/globalsReducer.js'
 import $ from 'jquery';
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js';
 import {executePromises, getLoginData} from './helper/Login_helper.js';
+import app_store from './assets/appstore.svg';
+import googleplay_store from './assets/googleplaystore.png';
 
 import './css/Login.css';
 
@@ -88,6 +90,10 @@ class LoginForm extends Component {
           </form>
 
           <p className="login-create-account-p" onClick={this.openSignUpForm}>Don't have an account? Sign up <i className="far fa-arrow-alt-circle-right"></i></p>
+          <div className="login-apps-div">
+            <a href="itms-apps://apps.apple.com/us/app/id1554705711"><img className="login-appstore-img" src={app_store} alt={"Apple App Store"}/></a>
+            <a style={{marginLeft: "10px"}} href="https://play.google.com/store/apps/details?id=com.kf6mobile&hl=en_US&gl=US"><img className="login-appstore-img" src={googleplay_store} alt={"Google Play Store"}/></a>
+          </div>
         </div>
       </div>
     )

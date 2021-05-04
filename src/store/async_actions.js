@@ -1,6 +1,9 @@
 import * as api from './api.js'
+
+import { setView, setCommunitySettings } from './globalsReducer.js'
 import { addViewLink, addViewNote, createNote } from './noteReducer.js'
 import { addToRAView } from './noteActions.js'
+
 
 export const updateViewLink = (link) => async (dispatch, getState) => {
     await api.putLink(link._id, link);
@@ -17,6 +20,18 @@ export const onViewLink = (link) => async (dispatch, getState) => {
         }
     }
 }
+
+
+export const updateViewObject = (object) => async (dispatch, getState) => {
+    await api.putObject(object, object.communityId, object._id);
+    dispatch(setView(object));
+}
+
+export const updateCommunityContextObject = (object) => async (dispatch, getState) => {
+    await api.putObject(object, object.communityId, object._id);
+    dispatch(setCommunitySettings(object));
+}
+
 
 export const createView = async (title, authorId, communityId, options, registerToCommunity) => {
     const newobj = {

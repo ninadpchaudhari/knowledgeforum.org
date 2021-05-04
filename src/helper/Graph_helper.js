@@ -1,16 +1,15 @@
 import {getApiObjectsObjectId} from '../api/object.js';
 
 // adds the notes to the cytoscape graph
-// parameters are token, cytoscape instance, cytoscape-supportimage instance, notes map, getApiLinksFromViewId, getApiLinksReadStatus, and getCommunityAuthors results
-export function addNodesToGraph(server, token, nodes, nodeData, authorData){
+export function addNodesToGraph(server, token, nodes, nodeData, authorData, viewSettings, groups){
   var graph_nodes = [];
   for(var i = 0; i < nodeData.length; i++){
-    var id = createCytoscapeId(nodes, nodeData[i].to);
 
     if(nodeData[i]._to.type === "Note" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
-      graph_nodes.push(handleNote(id, nodeData[i], authorData));
+      var id = createCytoscapeId(nodes, nodeData[i].to);
+      graph_nodes.push(handleNote(server, token, id, nodeData[i], authorData, viewSettings, groups));
     } else if(nodeData[i]._to.type === "Attachment" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
-      graph_nodes.push(handleAttachment(server, token, nodes, nodeData[i], authorData));
+      graph_nodes.push(handleAttachment(server, token, nodes, nodeData[i], authorData, viewSettings, groups));
     } else if(nodeData[i]._to.type === "Drawing" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
       graph_nodes.push(handleDrawing(server, token, nodes, nodeData[i], authorData));
     } else if(nodeData[i]._to.type === "View" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
@@ -23,9 +22,9 @@ export function addNodesToGraph(server, token, nodes, nodeData, authorData){
 
 
 // adds the edges to the cytoscape graph
-// parameters are cytoscape instance, notes map, and postApiLinksCommunityIdSearch results
-export function addEdgesToGraph(nodes, edgeData){
+export function addEdgesToGraph(nodes, buildson, references, viewSettings){
   var graph_edges = [];
+  var edgeData = buildson.concat(references);
   for(var i = 0; i < edgeData.length; i++){
     var obj = edgeData[i];
 
@@ -42,7 +41,9 @@ export function addEdgesToGraph(nodes, edgeData){
                   id: obj._id + '-' + (parseInt(j) + 1) + (parseInt(k) + 1),
                   source: obj.from + '-' + (parseInt(j) + 1),
                   target: obj.to + '-' + (parseInt(k) + 1)
-                }
+                },
+                classes: obj.type,
+                initialDisplay: viewSettings[obj.type],
               });
             }
           }
@@ -56,10 +57,11 @@ export function addEdgesToGraph(nodes, edgeData){
 
 
 // handles adding notes to the cytoscape instance
-function handleNote(id, nodeData, authorData){
+function handleNote(server, token, id, nodeData, authorData, viewSettings, groups){
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var date = parseDate(nodeData.created);
   var readStatus, type;
+  var groupName = nodeData._to.group ? groups.find(group => group._id === nodeData._to.group).title : null;
 
   // handles whether it is a note or a riseabove
   if(nodeData._to.data === undefined){
@@ -75,12 +77,14 @@ function handleNote(id, nodeData, authorData){
       data: {
         id: id,
         name: nodeData._to.title,
+        groupName: groupName,
         author: authorName,
         date: date,
         kfId: nodeData.to,
+        linkId: nodeData._id,
         type: type
       },
-      classes: readStatus,
+      classes: [readStatus, viewSettings.nodeClass],
       position: {
         x: nodeData.data.x,
         y: nodeData.data.y
@@ -90,11 +94,11 @@ function handleNote(id, nodeData, authorData){
 
 
 // handles adding attachments to the cytoscape instance
-function handleAttachment(server, token, nodes, nodeData, authorData){
+function handleAttachment(server, token, nodes, nodeData, authorData, viewSettings, groups){
 
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var date = parseDate(nodeData.created);
-  var id = createCytoscapeId(nodes, nodeData.to);
+  var groupName = nodeData._to.group ? groups.find(group => group._id === nodeData._to.group).title : null;
 
   return getApiObjectsObjectId(token, server, nodeData.to).then(function(result){
     if(String(result.data.type).substring(0,5) === "image"){
@@ -123,23 +127,27 @@ function handleAttachment(server, token, nodes, nodeData, authorData){
       };
 
     } else {
+      var id = createCytoscapeId(nodes, nodeData.to);
       return {
         group: 'nodes',
         data: {
           id: id,
           name: nodeData._to.title,
+          groupName: groupName,
           author: authorName,
           date: date,
           kfId: nodeData.to,
+          linkId: nodeData._id,
           type: nodeData._to.type,
           download: server + result.data.url.substring(1,)
         },
-        classes: "attachment",
+        classes: ["attachment", viewSettings.nodeClass],
         position: {
           x: nodeData.data.x,
           y: nodeData.data.y
         }
       };
+
     }
   });
 }
@@ -195,6 +203,7 @@ function handleView(nodes, nodeData, authorData){
       author: authorName,
       name: nodeData._to.title,
       kfId: nodeData.to,
+      linkId: nodeData._id,
       type: nodeData._to.type,
       communityId: nodeData.communityId,
     },
