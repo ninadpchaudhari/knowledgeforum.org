@@ -2,12 +2,12 @@ import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import ReactNotification from 'react-notifications-component';
-import Login from './Login';
-import Dashboard from './Dashboard';
-import View from './components/View.js'
+import Login from './components/Login/Login.jsx';
+import Dashboard from './components/Dashboard/Dashboard.jsx';
+import View from './components/CommunityView/View.js'
 import { setGlobalToken, setCurrentServer, fetchLoggedUser } from './store/globalsReducer.js'
 import { setToken, setServer } from './store/api.js'
-import { getLoginData } from './helper/Login_helper.js'
+import { getLoginData } from './components/Login/Login_helper.js'
 import ProtectedRoute from './ProtectedRoute.jsx'
 import 'react-notifications-component/dist/theme.css'
 function App() {

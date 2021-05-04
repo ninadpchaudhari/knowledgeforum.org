@@ -65,7 +65,7 @@ class NoteContent extends Component {
                 headers: { Authorization: `Bearer ${this.state.token}` }
             };
             this.props.checkedNotes.forEach(note => {
-                const ref = this.props.viewLinks.filter((lnk) => lnk.to === note._id)[0]
+                const ref = Object.values(this.props.viewLinks).filter((lnk) => lnk.to === note._id)[0]
                 topleft.x = Math.min(topleft.x, ref.data.x);
                 topleft.y = Math.min(topleft.y, ref.data.y);
             })

@@ -15,6 +15,14 @@ export const SERVERS = [
 export const MINZOOM = 0.75;
 export const MAXZOOM = 2;
 
+// DEMO VALUES FOR LOGIN PAGE
+export const DEMOUSERNAME = "kfhowdemouser";
+export const DEMOUSERPASSWORD = "demouser123";
+export const DEMOSERVER = "https://kf6-stage.ikit.org/";
+export const DEMOCOMMUNITYID = "5ea995a6cbdc04a6f53a1b5c";
+export const DEMOCOMMUNITYTITLE = "KF How To - KB Resources";
+export const DEMOVIEWID = "5ea995a7cbdc04a6f53a1b5f";
+
 // GOOGLE RECAPTCHA SITE KEY FOR SIGN UP PAGE
 export const siteKey = "6LdTo2oaAAAAALKB-WW7km7SabLVsBXSg4NAaX_K";
 

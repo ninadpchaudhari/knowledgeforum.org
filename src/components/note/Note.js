@@ -5,7 +5,7 @@ import History from '../historyTab/History'
 import Properties from '../propertiesTab/Properties'
 import AuthorTab from '../authorsTab/AuthorTab'
 import Annotator from '../annotator/Annotator'
-import GraphView from '../../GraphView'
+import GraphView from '../CommunityView/GraphView/GraphView.jsx'
 import { connect } from 'react-redux'
 import {
     setAnnotationsLoaded,
