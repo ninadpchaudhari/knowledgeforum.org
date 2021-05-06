@@ -13,7 +13,7 @@ export const SERVERS = [
 
 // ZOOM VALUES FOR CYTOSCAPE GRAPH
 export const MINZOOM = 0.75;
-export const MAXZOOM = 2;
+export const MAXZOOM = 10;
 
 // DEMO VALUES FOR LOGIN PAGE
 export const DEMOUSERNAME = "kfhowdemouser";

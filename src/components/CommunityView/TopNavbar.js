@@ -20,21 +20,23 @@ class TopNavbar extends Component {
 
   handleFilter = (e) => {
       let value = e.target.value;
+      var query;
       if(value === "scaffold"){
-        var query = this.props.scaffolds[0].supports[0].to;
-        this.setState({query: query});
-        this.props.setSearchQuery(query);
+        query = this.props.scaffolds[0].supports[0].to;
+      } else if(value === "author"){
+        query = this.props.user.firstName + " " + this.props.user.lastName;
       } else {
-        this.setState({query: ''});
-        this.props.setSearchQuery('');
+        query = '';
       }
+      this.setState({query: query});
+      this.props.setSearchQuery(query);
       this.props.setSearchFilter(value);
   }
 
   handleInputChange = (event) => {
       const query = event.target.value
       this.setState({query: query});
-      if(query === '' || this.props.filter === 'scaffold') this.props.setSearchQuery(query);
+      if(query === '' || this.props.filter === 'scaffold' || this.props.filter === "author") this.props.setSearchQuery(query);
   };
 
   handleSearchSubmit = (e) => {
@@ -79,6 +81,20 @@ class TopNavbar extends Component {
                               })}
                           </optgroup>;
                         })}
+                    </Input>;
+    } else if(this.props.filter === "author"){
+      searchInput = <Input type="select" onChange={this.handleInputChange} defaultValue={this.props.user.firstName + " " + this.props.user.lastName}>
+                        {Object.values(this.props.authors).sort((a, b) => {
+                          var aName = (a.firstName + " " + a.lastName).toLowerCase();
+                          var bName = (b.firstName + " " + b.lastName).toLowerCase();
+                          if(aName < bName) return -1;
+                          if(aName > bName) return 1;
+                          return 0;
+                         }).map((author, i) => {
+                          var name = author.firstName + " " + author.lastName;
+                          return <option key={i} value={name}>{name}</option>;
+                         })
+                        }
                     </Input>;
     } else {
       searchInput = <Input
@@ -159,6 +175,7 @@ const mapStateToProps = (state, ownProps) => {
     views: state.globals.views,
     view: state.globals.view,
     scaffolds: state.scaffolds.items,
+    authors: state.users,
     supports: state.notes.supports,
     query: state.globals.searchQuery,
     filter: state.globals.searchFilter
