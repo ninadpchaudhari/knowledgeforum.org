@@ -470,6 +470,8 @@ class GraphView extends Component {
       },
     ]);
 
+    this.loadElements();
+
     var ref = this;
     // on single click of node log its kf id and mark it as read
     cy.on('tap', 'node', function(event){

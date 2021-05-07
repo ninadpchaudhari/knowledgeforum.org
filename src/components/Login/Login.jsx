@@ -30,10 +30,12 @@ class Login extends Component {
       demoViewId: DEMOVIEWID,
       modalContent: null,
       showModal: false,
+      modalDialogClassName: "login-modal-dialog",
     }
 
     this.handleShow = this.handleShow.bind(this);
     this.handleClose = this.handleClose.bind(this);
+    this.toggleFullScreenModal = this.toggleFullScreenModal.bind(this);
   }
 
   handleShow(){
@@ -69,7 +71,15 @@ class Login extends Component {
     this.setState({
       showModal: false,
       modalContent: null,
+      modalDialogClassName: "login-modal-dialog",
     });
+  }
+
+  toggleFullScreenModal(){
+    var newClass = "";
+    if(this.state.modalDialogClassName === "login-modal-dialog"){ newClass = "login-modal-dialogfullscreen"; }
+    else if(this.state.modalDialogClassName === "login-modal-dialogfullscreen"){ newClass = "login-modal-dialog"; }
+    this.setState({modalDialogClassName: newClass});
   }
 
   componentDidMount(){
@@ -115,9 +125,13 @@ class Login extends Component {
                     </div>
                   </div>
 
-                  <Modal dialogClassName="login-modal-dialog" show={this.state.showModal} onHide={this.handleClose}>
-                    <Modal.Header closeButton>
-                      <Modal.Title>Knowledge Forum Demo</Modal.Title>
+                  <Modal dialogClassName={this.state.modalDialogClassName} show={this.state.showModal} onHide={this.handleClose}>
+                    <Modal.Header>
+                      <Modal.Title className="login-modal-title">
+                          Knowledge Forum Demo
+                          <a className="kf-demo-modaltitle-btn" onClick={this.handleClose}><i className="fas fa-times"></i></a>
+                          <a className="kf-demo-modaltitle-btn" onClick={this.toggleFullScreenModal}><i className="fas fa-expand-alt"></i></a>
+                      </Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="login-modal-body" style={{padding: 0}}>
                       {this.state.modalContent}

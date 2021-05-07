@@ -140,6 +140,7 @@ class TopNavbar extends Component {
                                   <option key="scaffold" value="scaffold">Scaffold</option>
                                   <option key="content" value="content">Content</option>
                                   <option key="author" value="author">Author</option>
+                                  <option key="time" value="time">Date Created</option>
                               </Input>
                           </InputGroupAddon>
                           {searchInput}
@@ -181,6 +182,7 @@ const mapStateToProps = (state, ownProps) => {
     filter: state.globals.searchFilter
   }
 }
+
 const mapDispatchToProps = {
   setViewId,
   setGlobalToken,
