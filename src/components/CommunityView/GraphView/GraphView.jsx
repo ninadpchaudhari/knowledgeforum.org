@@ -238,6 +238,22 @@ class GraphView extends Component {
             });
             break;
 
+        case "time":
+            var curr_date = new Date();
+            nodesToHide = cy.filter(function(elem, i){
+               const elem_date = new Date(elem.data('date'));
+               if(elem.data('date') !== undefined && elem_date !== "Invalid Date"){
+                 var diff = curr_date - elem_date;
+                 var secondsDiff = diff/1000;
+
+                 if(query === "today" && !(secondsDiff <= 86400)){ return elem; }
+                 else if(query === "week" && !(secondsDiff <= 604800)){ return elem; }
+                 else if(query === "month" && !(secondsDiff <= 2592000)){ return elem; }
+                 else if(query === "year" && !(secondsDiff <= 31556952)){ return elem; }
+               }
+            });
+            break;
+
         default:
             break;
     }

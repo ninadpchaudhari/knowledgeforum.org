@@ -25,6 +25,8 @@ class TopNavbar extends Component {
         query = this.props.scaffolds[0].supports[0].to;
       } else if(value === "author"){
         query = this.props.user.firstName + " " + this.props.user.lastName;
+      } else if(value === "time"){
+        query = "today";
       } else {
         query = '';
       }
@@ -36,7 +38,7 @@ class TopNavbar extends Component {
   handleInputChange = (event) => {
       const query = event.target.value
       this.setState({query: query});
-      if(query === '' || this.props.filter === 'scaffold' || this.props.filter === "author") this.props.setSearchQuery(query);
+      if(query === '' || this.props.filter === 'scaffold' || this.props.filter === "author" || this.props.filter === "time") this.props.setSearchQuery(query);
   };
 
   handleSearchSubmit = (e) => {
@@ -95,6 +97,13 @@ class TopNavbar extends Component {
                           return <option key={i} value={name}>{name}</option>;
                          })
                         }
+                    </Input>;
+    } else if(this.props.filter === "time") {
+      searchInput = <Input type="select" onChange={this.handleInputChange} defaultValue="today">
+                        <option value="today">Today</option>
+                        <option value="week">This week</option>
+                        <option value="month">This month</option>
+                        <option value="year">This year</option>
                     </Input>;
     } else {
       searchInput = <Input
