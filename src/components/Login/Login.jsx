@@ -22,39 +22,35 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      demoUserName: DEMOUSERNAME,
-      demoUserPassword: DEMOUSERPASSWORD,
-      demoServer: DEMOSERVER,
-      demoCommunityId: DEMOCOMMUNITYID,
-      demoCommunityTitle: DEMOCOMMUNITYTITLE,
-      demoViewId: DEMOVIEWID,
       modalContent: null,
       showModal: false,
+      modalDialogClassName: "login-modal-dialog",
     }
 
     this.handleShow = this.handleShow.bind(this);
     this.handleClose = this.handleClose.bind(this);
+    this.toggleFullScreenModal = this.toggleFullScreenModal.bind(this);
   }
 
   handleShow(){
     this.setState({showModal: true});
     var self = this;
-    var demoTokenPromise = getUserToken(this.state.demoUserName, this.state.demoUserPassword, this.state.demoServer);
+    var demoTokenPromise = getUserToken(DEMOUSERNAME, DEMOUSERPASSWORD, DEMOSERVER);
     demoTokenPromise.then(function(result) {
       var token = result.token;
-      setServer(self.state.demoServer);
+      setServer(DEMOSERVER);
       setToken(token);
       sessionStorage.setItem('token', token);
-      sessionStorage.setItem('communityId', self.state.demoCommunityId);
-      sessionStorage.setItem('viewId', self.state.demoViewId);
+      sessionStorage.setItem('communityId', DEMOCOMMUNITYID);
+      sessionStorage.setItem('viewId', DEMOVIEWID);
       self.props.setDemoStatus(true);
       self.props.setGlobalToken(token);
       self.props.fetchLoggedUser();
-      self.props.setCommunityId(self.state.demoCommunityId);
-      self.props.setViewId(self.state.demoViewId);
-      self.props.setCurrentServer(self.state.demoServer);
+      self.props.setCommunityId(DEMOCOMMUNITYID);
+      self.props.setViewId(DEMOVIEWID);
+      self.props.setCurrentServer(DEMOSERVER);
       self.setState({
-        modalContent: <View demoCommunityTitle={self.state.demoCommunityTitle}></View>
+        modalContent: <View demoCommunityTitle={DEMOCOMMUNITYTITLE}></View>
       })
     });
   }
@@ -69,7 +65,15 @@ class Login extends Component {
     this.setState({
       showModal: false,
       modalContent: null,
+      modalDialogClassName: "login-modal-dialog",
     });
+  }
+
+  toggleFullScreenModal(){
+    var newClass = "";
+    if(this.state.modalDialogClassName === "login-modal-dialog"){ newClass = "login-modal-dialogfullscreen"; }
+    else if(this.state.modalDialogClassName === "login-modal-dialogfullscreen"){ newClass = "login-modal-dialog"; }
+    this.setState({modalDialogClassName: newClass});
   }
 
   componentDidMount(){
@@ -115,9 +119,13 @@ class Login extends Component {
                     </div>
                   </div>
 
-                  <Modal dialogClassName="login-modal-dialog" show={this.state.showModal} onHide={this.handleClose}>
-                    <Modal.Header closeButton>
-                      <Modal.Title>Knowledge Forum Demo</Modal.Title>
+                  <Modal dialogClassName={this.state.modalDialogClassName} show={this.state.showModal} onHide={this.handleClose}>
+                    <Modal.Header>
+                      <Modal.Title className="login-modal-title">
+                          Knowledge Forum Demo
+                          <a className="kf-demo-modaltitle-btn" onClick={this.handleClose}><i className="fas fa-times"></i></a>
+                          <a className="kf-demo-modaltitle-btn" onClick={this.toggleFullScreenModal}><i className="fas fa-expand-alt"></i></a>
+                      </Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="login-modal-body" style={{padding: 0}}>
                       {this.state.modalContent}

@@ -20,21 +20,25 @@ class TopNavbar extends Component {
 
   handleFilter = (e) => {
       let value = e.target.value;
+      var query;
       if(value === "scaffold"){
-        var query = this.props.scaffolds[0].supports[0].to;
-        this.setState({query: query});
-        this.props.setSearchQuery(query);
+        query = this.props.scaffolds[0].supports[0].to;
+      } else if(value === "author"){
+        query = this.props.user.firstName + " " + this.props.user.lastName;
+      } else if(value === "time"){
+        query = "today";
       } else {
-        this.setState({query: ''});
-        this.props.setSearchQuery('');
+        query = '';
       }
+      this.setState({query: query});
+      this.props.setSearchQuery(query);
       this.props.setSearchFilter(value);
   }
 
   handleInputChange = (event) => {
       const query = event.target.value
       this.setState({query: query});
-      if(query === '' || this.props.filter === 'scaffold') this.props.setSearchQuery(query);
+      if(query === '' || this.props.filter === 'scaffold' || this.props.filter === "author" || this.props.filter === "time") this.props.setSearchQuery(query);
   };
 
   handleSearchSubmit = (e) => {
@@ -80,6 +84,27 @@ class TopNavbar extends Component {
                           </optgroup>;
                         })}
                     </Input>;
+    } else if(this.props.filter === "author"){
+      searchInput = <Input type="select" onChange={this.handleInputChange} defaultValue={this.props.user.firstName + " " + this.props.user.lastName}>
+                        {Object.values(this.props.authors).sort((a, b) => {
+                          var aName = (a.firstName + " " + a.lastName).toLowerCase();
+                          var bName = (b.firstName + " " + b.lastName).toLowerCase();
+                          if(aName < bName) return -1;
+                          if(aName > bName) return 1;
+                          return 0;
+                         }).map((author, i) => {
+                          var name = author.firstName + " " + author.lastName;
+                          return <option key={i} value={name}>{name}</option>;
+                         })
+                        }
+                    </Input>;
+    } else if(this.props.filter === "time") {
+      searchInput = <Input type="select" onChange={this.handleInputChange} defaultValue="today">
+                        <option value="today">Past 24 hours</option>
+                        <option value="week">Past 7 days</option>
+                        <option value="month">Past 30 days</option>
+                        <option value="year">Past year</option>
+                    </Input>;
     } else {
       searchInput = <Input
           className="form-control"
@@ -124,6 +149,7 @@ class TopNavbar extends Component {
                                   <option key="scaffold" value="scaffold">Scaffold</option>
                                   <option key="content" value="content">Content</option>
                                   <option key="author" value="author">Author</option>
+                                  <option key="time" value="time">Date Created</option>
                               </Input>
                           </InputGroupAddon>
                           {searchInput}
@@ -159,11 +185,13 @@ const mapStateToProps = (state, ownProps) => {
     views: state.globals.views,
     view: state.globals.view,
     scaffolds: state.scaffolds.items,
+    authors: state.users,
     supports: state.notes.supports,
     query: state.globals.searchQuery,
     filter: state.globals.searchFilter
   }
 }
+
 const mapDispatchToProps = {
   setViewId,
   setGlobalToken,

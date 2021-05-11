@@ -157,7 +157,7 @@
   padding: 0;
 }
 
-#viewTypeContent > .row > .col > button  {
+#viewTypeContent > .row > .col > button, #layoutPopover > .popover-body > .row > button  {
   width: 100%;
   border-radius: 0;
   background-color: #ebebeb;
@@ -165,7 +165,7 @@
   color: #2d5085;
 }
 
-#viewTypeContent > .row > .col > .activeView  {
+#viewTypeContent > .row > .col > .activeView, #layoutPopover > .popover-body > .row > .activeLayout  {
   width: 100%;
   border-radius: 0;
   background-color: #2d5085;
@@ -215,6 +215,14 @@
 
 .settingsPopoverList > li > input[type='checkbox'] {
   float: right;
+}
+
+#layoutPopover > .popover-body {
+  padding: 0;
+}
+
+#layoutPopover > .popover-body > .row {
+  margin: 0;
 }
 
 .v-scroll{

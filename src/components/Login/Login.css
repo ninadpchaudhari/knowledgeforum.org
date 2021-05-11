@@ -239,9 +239,39 @@ body {
   max-width: 90% !important;
 }
 
+.login-modal-dialogfullscreen {
+  max-width: 100% !important;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.login-modal-dialogfullscreen > .modal-content {
+  width: 100%;
+  height: 100%;
+  border: 0px;
+  border-radius: 0;
+}
+
+.login-modal-title {
+  width: 100%;
+}
+
 .login-modal-body {
   height: 75vh;
   overflow: hidden;
+}
+
+.kf-demo-modaltitle-btn {
+  float: right;
+  color: black;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.kf-demo-modaltitle-btn:hover {
+  cursor: pointer;
+  color: black;
 }
 
 .login-modal-btn {

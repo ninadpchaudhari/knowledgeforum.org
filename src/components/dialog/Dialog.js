@@ -33,12 +33,14 @@ const Dialog = props => {
                         {props.children}
                     </Card.Body>
                     <Card.Footer className="dlg-card-footer py-0">
-                        <Button size='sm' className="dlg-button"
-                            onClick={props.onConfirm}
-                            disabled={false ||!props.editable}
-                        >
-                            Contribute
-                        </Button>
+                        {!props.editable ? null :
+                          <Button size='sm' className="dlg-button"
+                              onClick={props.onConfirm}
+                              disabled={false ||!props.editable}
+                          >
+                              Contribute
+                          </Button>
+                        }
                         {props.buildon ?
                          <Button size='sm' className="dlg-button"
                                  onClick={props.onBuildOnClick}>
