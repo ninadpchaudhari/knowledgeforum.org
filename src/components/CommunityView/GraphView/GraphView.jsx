@@ -335,9 +335,14 @@ class GraphView extends Component {
   }
 
   updateLayout(){
-    var cy = this.cy;
-    var layout = cy.layout({name: this.props.layout});
-    layout.run();
+    if(this.props.layout === "preset"){
+      this.setState({elements: {nodes: [], edges: []}});
+      this.loadElements(Object.keys(this.props.viewLinks).length, true);
+    } else {
+      var cy = this.cy;
+      var layout = cy.layout({name: this.props.layout});
+      layout.run();
+    }
   }
 
   componentDidMount() {
