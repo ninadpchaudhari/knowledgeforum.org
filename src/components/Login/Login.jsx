@@ -22,12 +22,6 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      demoUserName: DEMOUSERNAME,
-      demoUserPassword: DEMOUSERPASSWORD,
-      demoServer: DEMOSERVER,
-      demoCommunityId: DEMOCOMMUNITYID,
-      demoCommunityTitle: DEMOCOMMUNITYTITLE,
-      demoViewId: DEMOVIEWID,
       modalContent: null,
       showModal: false,
       modalDialogClassName: "login-modal-dialog",
@@ -41,22 +35,22 @@ class Login extends Component {
   handleShow(){
     this.setState({showModal: true});
     var self = this;
-    var demoTokenPromise = getUserToken(this.state.demoUserName, this.state.demoUserPassword, this.state.demoServer);
+    var demoTokenPromise = getUserToken(DEMOUSERNAME, DEMOUSERPASSWORD, DEMOSERVER);
     demoTokenPromise.then(function(result) {
       var token = result.token;
-      setServer(self.state.demoServer);
+      setServer(DEMOSERVER);
       setToken(token);
       sessionStorage.setItem('token', token);
-      sessionStorage.setItem('communityId', self.state.demoCommunityId);
-      sessionStorage.setItem('viewId', self.state.demoViewId);
+      sessionStorage.setItem('communityId', DEMOCOMMUNITYID);
+      sessionStorage.setItem('viewId', DEMOVIEWID);
       self.props.setDemoStatus(true);
       self.props.setGlobalToken(token);
       self.props.fetchLoggedUser();
-      self.props.setCommunityId(self.state.demoCommunityId);
-      self.props.setViewId(self.state.demoViewId);
-      self.props.setCurrentServer(self.state.demoServer);
+      self.props.setCommunityId(DEMOCOMMUNITYID);
+      self.props.setViewId(DEMOVIEWID);
+      self.props.setCurrentServer(DEMOSERVER);
       self.setState({
-        modalContent: <View demoCommunityTitle={self.state.demoCommunityTitle}></View>
+        modalContent: <View demoCommunityTitle={DEMOCOMMUNITYTITLE}></View>
       })
     });
   }
