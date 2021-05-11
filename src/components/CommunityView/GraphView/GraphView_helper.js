@@ -62,6 +62,7 @@ function handleNote(server, token, id, nodeData, authorData, viewSettings, group
   var date = parseDate(nodeData.created);
   var readStatus, type;
   var groupName = nodeData._to.group ? groups.find(group => group._id === nodeData._to.group).title : null;
+  var isPositionLocked = nodeData.data.draggable !== undefined ? !nodeData.data.draggable : false;
 
   // handles whether it is a note or a riseabove
   if(nodeData._to.data === undefined){
@@ -82,8 +83,9 @@ function handleNote(server, token, id, nodeData, authorData, viewSettings, group
         date: date,
         kfId: nodeData.to,
         linkId: nodeData._id,
-        type: type
+        type: type,
       },
+      locked: isPositionLocked,
       classes: [readStatus, viewSettings.nodeClass],
       position: {
         x: nodeData.data.x,
@@ -95,11 +97,11 @@ function handleNote(server, token, id, nodeData, authorData, viewSettings, group
 
 // handles adding attachments to the cytoscape instance
 function handleAttachment(server, token, nodes, nodeData, authorData, viewSettings, groups){
-
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var date = parseDate(nodeData.created);
   var groupName = nodeData._to.group ? groups.find(group => group._id === nodeData._to.group).title : null;
-  var showInPlace = nodeData.data.showInPlace ? nodeData.data.showInPlace : false;
+  var isPositionLocked = nodeData.data.draggable !== undefined ? !nodeData.data.draggable : false;
+  var showInPlace = nodeData.data.showInPlace !== undefined ? nodeData.data.showInPlace : false;
 
   return getApiObjectsObjectId(token, server, nodeData.to).then(function(result){
 
@@ -121,7 +123,7 @@ function handleAttachment(server, token, nodes, nodeData, authorData, viewSettin
         url: imageUrl,
         name: nodeData._to.title,
         bounds: bounds,
-        locked: false,
+        locked: isPositionLocked,
         linkId: nodeData._id,
         author: authorName,
         kfId: nodeData.to,
@@ -144,6 +146,7 @@ function handleAttachment(server, token, nodes, nodeData, authorData, viewSettin
           type: nodeData._to.type,
           download: server + result.data.url.substring(1,)
         },
+        locked: isPositionLocked,
         classes: ["attachment", viewSettings.nodeClass],
         position: {
           x: nodeData.data.x,
@@ -161,7 +164,8 @@ function handleDrawing(server, token, nodes, nodeData, authorData, viewSettings,
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var date = parseDate(nodeData.created);
   var groupName = nodeData._to.group ? groups.find(group => group._id === nodeData._to.group).title : null;
-  var showInPlace = nodeData.data.showInPlace ? nodeData.data.showInPlace : false;
+  var isPositionLocked = nodeData.data.draggable !== undefined ? !nodeData.data.draggable : false;
+  var showInPlace = nodeData.data.showInPlace !== undefined ? nodeData.data.showInPlace : false;
 
   return getApiObjectsObjectId(token, server, nodeData.to).then(function(result){
     if(showInPlace){
@@ -188,7 +192,7 @@ function handleDrawing(server, token, nodes, nodeData, authorData, viewSettings,
         url: 'data:image/svg+xml;utf8,' + encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>' + result.data.svg),
         name: nodeData._to.title,
         bounds: bounds,
-        locked: false,
+        locked: isPositionLocked,
         author: authorName,
         kfId: nodeData.to,
         type: nodeData._to.type,
@@ -211,6 +215,7 @@ function handleDrawing(server, token, nodes, nodeData, authorData, viewSettings,
           type: nodeData._to.type,
           download: 'data:image/svg+xml;utf8,' + encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>' + result.data.svg)
         },
+        locked: isPositionLocked,
         classes: ["attachment", viewSettings.nodeClass],
         position: {
           x: nodeData.data.x,
@@ -227,6 +232,7 @@ function handleDrawing(server, token, nodes, nodeData, authorData, viewSettings,
 function handleView(nodes, nodeData, authorData){
   var id = createCytoscapeId(nodes, nodeData.to);
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
+  var isPositionLocked = nodeData.data.draggable !== undefined ? !nodeData.data.draggable : false;
 
   return {
     group: 'nodes',
@@ -239,6 +245,7 @@ function handleView(nodes, nodeData, authorData){
       type: nodeData._to.type,
       communityId: nodeData.communityId,
     },
+    locked: isPositionLocked,
     classes: "view",
     position: {
       x: nodeData.data.x,
