@@ -100,10 +100,10 @@ class TopNavbar extends Component {
                     </Input>;
     } else if(this.props.filter === "time") {
       searchInput = <Input type="select" onChange={this.handleInputChange} defaultValue="today">
-                        <option value="today">Today</option>
-                        <option value="week">This week</option>
-                        <option value="month">This month</option>
-                        <option value="year">This year</option>
+                        <option value="today">Past 24 hours</option>
+                        <option value="week">Past 7 days</option>
+                        <option value="month">Past 30 days</option>
+                        <option value="year">Past year</option>
                     </Input>;
     } else {
       searchInput = <Input

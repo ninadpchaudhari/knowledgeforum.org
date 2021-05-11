@@ -44,6 +44,7 @@ class GraphView extends Component {
     this.filterNodes = this.filterNodes.bind(this);
     this.getViewSettingsInfo = this.getViewSettingsInfo.bind(this);
     this.updateViewSettings = this.updateViewSettings.bind(this);
+    this.updateLayout = this.updateLayout.bind(this);
   };
 
   loadElements(prevViewLinksLength, forceRender) {
@@ -240,6 +241,7 @@ class GraphView extends Component {
 
         case "time":
             var curr_date = new Date();
+            // eslint-disable-next-line
             nodesToHide = cy.filter(function(elem, i){
                const elem_date = new Date(elem.data('date'));
                if(elem.data('date') !== undefined && elem_date !== "Invalid Date"){
@@ -332,6 +334,12 @@ class GraphView extends Component {
 
   }
 
+  updateLayout(){
+    var cy = this.cy;
+    var layout = cy.layout({name: this.props.layout});
+    layout.run();
+  }
+
   componentDidMount() {
     var cy = this.cy;
 
@@ -377,7 +385,7 @@ class GraphView extends Component {
         cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
         tpl: function(data){
           // we only want author and creation date listed for notes
-          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + (data.groupName !== null ? data.groupName : data.author) + '<br>' + data.date + '</div>';
           }
           return '';
@@ -392,7 +400,7 @@ class GraphView extends Component {
         cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
         tpl: function(data){
           // we only want author and creation date listed for notes
-          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + (data.groupName !== null ? data.groupName : data.author) + '</div>';
           }
           return '';
@@ -407,7 +415,7 @@ class GraphView extends Component {
         cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
         tpl: function(data){
           // we only want author and creation date listed for notes
-          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return (data.groupName !== null) ? ('<div>' + data.groupName + '<br>' + data.date + '</div>') : ('<div>' + data.date + '</div>');
           }
           return '';
@@ -422,7 +430,7 @@ class GraphView extends Component {
         cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
         tpl: function(data){
           // we only want author and creation date listed for notes
-          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + (data.groupName !== null ? data.groupName : '') + '</div>';
           }
           return '';
@@ -437,7 +445,7 @@ class GraphView extends Component {
         cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
         tpl: function(data){
           // we only want author and creation date listed for notes
-          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + data.author + '<br>' + data.date + '</div>';
           }
           return '';
@@ -452,7 +460,7 @@ class GraphView extends Component {
         cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
         tpl: function(data){
           // we only want author and creation date listed for notes
-          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + data.author + '</div>';
           }
           return '';
@@ -467,7 +475,7 @@ class GraphView extends Component {
         cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
         tpl: function(data){
           // we only want author and creation date listed for notes
-          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment'){
+          if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + data.date + '</div>';
           }
           return '';
@@ -570,10 +578,13 @@ class GraphView extends Component {
 
         viewSettingsChanged: (this.props.currViewSettingsObj !== prevProps.currViewSettingsObj),
 
+        layoutChanged: (this.props.layout !== prevProps.layout),
+
       }
 
       var forceRender = (cases.switchedToEmptyView || cases.currViewLinkUpdated);
 
+      if(cases.layoutChanged){ this.updateLayout(); }
       if(cases.searchTriggered){ this.filterNodes(); }
       if(cases.viewSettingsChanged){ this.updateViewSettings(); }
       if(cases.updateReadLinks){ this.updateReadLinks(); }
@@ -631,7 +642,7 @@ class GraphView extends Component {
               }
             },
           ] }
-          layout={ {name: 'grid'} }
+          layout={ {name: 'preset'} }
           hideEdgesonViewport={ false }
           autolock={ false }
           wheelSensitivity={ 0.15 }

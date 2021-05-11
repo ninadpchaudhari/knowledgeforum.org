@@ -127,84 +127,86 @@ class ViewSettingsPopover extends Component {
               </Popover.Content>
               {/* END VIEW TYPE SELECTION */}
 
+              {this.props.currentView === "Enhanced" ? (
+                <Popover.Content className="viewSettingsPopoverContent">
+                  <Accordion defaultActiveKey="0">
 
-              <Popover.Content className="viewSettingsPopoverContent">
-                <Accordion defaultActiveKey="0">
-
-                    {/* TEMPORARY VIEW SETTINGS */}
-                    <Card>
-                        <Card.Header className="viewSettingsCardHeader">
-                          <Accordion.Toggle as={Button} variant="link" eventKey="0">View Settings (Temporary) <i className="fas fa-angle-down"/></Accordion.Toggle>
-                        </Card.Header>
-                        <Accordion.Collapse eventKey="0">
-                          <Card.Body className="viewSettingsCardBody">
-                              <ul id="tempSettingsPopoverList" className="settingsPopoverList">
-                                <li>Buildson <input type="checkbox" name="buildson" onChange={this.handleViewSettingsChange} checked={this.state.tempViewSettingObj.buildson}></input></li>
-                                <li>Reference <input type="checkbox" name="references" onChange={this.handleViewSettingsChange} checked={this.state.tempViewSettingObj.references}></input></li>
-                                <li>Group <input type="checkbox" name="showGroup" onChange={this.handleViewSettingsChange} checked={this.state.tempViewSettingObj.showGroup}></input></li>
-                                <li>Author <input type="checkbox" name="showAuthor" onChange={this.handleViewSettingsChange} checked={this.state.tempViewSettingObj.showAuthor}></input></li>
-                                <li>Date <input type="checkbox" name="showTime" onChange={this.handleViewSettingsChange} checked={this.state.tempViewSettingObj.showTime}></input></li>
-                              </ul>
-                              <Button className="viewSettingsPopoverButton" onClick={this.initializeSettings}>Reset <i className="fas fa-undo-alt"></i></Button>
-                          </Card.Body>
-                        </Accordion.Collapse>
-                    </Card>
-                    {/* END TEMPORARY VIEW SETTINGS */}
-
-                    {/* PERMANENT SETTINGS SPECIFIC TO THIS VIEW */}
-                    {(this.props.author && this.props.author.role === "manager") ? (
+                      {/* TEMPORARY VIEW SETTINGS */}
                       <Card>
                           <Card.Header className="viewSettingsCardHeader">
-                            <Accordion.Toggle as={Button} variant="link" eventKey="1">View Settings (Permanent) <i className="fas fa-angle-down"/></Accordion.Toggle>
+                            <Accordion.Toggle as={Button} variant="link" eventKey="0">View Settings (Temporary) <i className="fas fa-angle-down"/></Accordion.Toggle>
                           </Card.Header>
-                          <Accordion.Collapse eventKey="1">
+                          <Accordion.Collapse eventKey="0">
                             <Card.Body className="viewSettingsCardBody">
-                                <ul id="viewSettingsPopoverList" className="settingsPopoverList">
-                                  <li>Buildson <input type="checkbox" name="buildson" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
-                                            checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.buildson : false}></input></li>
-                                  <li>Reference <input type="checkbox" name="references" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
-                                            checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.references : false}></input></li>
-                                  <li>Group <input type="checkbox" name="showGroup" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
-                                            checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.showGroup : false}></input></li>
-                                  <li>Author <input type="checkbox" name="showAuthor" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
-                                            checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.showAuthor : false}></input></li>
-                                  <li>Date <input type="checkbox" name="showTime" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
-                                            checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.showTime : false}></input></li>
+                                <ul id="tempSettingsPopoverList" className="settingsPopoverList">
+                                  <li>Buildson <input type="checkbox" name="buildson" onChange={this.handleViewSettingsChange} checked={this.state.tempViewSettingObj.buildson}></input></li>
+                                  <li>Reference <input type="checkbox" name="references" onChange={this.handleViewSettingsChange} checked={this.state.tempViewSettingObj.references}></input></li>
+                                  <li>Group <input type="checkbox" name="showGroup" onChange={this.handleViewSettingsChange} checked={this.state.tempViewSettingObj.showGroup}></input></li>
+                                  <li>Author <input type="checkbox" name="showAuthor" onChange={this.handleViewSettingsChange} checked={this.state.tempViewSettingObj.showAuthor}></input></li>
+                                  <li>Date <input type="checkbox" name="showTime" onChange={this.handleViewSettingsChange} checked={this.state.tempViewSettingObj.showTime}></input></li>
                                 </ul>
-                                <Button className={thisViewsViewSettingEnabled ? "viewSettingsPopoverButton" : "viewSettingsPopoverButton vsDisabled"} style={{width: "50%",}}
-                                                                                                      onClick={this.pushViewSettingsChange}>Save <i className="far fa-save"></i></Button>
-                                <Button className="viewSettingsPopoverButton" style={{width: "50%",}} onClick={this.toggleViewSettingEnable}>{thisViewsViewSettingEnabled ? "Disable" : "Enable"}</Button>
+                                <Button className="viewSettingsPopoverButton" onClick={this.initializeSettings}>Reset <i className="fas fa-undo-alt"></i></Button>
                             </Card.Body>
                           </Accordion.Collapse>
                       </Card>
-                    ) : null}
-                    {/* END PERMANENT SETTINGS SPECIFIC TO THIS VIEW */}
+                      {/* END TEMPORARY VIEW SETTINGS */}
 
-                    {/* PERMANENT COMMUNITY WIDE SETTINGS */}
-                    {(this.props.author && this.props.author.role === "manager") ? (
-                      <Card>
-                          <Card.Header className="viewSettingsCardHeader">
-                            <Accordion.Toggle as={Button} variant="link" eventKey="2">Community Settings <i className="fas fa-angle-down"/></Accordion.Toggle>
-                          </Card.Header>
-                          <Accordion.Collapse eventKey="2">
-                            <Card.Body className="viewSettingsCardBody">
-                                <ul id="communitySettingsPopoverList" className="settingsPopoverList">
-                                  <li>Buildson <input type="checkbox" name="buildson" onChange={this.handleViewSettingsChange} checked={this.state.communityViewSettingsObj.buildson}></input></li>
-                                  <li>Reference <input type="checkbox" name="references" onChange={this.handleViewSettingsChange} checked={this.state.communityViewSettingsObj.references}></input></li>
-                                  <li>Group <input type="checkbox" name="showGroup" onChange={this.handleViewSettingsChange} checked={this.state.communityViewSettingsObj.showGroup}></input></li>
-                                  <li>Author <input type="checkbox" name="showAuthor" onChange={this.handleViewSettingsChange} checked={this.state.communityViewSettingsObj.showAuthor}></input></li>
-                                  <li>Date <input type="checkbox" name="showTime" onChange={this.handleViewSettingsChange} checked={this.state.communityViewSettingsObj.showTime}></input></li>
-                                </ul>
-                                <Button className="viewSettingsPopoverButton" onClick={this.pushCommunitySettingsChange}>Save <i className="far fa-save"></i></Button>
-                            </Card.Body>
-                          </Accordion.Collapse>
-                      </Card>
-                    ) : null}
-                    {/* END PERMANENT COMMUNITY WIDE SETTINGS */}
-                </Accordion>
-              </Popover.Content>
+                      {/* PERMANENT SETTINGS SPECIFIC TO THIS VIEW */}
+                      {(this.props.author && this.props.author.role === "manager") ? (
+                        <Card>
+                            <Card.Header className="viewSettingsCardHeader">
+                              <Accordion.Toggle as={Button} variant="link" eventKey="1">View Settings (Permanent) <i className="fas fa-angle-down"/></Accordion.Toggle>
+                            </Card.Header>
+                            <Accordion.Collapse eventKey="1">
+                              <Card.Body className="viewSettingsCardBody">
+                                  <ul id="viewSettingsPopoverList" className="settingsPopoverList">
+                                    <li>Buildson <input type="checkbox" name="buildson" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
+                                              checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.buildson : false}></input></li>
+                                    <li>Reference <input type="checkbox" name="references" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
+                                              checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.references : false}></input></li>
+                                    <li>Group <input type="checkbox" name="showGroup" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
+                                              checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.showGroup : false}></input></li>
+                                    <li>Author <input type="checkbox" name="showAuthor" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
+                                              checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.showAuthor : false}></input></li>
+                                    <li>Date <input type="checkbox" name="showTime" onChange={this.handleViewSettingsChange} disabled={!thisViewsViewSettingEnabled}
+                                              checked={thisViewsViewSettingEnabled ? this.state.thisViewsViewSettingObj.showTime : false}></input></li>
+                                  </ul>
+                                  <Button className={thisViewsViewSettingEnabled ? "viewSettingsPopoverButton" : "viewSettingsPopoverButton vsDisabled"} style={{width: "50%",}}
+                                                                                                        onClick={this.pushViewSettingsChange}>Save <i className="far fa-save"></i></Button>
+                                  <Button className="viewSettingsPopoverButton" style={{width: "50%",}} onClick={this.toggleViewSettingEnable}>{thisViewsViewSettingEnabled ? "Disable" : "Enable"}</Button>
+                              </Card.Body>
+                            </Accordion.Collapse>
+                        </Card>
+                      ) : null}
+                      {/* END PERMANENT SETTINGS SPECIFIC TO THIS VIEW */}
 
-            </Popover>
+                      {/* PERMANENT COMMUNITY WIDE SETTINGS */}
+                      {(this.props.author && this.props.author.role === "manager") ? (
+                        <Card>
+                            <Card.Header className="viewSettingsCardHeader">
+                              <Accordion.Toggle as={Button} variant="link" eventKey="2">Community Settings <i className="fas fa-angle-down"/></Accordion.Toggle>
+                            </Card.Header>
+                            <Accordion.Collapse eventKey="2">
+                              <Card.Body className="viewSettingsCardBody">
+                                  <ul id="communitySettingsPopoverList" className="settingsPopoverList">
+                                    <li>Buildson <input type="checkbox" name="buildson" onChange={this.handleViewSettingsChange} checked={this.state.communityViewSettingsObj.buildson}></input></li>
+                                    <li>Reference <input type="checkbox" name="references" onChange={this.handleViewSettingsChange} checked={this.state.communityViewSettingsObj.references}></input></li>
+                                    <li>Group <input type="checkbox" name="showGroup" onChange={this.handleViewSettingsChange} checked={this.state.communityViewSettingsObj.showGroup}></input></li>
+                                    <li>Author <input type="checkbox" name="showAuthor" onChange={this.handleViewSettingsChange} checked={this.state.communityViewSettingsObj.showAuthor}></input></li>
+                                    <li>Date <input type="checkbox" name="showTime" onChange={this.handleViewSettingsChange} checked={this.state.communityViewSettingsObj.showTime}></input></li>
+                                  </ul>
+                                  <Button className="viewSettingsPopoverButton" onClick={this.pushCommunitySettingsChange}>Save <i className="far fa-save"></i></Button>
+                              </Card.Body>
+                            </Accordion.Collapse>
+                        </Card>
+                      ) : null}
+                      {/* END PERMANENT COMMUNITY WIDE SETTINGS */}
+                  </Accordion>
+                </Popover.Content>
+
+
+              ) : null}
+              </Popover>
           }>
           <Button className="circle-button pad sidebar-btn">
               <i className="fas fa-cog"></i>

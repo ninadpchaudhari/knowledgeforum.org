@@ -11,7 +11,7 @@ export function addNodesToGraph(server, token, nodes, nodeData, authorData, view
     } else if(nodeData[i]._to.type === "Attachment" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
       graph_nodes.push(handleAttachment(server, token, nodes, nodeData[i], authorData, viewSettings, groups));
     } else if(nodeData[i]._to.type === "Drawing" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
-      graph_nodes.push(handleDrawing(server, token, nodes, nodeData[i], authorData));
+      graph_nodes.push(handleDrawing(server, token, nodes, nodeData[i], authorData, viewSettings, groups));
     } else if(nodeData[i]._to.type === "View" && nodeData[i]._to.title !== "" && nodeData[i]._to.status === "active"){
       graph_nodes.push(handleView(nodes, nodeData[i], authorData));
     }
@@ -99,9 +99,11 @@ function handleAttachment(server, token, nodes, nodeData, authorData, viewSettin
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var date = parseDate(nodeData.created);
   var groupName = nodeData._to.group ? groups.find(group => group._id === nodeData._to.group).title : null;
+  var showInPlace = nodeData.data.showInPlace ? nodeData.data.showInPlace : false;
 
   return getApiObjectsObjectId(token, server, nodeData.to).then(function(result){
-    if(String(result.data.type).substring(0,5) === "image"){
+
+    if(String(result.data.type).substring(0,5) === "image" && showInPlace){
       var imageUrl =  (server + String(result.data.url).substring(1,)).replace(/\s/g,"%20");
 
       if(String(result.data.type).slice(-3) === "gif"){
@@ -127,6 +129,7 @@ function handleAttachment(server, token, nodes, nodeData, authorData, viewSettin
       };
 
     } else {
+
       var id = createCytoscapeId(nodes, nodeData.to);
       return {
         group: 'nodes',
@@ -154,40 +157,68 @@ function handleAttachment(server, token, nodes, nodeData, authorData, viewSettin
 
 
 // handles adding drawings to the cytoscape instance
-function handleDrawing(server, token, nodes, nodeData, authorData){
+function handleDrawing(server, token, nodes, nodeData, authorData, viewSettings, groups){
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
+  var date = parseDate(nodeData.created);
+  var groupName = nodeData._to.group ? groups.find(group => group._id === nodeData._to.group).title : null;
+  var showInPlace = nodeData.data.showInPlace ? nodeData.data.showInPlace : false;
 
   return getApiObjectsObjectId(token, server, nodeData.to).then(function(result){
-    var parser = new DOMParser();
-    var doc = parser.parseFromString(result.data.svg, "image/svg+xml");
+    if(showInPlace){
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(result.data.svg, "image/svg+xml");
 
-    // use width and height from svg tag to find the aspect ratio
-    var svg_width = doc.childNodes[0].attributes.width.value;
-    var svg_height = doc.childNodes[0].attributes.height.value;
-    var aspect_ratio = svg_width/svg_height;
+      // use width and height from svg tag to find the aspect ratio
+      var svg_width = doc.childNodes[0].attributes.width.value;
+      var svg_height = doc.childNodes[0].attributes.height.value;
+      var aspect_ratio = svg_width/svg_height;
 
-    // use the given width and known aspect ratio to calculate appropiate height for svg
-    var node_width = parseInt(nodeData.data.width);
-    var node_height = node_width/aspect_ratio;
+      // use the given width and known aspect ratio to calculate appropiate height for svg
+      var node_width = parseInt(nodeData.data.width);
+      var node_height = node_width/aspect_ratio;
 
-    var bounds = {
-      x: nodeData.data ? nodeData.data.x : 0,
-      y: nodeData.data ? nodeData.data.y : 0,
-      height: nodeData.data ? node_height : 0,
-      width: nodeData.data ? parseInt(nodeData.data.width) : 0,
-    };
+      var bounds = {
+        x: nodeData.data ? nodeData.data.x : 0,
+        y: nodeData.data ? nodeData.data.y : 0,
+        height: nodeData.data ? node_height : 0,
+        width: nodeData.data ? parseInt(nodeData.data.width) : 0,
+      };
 
-    return {
-      url: 'data:image/svg+xml;utf8,' + encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>' + result.data.svg),
-      name: nodeData._to.title,
-      bounds: bounds,
-      locked: false,
-      author: authorName,
-      kfId: nodeData.to,
-      type: nodeData._to.type,
-      linkId: nodeData._id
-    };
+      return {
+        url: 'data:image/svg+xml;utf8,' + encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>' + result.data.svg),
+        name: nodeData._to.title,
+        bounds: bounds,
+        locked: false,
+        author: authorName,
+        kfId: nodeData.to,
+        type: nodeData._to.type,
+        linkId: nodeData._id
+      };
 
+    } else {
+
+      var id = createCytoscapeId(nodes, nodeData.to);
+      return {
+        group: 'nodes',
+        data: {
+          id: id,
+          name: nodeData._to.title,
+          groupName: groupName,
+          author: authorName,
+          date: date,
+          kfId: nodeData.to,
+          linkId: nodeData._id,
+          type: nodeData._to.type,
+          download: 'data:image/svg+xml;utf8,' + encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>' + result.data.svg)
+        },
+        classes: ["attachment", viewSettings.nodeClass],
+        position: {
+          x: nodeData.data.x,
+          y: nodeData.data.y
+        }
+      }
+
+    }
   });
 }
 
@@ -196,6 +227,7 @@ function handleDrawing(server, token, nodes, nodeData, authorData){
 function handleView(nodes, nodeData, authorData){
   var id = createCytoscapeId(nodes, nodeData.to);
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
+
   return {
     group: 'nodes',
     data: {

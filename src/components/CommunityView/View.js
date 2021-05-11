@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { Link } from "react-router-dom";
-import { DropdownButton, Dropdown, Button, Row, Col, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { DropdownButton, Dropdown, Button, Row, Col, Popover, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Form, FormGroup, Label, Input } from 'reactstrap';
 import Axios from 'axios';
 import { apiUrl, getCommunity, putCommunity, postLink, getViews } from '../../store/api.js';
@@ -30,6 +30,7 @@ class View extends Component {
                               (this.props.location.state.communityTitle)
                               :
                               (this.props.demoCommunityTitle !== undefined ? this.props.demoCommunityTitle : null),
+            layout: 'preset',
             addView: '',
             showModal: false,
             showView: false,
@@ -173,9 +174,14 @@ class View extends Component {
         </Tooltip>
     );
 
+    updateLayout = (e) => {
+      this.setState({layout: e.target.value});
+    }
+
     render(){
       let viewToRender = this.state.currentView === "Enhanced" ?
                          <GraphView
+                             layout={this.state.layout}
                              viewId={this.props.viewId}
                              viewLinks={this.props.viewLinks}
                              readLinks={this.props.readLinks}
@@ -247,6 +253,30 @@ class View extends Component {
                             switchView={this.switchView}
                         />
                       </div>
+
+                      {this.state.currentView === "Enhanced" ? (
+                        <div className="sidebar-list-col col col-sm col-md-12">
+                          <OverlayTrigger
+                              placement="auto"
+                              trigger="click"
+                              delay={{ show: 0, hide: 0 }}
+                              rootClose
+                              overlay={
+                                <Popover id="layoutPopover">
+                                  <Popover.Title>Layout (Temporary)</Popover.Title>
+                                  <Popover.Content>
+                                    <Row><Button value="preset" onClick={this.updateLayout} className={this.state.layout==="preset" ? 'activeLayout' : ''}>Preset</Button></Row>
+                                    <Row><Button value="grid" onClick={this.updateLayout} className={this.state.layout==="grid" ? 'activeLayout' : ''}>Grid</Button></Row>
+                                    <Row><Button value="circle" onClick={this.updateLayout} className={this.state.layout==="circle" ? 'activeLayout' : ''}>Circle</Button></Row>
+                                  </Popover.Content>
+                                </Popover>
+                              }>
+                              <Button className="circle-button pad sidebar-btn">
+                                  <i className="fas fa-object-group"></i>
+                              </Button>
+                          </OverlayTrigger>
+                        </div>
+                      ) : null }
 
                     </div>
                   </div>
