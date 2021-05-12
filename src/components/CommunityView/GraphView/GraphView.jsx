@@ -7,6 +7,7 @@ import CytoscapeNodeHtmlLabel from 'cytoscape-node-html-label';
 import CytoscapeSupportImages from 'cytoscape-supportimages';
 
 import { updateViewLink } from '../../../store/async_actions.js'
+import { addNotification } from '../../../store/notifier.js'
 import {addNodesToGraph, addEdgesToGraph } from './GraphView_helper.js';
 import './cytoscape.js-panzoom.css';
 import './GraphView.css';
@@ -507,24 +508,27 @@ class GraphView extends Component {
       var kfId = this.data('kfId');
       var type = this.data('type');
 
-      if(this.hasClass("image")){
-        console.log("image");
-      } else if(this.hasClass("attachment")){
-          ref.props.onNoteClick(kfId)
-      } else if(this.hasClass("view")){
-          ref.props.onViewClick(kfId);
-      } else {
-        if(type === "riseabove"){
-            ref.props.onNoteClick(kfId)
-            this.removeClass("unread-riseabove");
-            this.addClass("read-riseabove");
-        } else if(type === "note"){
-            ref.props.onNoteClick(kfId)
-            this.removeClass("unread-note");
-            this.addClass("read-note");
-        }
+      if(!this.data('canOpen')){
+        addNotification({ title: 'Cannot open contribution: "' + this.data('name') + '"', type: 'default', message: '"' + this.data('name') + '" is locked.' })
+      } else if(this.hasClass("attachment") || type === "riseabove" || type === "note") {
+        ref.props.onNoteClick(kfId);
+        if(type === "riseabove"){ this.addClass('read-riseabove').removeClass('unread-riseabove'); }
+        if(type === "note"){ this.addClass('read-note').removeClass('unread-note'); }
+      } else if(this.hasClass('view')) {
+        ref.props.onViewClick(kfId);
       }
+
     });
+
+      cy.on('boxselect', 'node', (evt) => {
+        var cy_node = evt.target;
+        cy_node.addClass('selected')
+      });
+
+      cy.on('unselect', 'node', (evt) => {
+        var cy_node = evt.target;
+        cy_node.removeClass('selected')
+      });
 
       cy.on('dragfree', 'node', (evt) => {
           const {x, y} = evt.target.position();
@@ -646,10 +650,18 @@ class GraphView extends Component {
                 'border-color': 'red',
               }
             },
+            {
+              selector: '.selected',
+              style: {
+                'background-opacity': '0.25',
+                'background-color': 'black'
+              }
+            }
           ] }
           layout={ {name: 'preset'} }
           hideEdgesonViewport={ false }
           autolock={ false }
+          selectable={ true }
           wheelSensitivity={ 0.15 }
           minZoom={ MINZOOM }
           maxZoom={ MAXZOOM }

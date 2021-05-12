@@ -63,6 +63,7 @@ function handleNote(server, token, id, nodeData, authorData, viewSettings, group
   var readStatus, type;
   var groupName = nodeData._to.group ? groups.find(group => group._id === nodeData._to.group).title : null;
   var isPositionLocked = nodeData.data.draggable !== undefined ? !nodeData.data.draggable : false;
+  var canOpen = nodeData.data.fixed !== undefined ? !nodeData.data.fixed : true;
 
   // handles whether it is a note or a riseabove
   if(nodeData._to.data === undefined){
@@ -84,6 +85,7 @@ function handleNote(server, token, id, nodeData, authorData, viewSettings, group
         kfId: nodeData.to,
         linkId: nodeData._id,
         type: type,
+        canOpen: canOpen,
       },
       locked: isPositionLocked,
       classes: [readStatus, viewSettings.nodeClass],
@@ -102,6 +104,7 @@ function handleAttachment(server, token, nodes, nodeData, authorData, viewSettin
   var groupName = nodeData._to.group ? groups.find(group => group._id === nodeData._to.group).title : null;
   var isPositionLocked = nodeData.data.draggable !== undefined ? !nodeData.data.draggable : false;
   var showInPlace = nodeData.data.showInPlace !== undefined ? nodeData.data.showInPlace : false;
+  var canOpen = nodeData.data.fixed !== undefined ? !nodeData.data.fixed : true;
 
   return getApiObjectsObjectId(token, server, nodeData.to).then(function(result){
 
@@ -144,7 +147,8 @@ function handleAttachment(server, token, nodes, nodeData, authorData, viewSettin
           kfId: nodeData.to,
           linkId: nodeData._id,
           type: nodeData._to.type,
-          download: server + result.data.url.substring(1,)
+          download: server + result.data.url.substring(1,),
+          canOpen: canOpen,
         },
         locked: isPositionLocked,
         classes: ["attachment", viewSettings.nodeClass],
@@ -166,6 +170,7 @@ function handleDrawing(server, token, nodes, nodeData, authorData, viewSettings,
   var groupName = nodeData._to.group ? groups.find(group => group._id === nodeData._to.group).title : null;
   var isPositionLocked = nodeData.data.draggable !== undefined ? !nodeData.data.draggable : false;
   var showInPlace = nodeData.data.showInPlace !== undefined ? nodeData.data.showInPlace : false;
+  var canOpen = nodeData.data.fixed !== undefined ? !nodeData.data.fixed : true;
 
   return getApiObjectsObjectId(token, server, nodeData.to).then(function(result){
     if(showInPlace){
@@ -213,7 +218,8 @@ function handleDrawing(server, token, nodes, nodeData, authorData, viewSettings,
           kfId: nodeData.to,
           linkId: nodeData._id,
           type: nodeData._to.type,
-          download: 'data:image/svg+xml;utf8,' + encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>' + result.data.svg)
+          download: 'data:image/svg+xml;utf8,' + encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>' + result.data.svg),
+          canOpen: canOpen,
         },
         locked: isPositionLocked,
         classes: ["attachment", viewSettings.nodeClass],
@@ -233,6 +239,7 @@ function handleView(nodes, nodeData, authorData){
   var id = createCytoscapeId(nodes, nodeData.to);
   var authorName = matchAuthorId(nodeData._to.authors[0], authorData);
   var isPositionLocked = nodeData.data.draggable !== undefined ? !nodeData.data.draggable : false;
+  var canOpen = nodeData.data.fixed !== undefined ? !nodeData.data.fixed : true;
 
   return {
     group: 'nodes',
@@ -244,6 +251,7 @@ function handleView(nodes, nodeData, authorData){
       linkId: nodeData._id,
       type: nodeData._to.type,
       communityId: nodeData.communityId,
+      canOpen: canOpen,
     },
     locked: isPositionLocked,
     classes: "view",
