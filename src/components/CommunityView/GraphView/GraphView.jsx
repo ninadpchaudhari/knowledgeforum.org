@@ -503,7 +503,7 @@ class GraphView extends Component {
     this.loadElements();
 
     var ref = this;
-    // on single click of node log its kf id and mark it as read
+    // open contribution on tap of its node
     cy.on('tap', 'node', function(event){
       var kfId = this.data('kfId');
       var type = this.data('type');
@@ -520,51 +520,64 @@ class GraphView extends Component {
 
     });
 
-      cy.on('boxselect', 'node', (evt) => {
-        var cy_node = evt.target;
-        cy_node.addClass('selected')
-      });
+    // when a node is selected in a box select add styling to reflect that
+    cy.on('boxselect', 'node', (evt) => {
+      var cy_node = evt.target;
+      cy_node.addClass('selected')
+    });
 
-      cy.on('unselect', 'node', (evt) => {
-        var cy_node = evt.target;
-        cy_node.removeClass('selected')
-      });
+    // remove styling from boxselect on unselect
+    cy.on('unselect', 'node', (evt) => {
+      var cy_node = evt.target;
+      cy_node.removeClass('selected')
+    });
 
-      cy.on('dragfree', 'node', (evt) => {
-          const {x, y} = evt.target.position();
+    // update view link position if node is moved
+    cy.on('dragfree', 'node', (evt) => {
+        const {x, y} = evt.target.position();
 
-          var kfId = evt.target.data().kfId;
+        var kfId = evt.target.data().kfId;
 
-          let viewLink = Object.values(this.props.viewLinks).filter((link) => link.to === kfId)
-          if (viewLink !== undefined && viewLink.length) {
-              viewLink = viewLink[0];
-              const data = {x, y}
-              const newViewLink = { ...viewLink }
-              newViewLink.data = { ...newViewLink.data, ...data };
-              this.props.updateViewLink(newViewLink)
-          }
-      })
+        let viewLink = Object.values(this.props.viewLinks).filter((link) => link.to === kfId)
+        if (viewLink !== undefined && viewLink.length) {
+            viewLink = viewLink[0];
+            const data = {x, y}
+            const newViewLink = { ...viewLink }
+            newViewLink.data = { ...newViewLink.data, ...data };
+            this.props.updateViewLink(newViewLink)
+        }
+    })
 
-      //Update view link of image if position is changed
-      cy.on('cysupportimages.imagemoved', (evt, img) => {
-          let viewLink = this.props.viewLinks[img.linkId]
-          if (viewLink !== undefined) {
-              const data = {x: img.bounds.x, y: img.bounds.y}
-              const newViewLink = { ...viewLink }
-              newViewLink.data = { ...newViewLink.data, ...data };
-              this.props.updateViewLink(newViewLink)
-          }
-      })
+    // open image contribution when it is selected
+    cy.on('cysupportimages.imageselected', (evt, img) => {
+      // wait 100ms to see if it is just being moved
+      // if it is we do not open the contribution
+      window.setTimeout(function(){
+        if(!img._private.dragging){ ref.props.onNoteClick(img.kfId); }
+      }, 100);
+    })
 
-      cy.on('cysupportimages.imageresized', (evt, img, b1, b2) => {
-          let viewLink = this.props.viewLinks[img.linkId]
-          if (viewLink !== undefined) {
-              const data = {width: img.bounds.width, height: img.bounds.height}
-              const newViewLink = { ...viewLink }
-              newViewLink.data = { ...newViewLink.data, ...data };
-              this.props.updateViewLink(newViewLink)
-          }
-      })
+    //Update view link position of image if moved
+    cy.on('cysupportimages.imagemoved', (evt, img) => {
+        let viewLink = this.props.viewLinks[img.linkId]
+        if (viewLink !== undefined) {
+            const data = {x: img.bounds.x, y: img.bounds.y}
+            const newViewLink = { ...viewLink }
+            newViewLink.data = { ...newViewLink.data, ...data };
+            this.props.updateViewLink(newViewLink)
+        }
+    })
+
+    //Update view link of image if resized
+    cy.on('cysupportimages.imageresized', (evt, img, b1, b2) => {
+        let viewLink = this.props.viewLinks[img.linkId]
+        if (viewLink !== undefined) {
+            const data = {width: img.bounds.width, height: img.bounds.height}
+            const newViewLink = { ...viewLink }
+            newViewLink.data = { ...newViewLink.data, ...data };
+            this.props.updateViewLink(newViewLink)
+        }
+    })
   }
 
   componentDidUpdate(prevProps, prevState) {
