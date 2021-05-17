@@ -5,12 +5,15 @@ import CytoscapeComponent from 'react-cytoscapejs';
 import CytoscapePanZoom from 'cytoscape-panzoom';
 import CytoscapeNodeHtmlLabel from 'cytoscape-node-html-label';
 import CytoscapeSupportImages from 'cytoscape-supportimages';
+import CytoscapeContextMenus from 'cytoscape-context-menus';
 
 import { updateViewLink } from '../../../store/async_actions.js'
 import { addNotification } from '../../../store/notifier.js'
 import {addNodesToGraph, addEdgesToGraph } from './GraphView_helper.js';
 import './cytoscape.js-panzoom.css';
+import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import './GraphView.css';
+
 
 import unread_note_icon from '../../../assets/icon_note_blue.png';
 import read_note_icon from '../../../assets/icon_note_red.png';
@@ -23,6 +26,7 @@ import {MINZOOM, MAXZOOM} from '../../../config.js';
 Cytoscape.use(CytoscapePanZoom);
 Cytoscape.use(CytoscapeNodeHtmlLabel);
 Cytoscape.use(CytoscapeSupportImages);
+Cytoscape.use(CytoscapeContextMenus);
 
 class GraphView extends Component {
   constructor(props) {
@@ -43,6 +47,7 @@ class GraphView extends Component {
     this.updateReadLinks = this.updateReadLinks.bind(this);
     this.focusRecentAddition = this.focusRecentAddition.bind(this);
     this.filterNodes = this.filterNodes.bind(this);
+    this.handleNodeOpen = this.handleNodeOpen.bind(this);
     this.getViewSettingsInfo = this.getViewSettingsInfo.bind(this);
     this.updateViewSettings = this.updateViewSettings.bind(this);
     this.updateLayout = this.updateLayout.bind(this);
@@ -95,7 +100,7 @@ class GraphView extends Component {
               // support-images extension will not trigger a redraw if there are no images in the view - this line handles that
               if(si.images().length === 0){ si._private.renderer.redraw(); }
               // if a single new element was added to the graph - highlight it
-              if(Object.keys(this.props.viewLinks).length === prevViewLinksLength + 1){ this.focusRecentAddition(Object.keys(this.props.viewLinks)[Object.keys(this.props.viewLinks).length - 1]); }
+              if(Object.values(this.props.viewLinks).length === prevViewLinksLength + 1){ this.focusRecentAddition(Object.values(this.props.viewLinks)[Object.values(this.props.viewLinks).length - 1]); }
           });
       }
   }
@@ -158,8 +163,10 @@ class GraphView extends Component {
     var cyIds = this.findCyIdsFromKfId(kfId);
     if(cyIds !== null){
       var newestCyElem = cy.$('#'+cyIds[cyIds.length - 1]);
-      cy.center(newestCyElem);
-      newestCyElem.flashClass('recentAddition', 10000);
+      newestCyElem.addClass('recentAddition');
+      newestCyElem.on(['select', 'grabon'], () => {
+        newestCyElem.removeClass('recentAddition');
+      });
     }
   }
 
@@ -267,6 +274,22 @@ class GraphView extends Component {
     }
   }
 
+  handleNodeOpen(evt){
+    var cy_node = evt.target;
+    var kfId = cy_node.data('kfId');
+    var type = cy_node.data('type');
+
+    if(!cy_node.data('canOpen')){
+      addNotification({ title: 'Cannot open contribution: "' + cy_node.data('name') + '"', type: 'default', message: '"' + cy_node.data('name') + '" is locked.' })
+    } else if(cy_node.hasClass("attachment") || type === "riseabove" || type === "note") {
+      this.props.onNoteClick(kfId);
+      if(type === "riseabove"){ cy_node.addClass('read-riseabove').removeClass('unread-riseabove'); }
+      if(type === "note"){ cy_node.addClass('read-note').removeClass('unread-note'); }
+    } else if(cy_node.hasClass('view')) {
+      this.props.onViewClick(kfId);
+    }
+  }
+
   // formats the view settings to be used in cytoscape
   getViewSettingsInfo(){
     var viewSettings = this.props.currViewSettingsObj;
@@ -348,6 +371,7 @@ class GraphView extends Component {
 
   componentDidMount() {
     var cy = this.cy;
+    var ref = this;
 
     // CYTOSCAPE-PANZOOM EXTENSION
     // the default values of each option are outlined below:
@@ -379,6 +403,34 @@ class GraphView extends Component {
 
     // add the panzoom control
     cy.panzoom( defaults );
+
+    // CYTOSCAPE CONTEXT MENU EXTENSION
+    var options = {
+        evtType: ['cxttap', 'cysupportimages.imageselected'],
+        menuItems: [
+          {
+            id: 'open',
+            content: 'Open',
+            selector: 'node',
+            onClickFunction: function (evt) {
+              ref.handleNodeOpen(evt)
+            },
+            disabled: false,
+            coreAsWell: false,
+          },
+          {
+            id: 'new-note',
+            content: 'New Note Here',
+            selector: '',
+            coreAsWell: true,
+            onClickFunction: function (evt) {
+              console.log('new note');
+            }
+          }
+        ],
+    };
+
+    var ctxMenuInstance = cy.contextMenus(options);
 
     // CYTOSCAPE-NODE-HTML-LABEL EXTENSION
     cy.nodeHtmlLabel([
@@ -502,22 +554,9 @@ class GraphView extends Component {
 
     this.loadElements();
 
-    var ref = this;
     // open contribution on tap of its node
-    cy.on('tap', 'node', function(event){
-      var kfId = this.data('kfId');
-      var type = this.data('type');
-
-      if(!this.data('canOpen')){
-        addNotification({ title: 'Cannot open contribution: "' + this.data('name') + '"', type: 'default', message: '"' + this.data('name') + '" is locked.' })
-      } else if(this.hasClass("attachment") || type === "riseabove" || type === "note") {
-        ref.props.onNoteClick(kfId);
-        if(type === "riseabove"){ this.addClass('read-riseabove').removeClass('unread-riseabove'); }
-        if(type === "note"){ this.addClass('read-note').removeClass('unread-note'); }
-      } else if(this.hasClass('view')) {
-        ref.props.onViewClick(kfId);
-      }
-
+    cy.on('tap', 'node', function(evt){
+      ref.handleNodeOpen(evt);
     });
 
     // when a node is selected in a box select add styling to reflect that
@@ -633,6 +672,7 @@ class GraphView extends Component {
                 'background-clip': 'none',
                 'background-width': '15px',
                 'background-height': '15px',
+                'shape': 'round-rectangle',
               }
             },
             {
