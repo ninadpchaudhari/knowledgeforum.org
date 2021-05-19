@@ -22,7 +22,7 @@ import unread_riseabove_icon from '../../../assets/icon_riseabove_blue.png';
 import read_riseabove_icon from '../../../assets/icon_riseabove_red.png';
 import attachment_icon from '../../../assets/icon_attachment.gif';
 import view_icon from '../../../assets/icon_view.png';
-import {MINZOOM, MAXZOOM} from '../../../config.js';
+import {MIN_ZOOMED_FONT_SIZE, MINZOOM, MAXZOOM} from '../../../config.js';
 
 Cytoscape.use(CytoscapePanZoom);
 Cytoscape.use(CytoscapeNodeHtmlLabel);
@@ -361,8 +361,10 @@ class GraphView extends Component {
 
   }
 
+  // helper function for handling running different types of layouts
   runLayout(layoutType){
     var cy = this.cy;
+    // for preset we just reset the state and rerender the entire graph
     if(layoutType === "preset"){
       this.setState({
         elements: {nodes: [], edges: []},
@@ -373,7 +375,14 @@ class GraphView extends Component {
       this.loadElements(Object.keys(this.props.viewLinks).length, true);
       cy.reset();
     } else {
-      var layout = (layoutType === "spread") ? ({name: layoutType, animate: false, prelayout: false}) : {name: layoutType};
+      // for spread layout we specify some parameters for running it
+      // otherwise we just run layouts as default
+      var layout = (layoutType === "spread") ? ({
+        name: layoutType,
+        animate: false,
+        prelayout: false,
+      })
+      : {name: layoutType};
       cy.layout(layout).run();
     }
   }
@@ -439,7 +448,7 @@ class GraphView extends Component {
         ],
     };
 
-    var ctxMenuInstance = cy.contextMenus(options);
+    cy.contextMenus(options);
 
     // CYTOSCAPE-NODE-HTML-LABEL EXTENSION
     cy.nodeHtmlLabel([
@@ -451,112 +460,87 @@ class GraphView extends Component {
         valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
         cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + (data.groupName !== null ? data.groupName : data.author) + '<br>' + data.date + '</div>';
           }
-          return '';
         }
       },
       {
         query: '.nodehtmllabel-group-author-nodate',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        halign: 'center',
+        valign: 'bottom',
+        halignBox: 'right',
+        valignBox: 'bottom',
+        cssClass: 'cytoscape-label',
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + (data.groupName !== null ? data.groupName : data.author) + '</div>';
           }
-          return '';
         }
       },
       {
         query: '.nodehtmllabel-group-noauthor-date',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        halign: 'center',
+        valign: 'bottom',
+        halignBox: 'right',
+        valignBox: 'bottom',
+        cssClass: 'cytoscape-label',
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return (data.groupName !== null) ? ('<div>' + data.groupName + '<br>' + data.date + '</div>') : ('<div>' + data.date + '</div>');
           }
-          return '';
         }
       },
       {
         query: '.nodehtmllabel-group-noauthor-nodate',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        halign: 'center',
+        valign: 'bottom',
+        halignBox: 'right',
+        valignBox: 'bottom',
+        cssClass: 'cytoscape-label',
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + (data.groupName !== null ? data.groupName : '') + '</div>';
           }
-          return '';
         }
       },
       {
         query: '.nodehtmllabel-nogroup-author-date',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        halign: 'center',
+        valign: 'bottom',
+        halignBox: 'right',
+        valignBox: 'bottom',
+        cssClass: 'cytoscape-label',
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + data.author + '<br>' + data.date + '</div>';
           }
-          return '';
         }
       },
       {
         query: '.nodehtmllabel-nogroup-author-nodate',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        halign: 'center',
+        valign: 'bottom',
+        halignBox: 'right',
+        valignBox: 'bottom',
+        cssClass: 'cytoscape-label',
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + data.author + '</div>';
           }
-          return '';
         }
       },
       {
         query: '.nodehtmllabel-nogroup-noauthor-date',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        halign: 'center',
+        valign: 'bottom',
+        halignBox: 'right',
+        valignBox: 'bottom',
+        cssClass: 'cytoscape-label',
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + data.date + '</div>';
           }
-          return '';
-        }
-      },
-      {
-        query: '.nodehtmllabel-nogroup-noauthor-nodate',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
-        tpl: function(data){
-          return '';
         }
       },
     ]);
@@ -586,7 +570,8 @@ class GraphView extends Component {
         message: 'Use the "Original" layout on the sidebar button to restore the graph to its initial state.',
         dismiss: {duration: 5000}
       })
-      ref.props.updateParentLayoutProp({target: {value: "spread"}});
+      if(ref.props.layout !== "spread") ref.props.updateParentLayoutProp({target: {value: "spread"}});
+      else{ ref.runLayout("spread"); }
     });
 
     // remove styling from boxselect on unselect +
@@ -688,6 +673,7 @@ class GraphView extends Component {
               selector: 'node',
               style: {
                 'label': "data(name)",
+                'min-zoomed-font-size': MIN_ZOOMED_FONT_SIZE,
                 'font-size': '11px',
                 'text-halign': 'right',
                 'text-valign': 'center',
@@ -695,6 +681,7 @@ class GraphView extends Component {
                 'padding': '0',
                 'background-opacity': '0',
                 'background-clip': 'none',
+                'background-repeat': 'no-repeat',
                 'background-width': '15px',
                 'background-height': '15px',
                 'shape': 'round-rectangle',
