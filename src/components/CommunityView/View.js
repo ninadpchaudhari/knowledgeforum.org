@@ -187,6 +187,7 @@ class View extends Component {
                              readLinks={this.props.readLinks}
                              onViewClick={this.onViewClick}
                              onNoteClick={(noteId)=>this.props.openContribution(noteId, "write")}
+                             updateParentLayoutProp={this.updateLayout}
                          />
                       :
                          <LightView/>;
@@ -265,9 +266,10 @@ class View extends Component {
                                 <Popover id="layoutPopover">
                                   <Popover.Title>Layout (Temporary)</Popover.Title>
                                   <Popover.Content>
-                                    <Row><Button value="preset" onClick={this.updateLayout} className={this.state.layout==="preset" ? 'activeLayout' : ''}>Preset</Button></Row>
+                                    <Row><Button value="preset" onClick={this.updateLayout} className={this.state.layout==="preset" ? 'activeLayout' : ''}>Original</Button></Row>
                                     <Row><Button value="grid" onClick={this.updateLayout} className={this.state.layout==="grid" ? 'activeLayout' : ''}>Grid</Button></Row>
                                     <Row><Button value="circle" onClick={this.updateLayout} className={this.state.layout==="circle" ? 'activeLayout' : ''}>Circle</Button></Row>
+                                    <Row><Button value="spread" onClick={this.updateLayout} className={this.state.layout==="spread" ? 'activeLayout' : ''}>Spread</Button></Row>
                                   </Popover.Content>
                                 </Popover>
                               }>

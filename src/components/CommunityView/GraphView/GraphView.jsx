@@ -6,6 +6,7 @@ import CytoscapePanZoom from 'cytoscape-panzoom';
 import CytoscapeNodeHtmlLabel from 'cytoscape-node-html-label';
 import CytoscapeSupportImages from 'cytoscape-supportimages';
 import CytoscapeContextMenus from 'cytoscape-context-menus';
+import CytoscapeSpread from 'cytoscape-spread';
 
 import { updateViewLink } from '../../../store/async_actions.js'
 import { addNotification } from '../../../store/notifier.js'
@@ -27,6 +28,7 @@ Cytoscape.use(CytoscapePanZoom);
 Cytoscape.use(CytoscapeNodeHtmlLabel);
 Cytoscape.use(CytoscapeSupportImages);
 Cytoscape.use(CytoscapeContextMenus);
+Cytoscape.use(CytoscapeSpread);
 
 class GraphView extends Component {
   constructor(props) {
@@ -36,6 +38,7 @@ class GraphView extends Component {
       elements: {nodes: [], edges: []},
       kfToCyMap: null,
       removedSearchElements: null,
+      removedBoxSelectElements: null,
       removedEdgeElements: null,
       currViewLinksLength: 0,
     };
@@ -50,7 +53,7 @@ class GraphView extends Component {
     this.handleNodeOpen = this.handleNodeOpen.bind(this);
     this.getViewSettingsInfo = this.getViewSettingsInfo.bind(this);
     this.updateViewSettings = this.updateViewSettings.bind(this);
-    this.updateLayout = this.updateLayout.bind(this);
+    this.runLayout = this.runLayout.bind(this);
   };
 
   loadElements(prevViewLinksLength, forceRender) {
@@ -358,14 +361,20 @@ class GraphView extends Component {
 
   }
 
-  updateLayout(){
-    if(this.props.layout === "preset"){
-      this.setState({elements: {nodes: [], edges: []}});
+  runLayout(layoutType){
+    var cy = this.cy;
+    if(layoutType === "preset"){
+      this.setState({
+        elements: {nodes: [], edges: []},
+        removedSearchElements: null,
+        removedBoxSelectElements: null,
+        removedEdgeElements: null,
+      });
       this.loadElements(Object.keys(this.props.viewLinks).length, true);
+      cy.reset();
     } else {
-      var cy = this.cy;
-      var layout = cy.layout({name: this.props.layout});
-      layout.run();
+      var layout = (layoutType === "spread") ? ({name: layoutType, animate: false, prelayout: false}) : {name: layoutType};
+      cy.layout(layout).run();
     }
   }
 
@@ -559,16 +568,32 @@ class GraphView extends Component {
       ref.handleNodeOpen(evt);
     });
 
-    // when a node is selected in a box select add styling to reflect that
+    // when a node is selected in a box select add styling to reflect that +
+    // remove the unselected nodes
     cy.on('boxselect', 'node', (evt) => {
       var cy_node = evt.target;
       cy_node.addClass('selected')
+      var nodesToHide = cy.remove(cy.elements("node:unselected"));
+      ref.setState({removedBoxSelectElements: nodesToHide});
     });
 
-    // remove styling from boxselect on unselect
+    // run the spread layout for visibility + notify user how to restore the graph
+    // when a box selection is finished
+    cy.on('boxend', (evt) => {
+      addNotification({
+        title: 'Layout Tooltip',
+        type: 'default',
+        message: 'Use the "Original" layout on the sidebar button to restore the graph to its initial state.',
+        dismiss: {duration: 5000}
+      })
+      ref.props.updateParentLayoutProp({target: {value: "spread"}});
+    });
+
+    // remove styling from boxselect on unselect +
+    // restore the removed nodes and layout
     cy.on('unselect', 'node', (evt) => {
       var cy_node = evt.target;
-      cy_node.removeClass('selected')
+      cy_node.removeClass('selected');
     });
 
     // update view link position if node is moved
@@ -645,7 +670,7 @@ class GraphView extends Component {
 
       var forceRender = (cases.switchedToEmptyView || cases.currViewLinkUpdated);
 
-      if(cases.layoutChanged){ this.updateLayout(); }
+      if(cases.layoutChanged){ this.runLayout(this.props.layout); }
       if(cases.searchTriggered){ this.filterNodes(); }
       if(cases.viewSettingsChanged){ this.updateViewSettings(); }
       if(cases.updateReadLinks){ this.updateReadLinks(); }
@@ -712,7 +737,8 @@ class GraphView extends Component {
             }
           ] }
           layout={ {name: 'preset'} }
-          hideEdgesonViewport={ false }
+          hideEdgesonViewport={ true }
+          textureOnViewPort={ true }
           autolock={ false }
           selectable={ true }
           wheelSensitivity={ 0.15 }
