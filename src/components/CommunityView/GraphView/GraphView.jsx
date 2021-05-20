@@ -67,7 +67,7 @@ class GraphView extends Component {
           const si = cy.supportimages();
 
           // we keep a map with (key, value) of (kfId, count) in order to create duplicate notes with unique ids
-          // simply append the count to the end of their note id
+          // append the count to the end of their note id
           var nodes = new Map();
 
           // clear the support images extension
@@ -100,7 +100,7 @@ class GraphView extends Component {
                 kfToCyMap: nodes,
                 removedEdgeElements: initialRemovedEdgeElements
               });
-              // support-images extension will not trigger a redraw if there are no images in the view - this line handles that
+              // support-images extension will not trigger a redraw if there are no images in the view (images could be leftover from last view) - this line handles that
               if(si.images().length === 0){ si._private.renderer.redraw(); }
               // if a single new element was added to the graph - highlight it
               if(Object.values(this.props.viewLinks).length === prevViewLinksLength + 1){ this.focusRecentAddition(Object.values(this.props.viewLinks)[Object.values(this.props.viewLinks).length - 1]); }
@@ -160,6 +160,7 @@ class GraphView extends Component {
     }
   }
 
+  // handles highlighting the position of any new note added to the graph after its already been rendered
   focusRecentAddition(note){
     var cy = this.cy;
     var kfId = note.to;
@@ -173,6 +174,7 @@ class GraphView extends Component {
     }
   }
 
+  // handles the search by the various queries
   filterNodes(q){
     var cy = this.cy;
     const si = cy.supportimages();
@@ -259,10 +261,10 @@ class GraphView extends Component {
                  var diff = curr_date - elem_date;
                  var secondsDiff = diff/1000;
 
-                 if(query === "today" && !(secondsDiff <= 86400)){ return elem; }
-                 else if(query === "week" && !(secondsDiff <= 604800)){ return elem; }
-                 else if(query === "month" && !(secondsDiff <= 2592000)){ return elem; }
-                 else if(query === "year" && !(secondsDiff <= 31556952)){ return elem; }
+                 if(query === "today" && !(secondsDiff <= 86400) ||
+                    query === "week" && !(secondsDiff <= 604800) ||
+                    query === "month" && !(secondsDiff <= 2592000) ||
+                    query === "year" && !(secondsDiff <= 31556952)){ return elem; }
                }
             });
             break;
@@ -277,6 +279,7 @@ class GraphView extends Component {
     }
   }
 
+  // handles the opening of different types of nodes on the graph
   handleNodeOpen(evt){
     var cy_node = evt.target;
     var kfId = cy_node.data('kfId');
@@ -311,7 +314,7 @@ class GraphView extends Component {
     return result;
   }
 
-  // batch updates the nodes and edges corresponding to the view settings
+  // batch updates the nodes and edges styling corresponding to the view settings
   updateViewSettings(){
     var cy = this.cy;
 
@@ -364,7 +367,7 @@ class GraphView extends Component {
   // helper function for handling running different types of layouts
   runLayout(layoutType){
     var cy = this.cy;
-    // for preset we just reset the state and rerender the entire graph
+    // for preset we dont actually run the cytoscape "preset" layout we just reset the state and rerender the entire graph
     if(layoutType === "preset"){
       this.setState({
         elements: {nodes: [], edges: []},
@@ -375,8 +378,7 @@ class GraphView extends Component {
       this.loadElements(Object.keys(this.props.viewLinks).length, true);
       cy.reset();
     } else {
-      // for spread layout we specify some parameters for running it
-      // otherwise we just run layouts as default
+      // for spread layout we specify some parameters for running it, otherwise we run the layouts as default
       var layout = (layoutType === "spread") ? ({
         name: layoutType,
         animate: false,
@@ -422,7 +424,7 @@ class GraphView extends Component {
     // add the panzoom control
     cy.panzoom( defaults );
 
-    // CYTOSCAPE CONTEXT MENU EXTENSION
+    // CYTOSCAPE CONTEXT MENU EXTENSION (RIGHT CLICK MENU)
     var options = {
         evtType: ['cxttap', 'cysupportimages.imageselected'],
         menuItems: [
@@ -552,8 +554,7 @@ class GraphView extends Component {
       ref.handleNodeOpen(evt);
     });
 
-    // when a node is selected in a box select add styling to reflect that +
-    // remove the unselected nodes
+    // when a node is selected in a box select add styling to reflect that + remove the unselected nodes from the graph
     cy.on('boxselect', 'node', (evt) => {
       var cy_node = evt.target;
       cy_node.addClass('selected')
@@ -561,8 +562,7 @@ class GraphView extends Component {
       ref.setState({removedBoxSelectElements: nodesToHide});
     });
 
-    // run the spread layout for visibility + notify user how to restore the graph
-    // when a box selection is finished
+    // run the spread layout for visibility + notify user how to restore the graph when a box selection is finished
     cy.on('boxend', (evt) => {
       addNotification({
         title: 'Layout Tooltip',
@@ -574,8 +574,7 @@ class GraphView extends Component {
       else{ ref.runLayout("spread"); }
     });
 
-    // remove styling from boxselect on unselect +
-    // restore the removed nodes and layout
+    // remove styling from boxselect on unselect
     cy.on('unselect', 'node', (evt) => {
       var cy_node = evt.target;
       cy_node.removeClass('selected');
@@ -741,12 +740,9 @@ const mapStateToProps = (state, ownProps) => {
         token: state.globals.token,
         server: state.globals.currentServer,
         community: state.globals.community,
-        viewId: state.globals.viewId,
         author: state.globals.author,
         authors: state.users,
         viewNotes: state.notes.viewNotes,
-        viewLinks: state.notes.viewLinks,
-        readLinks: state.notes.readLinks,
         buildsOn: state.notes.buildsOn,
         references: state.notes.references,
         supports: state.notes.supports,
