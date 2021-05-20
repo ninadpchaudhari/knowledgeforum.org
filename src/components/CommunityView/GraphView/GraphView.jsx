@@ -193,13 +193,14 @@ class GraphView extends Component {
     var self = this;
     switch (filter) {
         case "title":
-            // eslint-disable-next-line
             nodesToHide = cy.filter(function(elem, i){
                const elem_type = elem.data('type');
                const elem_title = elem.data('name');
                if((elem_type === "note" || elem_type === "View" || elem_type === "riseabove" || elem_type === "Attachment") && !elem_title.toLowerCase().includes(query.toLowerCase())){
                  return elem;
                }
+
+               return null;
             });
 
             // for(let i in imgs){
@@ -212,24 +213,24 @@ class GraphView extends Component {
             break;
 
         case "content":
-            // eslint-disable-next-line
             notes.filter(function (obj) {
                 if (obj.data && ( (obj.data.English && !obj.data.English.includes(query)) || (obj.data.body && !obj.data.body.includes(query)) ) ) {
                   var cy_ids = self.findCyIdsFromKfId(obj._id);
                   for(let j in cy_ids){ nodesToHide = nodesToHide.union(cy.$('#'+cy_ids[j])); }
                 }
+                return null;
             });
 
             break;
 
         case "author":
-            // eslint-disable-next-line
             nodesToHide = cy.filter(function(elem, i){
                const elem_type = elem.data('type');
                const elem_author = elem.data('author');
                if((elem_type === "note" || elem_type === "View" || elem_type === "riseabove" || elem_type === "Attachment") && !elem_author.toLowerCase().includes(query.toLowerCase())){
                  return elem;
                }
+               return null;
             });
 
             // for(let i in imgs){
@@ -243,29 +244,29 @@ class GraphView extends Component {
 
         case "scaffold":
             const noteIds = this.props.supports.filter(support => support.from === query).map(support => support.to);
-            // eslint-disable-next-line
             notes.filter(function(note){
               if(!noteIds.includes(note._id)){
                 var cy_ids = self.findCyIdsFromKfId(note._id);
                 for(let j in cy_ids){ nodesToHide = nodesToHide.union(cy.$('#'+cy_ids[j])); }
               }
+              return null;
             });
             break;
 
         case "time":
             var curr_date = new Date();
-            // eslint-disable-next-line
             nodesToHide = cy.filter(function(elem, i){
                const elem_date = new Date(elem.data('date'));
                if(elem.data('date') !== undefined && elem_date !== "Invalid Date"){
                  var diff = curr_date - elem_date;
                  var secondsDiff = diff/1000;
 
-                 if(query === "today" && !(secondsDiff <= 86400) ||
-                    query === "week" && !(secondsDiff <= 604800) ||
-                    query === "month" && !(secondsDiff <= 2592000) ||
-                    query === "year" && !(secondsDiff <= 31556952)){ return elem; }
+                 if((query === "today" && !(secondsDiff <= 86400)) ||
+                    (query === "week" && !(secondsDiff <= 604800)) ||
+                    (query === "month" && !(secondsDiff <= 2592000)) ||
+                    (query === "year" && !(secondsDiff <= 31556952))){ return elem; }
                }
+               return null;
             });
             break;
 

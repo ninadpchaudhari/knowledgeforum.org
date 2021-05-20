@@ -123,8 +123,8 @@ class Login extends Component {
                     <Modal.Header>
                       <Modal.Title className="login-modal-title">
                           Knowledge Forum Demo
-                          <a className="kf-demo-modaltitle-btn" onClick={this.handleClose}><i className="fas fa-times"></i></a>
-                          <a className="kf-demo-modaltitle-btn" onClick={this.toggleFullScreenModal}><i className="fas fa-expand-alt"></i></a>
+                          <a href="/#" className="kf-demo-modaltitle-btn" onClick={this.handleClose}><i className="fas fa-times"></i></a>
+                          <a href="/#" className="kf-demo-modaltitle-btn" onClick={this.toggleFullScreenModal}><i className="fas fa-expand-alt"></i></a>
                       </Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="login-modal-body" style={{padding: 0}}>

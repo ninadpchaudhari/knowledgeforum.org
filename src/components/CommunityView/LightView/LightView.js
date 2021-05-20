@@ -121,11 +121,12 @@ class LightView extends Component {
                         var diff = curr_date - note_date;
                         var secondsDiff = diff/1000;
 
-                        if(query === "today" && secondsDiff <= 86400 ||
-                           query === "week" && secondsDiff <= 604800 ||
-                           query === "month" && secondsDiff <= 2592000 ||
-                           query === "year" && secondsDiff <= 31556952 ){ return note; }
+                        if((query === "today" && secondsDiff <= 86400) ||
+                           (query === "week" && secondsDiff <= 604800) ||
+                           (query === "month" && secondsDiff <= 2592000) ||
+                           (query === "year" && secondsDiff <= 31556952)){ return note; }
                       }
+                      return null;
                     });
                     break;
 
