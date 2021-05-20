@@ -1,10 +1,8 @@
 # knowledgeforum.org
 
-knowledgeforum.org is a single sign on site created for the knowledge forum system.  
+[knowledgeforum.org](https://knowledgeforum.org/) is a single sign on site created for the knowledge forum system.  
 
 # Links
-
-[knowledgeforum.org](https://knowledgeforum.org/)
 
 [Knowledge Forum System Repository](https://github.com/SERG-UAlbany/KF6-UAlbany/wiki)
 
