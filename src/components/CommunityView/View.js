@@ -264,12 +264,13 @@ class View extends Component {
                               rootClose
                               overlay={
                                 <Popover id="layoutPopover">
-                                  <Popover.Title>Layout (Temporary)</Popover.Title>
+                                  <Popover.Title>Layouts (Temporary)</Popover.Title>
                                   <Popover.Content>
                                     <Row><Button value="preset" onClick={this.updateLayout} className={this.state.layout==="preset" ? 'activeLayout' : ''}>Original</Button></Row>
                                     <Row><Button value="grid" onClick={this.updateLayout} className={this.state.layout==="grid" ? 'activeLayout' : ''}>Grid</Button></Row>
                                     <Row><Button value="circle" onClick={this.updateLayout} className={this.state.layout==="circle" ? 'activeLayout' : ''}>Circle</Button></Row>
                                     <Row><Button value="spread" onClick={this.updateLayout} className={this.state.layout==="spread" ? 'activeLayout' : ''}>Spread</Button></Row>
+                                    <Row><Button value="cose" onClick={this.updateLayout} className={this.state.layout==="cose" ? 'activeLayout' : ''}>Cose</Button></Row>
                                   </Popover.Content>
                                 </Popover>
                               }>
