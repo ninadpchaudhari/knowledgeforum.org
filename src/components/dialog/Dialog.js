@@ -26,7 +26,7 @@ const Dialog = props => {
             >
                 <Card className='dlg-card'>
                     <Card.Header className='dlg-card-header py-0' style={{alignItems: 'center', display: 'flex'}}>
-                        <span>{props.title}</span>
+                        <span>{!props.editable ? 'Note' : props.title}</span>
                         <Button onClick={props.onClose} variant='link' size='sm' style={{marginLeft:'auto'}}>x</Button>
                     </Card.Header>
                     <Card.Body className='dlg-card-body' style={{position: 'relative'}}>

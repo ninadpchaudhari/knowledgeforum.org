@@ -5,11 +5,16 @@ import CytoscapeComponent from 'react-cytoscapejs';
 import CytoscapePanZoom from 'cytoscape-panzoom';
 import CytoscapeNodeHtmlLabel from 'cytoscape-node-html-label';
 import CytoscapeSupportImages from 'cytoscape-supportimages';
+import CytoscapeContextMenus from 'cytoscape-context-menus';
+import CytoscapeSpread from 'cytoscape-spread';
 
 import { updateViewLink } from '../../../store/async_actions.js'
+import { addNotification } from '../../../store/notifier.js'
 import {addNodesToGraph, addEdgesToGraph } from './GraphView_helper.js';
 import './cytoscape.js-panzoom.css';
+import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import './GraphView.css';
+
 
 import unread_note_icon from '../../../assets/icon_note_blue.png';
 import read_note_icon from '../../../assets/icon_note_red.png';
@@ -17,11 +22,13 @@ import unread_riseabove_icon from '../../../assets/icon_riseabove_blue.png';
 import read_riseabove_icon from '../../../assets/icon_riseabove_red.png';
 import attachment_icon from '../../../assets/icon_attachment.gif';
 import view_icon from '../../../assets/icon_view.png';
-import {MINZOOM, MAXZOOM} from '../../../config.js';
+import {MIN_ZOOMED_FONT_SIZE, MINZOOM, MAXZOOM} from '../../../config.js';
 
 Cytoscape.use(CytoscapePanZoom);
 Cytoscape.use(CytoscapeNodeHtmlLabel);
 Cytoscape.use(CytoscapeSupportImages);
+Cytoscape.use(CytoscapeContextMenus);
+Cytoscape.use(CytoscapeSpread);
 
 class GraphView extends Component {
   constructor(props) {
@@ -31,6 +38,7 @@ class GraphView extends Component {
       elements: {nodes: [], edges: []},
       kfToCyMap: null,
       removedSearchElements: null,
+      removedBoxSelectElements: null,
       removedEdgeElements: null,
       currViewLinksLength: 0,
     };
@@ -42,9 +50,10 @@ class GraphView extends Component {
     this.updateReadLinks = this.updateReadLinks.bind(this);
     this.focusRecentAddition = this.focusRecentAddition.bind(this);
     this.filterNodes = this.filterNodes.bind(this);
+    this.handleNodeOpen = this.handleNodeOpen.bind(this);
     this.getViewSettingsInfo = this.getViewSettingsInfo.bind(this);
     this.updateViewSettings = this.updateViewSettings.bind(this);
-    this.updateLayout = this.updateLayout.bind(this);
+    this.runLayout = this.runLayout.bind(this);
   };
 
   loadElements(prevViewLinksLength, forceRender) {
@@ -58,7 +67,7 @@ class GraphView extends Component {
           const si = cy.supportimages();
 
           // we keep a map with (key, value) of (kfId, count) in order to create duplicate notes with unique ids
-          // simply append the count to the end of their note id
+          // append the count to the end of their note id
           var nodes = new Map();
 
           // clear the support images extension
@@ -91,10 +100,10 @@ class GraphView extends Component {
                 kfToCyMap: nodes,
                 removedEdgeElements: initialRemovedEdgeElements
               });
-              // support-images extension will not trigger a redraw if there are no images in the view - this line handles that
+              // support-images extension will not trigger a redraw if there are no images in the view (images could be leftover from last view) - this line handles that
               if(si.images().length === 0){ si._private.renderer.redraw(); }
               // if a single new element was added to the graph - highlight it
-              if(Object.keys(this.props.viewLinks).length === prevViewLinksLength + 1){ this.focusRecentAddition(Object.keys(this.props.viewLinks)[Object.keys(this.props.viewLinks).length - 1]); }
+              if(Object.values(this.props.viewLinks).length === prevViewLinksLength + 1){ this.focusRecentAddition(Object.values(this.props.viewLinks)[Object.values(this.props.viewLinks).length - 1]); }
           });
       }
   }
@@ -151,17 +160,21 @@ class GraphView extends Component {
     }
   }
 
+  // handles highlighting the position of any new note added to the graph after its already been rendered
   focusRecentAddition(note){
     var cy = this.cy;
     var kfId = note.to;
     var cyIds = this.findCyIdsFromKfId(kfId);
     if(cyIds !== null){
       var newestCyElem = cy.$('#'+cyIds[cyIds.length - 1]);
-      cy.center(newestCyElem);
-      newestCyElem.flashClass('recentAddition', 10000);
+      newestCyElem.addClass('recentAddition');
+      newestCyElem.on(['select', 'grabon'], () => {
+        newestCyElem.removeClass('recentAddition');
+      });
     }
   }
 
+  // handles the search by the various queries
   filterNodes(q){
     var cy = this.cy;
     const si = cy.supportimages();
@@ -180,13 +193,14 @@ class GraphView extends Component {
     var self = this;
     switch (filter) {
         case "title":
-            // eslint-disable-next-line
             nodesToHide = cy.filter(function(elem, i){
                const elem_type = elem.data('type');
                const elem_title = elem.data('name');
                if((elem_type === "note" || elem_type === "View" || elem_type === "riseabove" || elem_type === "Attachment") && !elem_title.toLowerCase().includes(query.toLowerCase())){
                  return elem;
                }
+
+               return null;
             });
 
             // for(let i in imgs){
@@ -199,24 +213,24 @@ class GraphView extends Component {
             break;
 
         case "content":
-            // eslint-disable-next-line
             notes.filter(function (obj) {
                 if (obj.data && ( (obj.data.English && !obj.data.English.includes(query)) || (obj.data.body && !obj.data.body.includes(query)) ) ) {
                   var cy_ids = self.findCyIdsFromKfId(obj._id);
                   for(let j in cy_ids){ nodesToHide = nodesToHide.union(cy.$('#'+cy_ids[j])); }
                 }
+                return null;
             });
 
             break;
 
         case "author":
-            // eslint-disable-next-line
             nodesToHide = cy.filter(function(elem, i){
                const elem_type = elem.data('type');
                const elem_author = elem.data('author');
                if((elem_type === "note" || elem_type === "View" || elem_type === "riseabove" || elem_type === "Attachment") && !elem_author.toLowerCase().includes(query.toLowerCase())){
                  return elem;
                }
+               return null;
             });
 
             // for(let i in imgs){
@@ -230,29 +244,29 @@ class GraphView extends Component {
 
         case "scaffold":
             const noteIds = this.props.supports.filter(support => support.from === query).map(support => support.to);
-            // eslint-disable-next-line
             notes.filter(function(note){
               if(!noteIds.includes(note._id)){
                 var cy_ids = self.findCyIdsFromKfId(note._id);
                 for(let j in cy_ids){ nodesToHide = nodesToHide.union(cy.$('#'+cy_ids[j])); }
               }
+              return null;
             });
             break;
 
         case "time":
             var curr_date = new Date();
-            // eslint-disable-next-line
             nodesToHide = cy.filter(function(elem, i){
                const elem_date = new Date(elem.data('date'));
                if(elem.data('date') !== undefined && elem_date !== "Invalid Date"){
                  var diff = curr_date - elem_date;
                  var secondsDiff = diff/1000;
 
-                 if(query === "today" && !(secondsDiff <= 86400)){ return elem; }
-                 else if(query === "week" && !(secondsDiff <= 604800)){ return elem; }
-                 else if(query === "month" && !(secondsDiff <= 2592000)){ return elem; }
-                 else if(query === "year" && !(secondsDiff <= 31556952)){ return elem; }
+                 if((query === "today" && !(secondsDiff <= 86400)) ||
+                    (query === "week" && !(secondsDiff <= 604800)) ||
+                    (query === "month" && !(secondsDiff <= 2592000)) ||
+                    (query === "year" && !(secondsDiff <= 31556952))){ return elem; }
                }
+               return null;
             });
             break;
 
@@ -263,6 +277,23 @@ class GraphView extends Component {
     if(nodesToHide.length !== 0){
       var removedSearchElements = cy.remove(nodesToHide);
       this.setState({removedSearchElements: removedSearchElements});
+    }
+  }
+
+  // handles the opening of different types of nodes on the graph
+  handleNodeOpen(evt){
+    var cy_node = evt.target;
+    var kfId = cy_node.data('kfId');
+    var type = cy_node.data('type');
+
+    if(!cy_node.data('canOpen')){
+      addNotification({ title: 'Cannot open contribution: "' + cy_node.data('name') + '"', type: 'default', message: '"' + cy_node.data('name') + '" is locked.' })
+    } else if(cy_node.hasClass("attachment") || type === "riseabove" || type === "note") {
+      this.props.onNoteClick(kfId);
+      if(type === "riseabove"){ cy_node.addClass('read-riseabove').removeClass('unread-riseabove'); }
+      if(type === "note"){ cy_node.addClass('read-note').removeClass('unread-note'); }
+    } else if(cy_node.hasClass('view')) {
+      this.props.onViewClick(kfId);
     }
   }
 
@@ -284,7 +315,7 @@ class GraphView extends Component {
     return result;
   }
 
-  // batch updates the nodes and edges corresponding to the view settings
+  // batch updates the nodes and edges styling corresponding to the view settings
   updateViewSettings(){
     var cy = this.cy;
 
@@ -334,19 +365,34 @@ class GraphView extends Component {
 
   }
 
-  updateLayout(){
-    if(this.props.layout === "preset"){
-      this.setState({elements: {nodes: [], edges: []}});
+  // helper function for handling running different types of layouts
+  runLayout(layoutType){
+    var cy = this.cy;
+    // for preset we dont actually run the cytoscape "preset" layout we just reset the state and rerender the entire graph
+    if(layoutType === "preset"){
+      this.setState({
+        elements: {nodes: [], edges: []},
+        removedSearchElements: null,
+        removedBoxSelectElements: null,
+        removedEdgeElements: null,
+      });
       this.loadElements(Object.keys(this.props.viewLinks).length, true);
+      cy.reset();
     } else {
-      var cy = this.cy;
-      var layout = cy.layout({name: this.props.layout});
-      layout.run();
+      // for spread layout we specify some parameters for running it, otherwise we run the layouts as default
+      var layout = (layoutType === "spread") ? ({
+        name: layoutType,
+        animate: false,
+        prelayout: false,
+      })
+      : {name: layoutType};
+      cy.layout(layout).run();
     }
   }
 
   componentDidMount() {
     var cy = this.cy;
+    var ref = this;
 
     // CYTOSCAPE-PANZOOM EXTENSION
     // the default values of each option are outlined below:
@@ -379,6 +425,34 @@ class GraphView extends Component {
     // add the panzoom control
     cy.panzoom( defaults );
 
+    // CYTOSCAPE CONTEXT MENU EXTENSION (RIGHT CLICK MENU)
+    var options = {
+        evtType: ['cxttap', 'cysupportimages.imageselected'],
+        menuItems: [
+          {
+            id: 'open',
+            content: 'Open',
+            selector: 'node',
+            onClickFunction: function (evt) {
+              ref.handleNodeOpen(evt)
+            },
+            disabled: false,
+            coreAsWell: false,
+          },
+          {
+            id: 'new-note',
+            content: 'New Note Here',
+            selector: '',
+            coreAsWell: true,
+            onClickFunction: function (evt) {
+              console.log('new note');
+            }
+          }
+        ],
+    };
+
+    cy.contextMenus(options);
+
     // CYTOSCAPE-NODE-HTML-LABEL EXTENSION
     cy.nodeHtmlLabel([
       {
@@ -389,178 +463,170 @@ class GraphView extends Component {
         valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
         cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + (data.groupName !== null ? data.groupName : data.author) + '<br>' + data.date + '</div>';
           }
-          return '';
         }
       },
       {
         query: '.nodehtmllabel-group-author-nodate',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        halign: 'center',
+        valign: 'bottom',
+        halignBox: 'right',
+        valignBox: 'bottom',
+        cssClass: 'cytoscape-label',
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + (data.groupName !== null ? data.groupName : data.author) + '</div>';
           }
-          return '';
         }
       },
       {
         query: '.nodehtmllabel-group-noauthor-date',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        halign: 'center',
+        valign: 'bottom',
+        halignBox: 'right',
+        valignBox: 'bottom',
+        cssClass: 'cytoscape-label',
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return (data.groupName !== null) ? ('<div>' + data.groupName + '<br>' + data.date + '</div>') : ('<div>' + data.date + '</div>');
           }
-          return '';
         }
       },
       {
         query: '.nodehtmllabel-group-noauthor-nodate',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        halign: 'center',
+        valign: 'bottom',
+        halignBox: 'right',
+        valignBox: 'bottom',
+        cssClass: 'cytoscape-label',
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + (data.groupName !== null ? data.groupName : '') + '</div>';
           }
-          return '';
         }
       },
       {
         query: '.nodehtmllabel-nogroup-author-date',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        halign: 'center',
+        valign: 'bottom',
+        halignBox: 'right',
+        valignBox: 'bottom',
+        cssClass: 'cytoscape-label',
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + data.author + '<br>' + data.date + '</div>';
           }
-          return '';
         }
       },
       {
         query: '.nodehtmllabel-nogroup-author-nodate',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        halign: 'center',
+        valign: 'bottom',
+        halignBox: 'right',
+        valignBox: 'bottom',
+        cssClass: 'cytoscape-label',
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + data.author + '</div>';
           }
-          return '';
         }
       },
       {
         query: '.nodehtmllabel-nogroup-noauthor-date',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
+        halign: 'center',
+        valign: 'bottom',
+        halignBox: 'right',
+        valignBox: 'bottom',
+        cssClass: 'cytoscape-label',
         tpl: function(data){
-          // we only want author and creation date listed for notes
           if(data.type === 'note' || data.type === 'riseabove' || data.type === 'Attachment' || data.type === 'Drawing'){
             return '<div>' + data.date + '</div>';
           }
-          return '';
-        }
-      },
-      {
-        query: '.nodehtmllabel-nogroup-noauthor-nodate',
-        halign: 'center', // title horizontal position. Can be 'left',''center, 'right'
-        valign: 'bottom', // title vertical position. Can be 'top',''center, 'bottom'
-        halignBox: 'right', // title relative box horizontal position. Can be 'left',''center, 'right'
-        valignBox: 'bottom', // title relative box vertical position. Can be 'top',''center, 'bottom'
-        cssClass: 'cytoscape-label', // any classes will be as attribute of <div> container for every title
-        tpl: function(data){
-          return '';
         }
       },
     ]);
 
     this.loadElements();
 
-    var ref = this;
-    // on single click of node log its kf id and mark it as read
-    cy.on('tap', 'node', function(event){
-      var kfId = this.data('kfId');
-      var type = this.data('type');
-
-      if(this.hasClass("image")){
-        console.log("image");
-      } else if(this.hasClass("attachment")){
-          ref.props.onNoteClick(kfId)
-      } else if(this.hasClass("view")){
-          ref.props.onViewClick(kfId);
-      } else {
-        if(type === "riseabove"){
-            ref.props.onNoteClick(kfId)
-            this.removeClass("unread-riseabove");
-            this.addClass("read-riseabove");
-        } else if(type === "note"){
-            ref.props.onNoteClick(kfId)
-            this.removeClass("unread-note");
-            this.addClass("read-note");
-        }
-      }
+    // open contribution on tap of its node
+    cy.on('tap', 'node', function(evt){
+      ref.handleNodeOpen(evt);
     });
 
-      cy.on('dragfree', 'node', (evt) => {
-          const {x, y} = evt.target.position();
+    // when a node is selected in a box select add styling to reflect that + remove the unselected nodes from the graph
+    cy.on('boxselect', 'node', (evt) => {
+      var cy_node = evt.target;
+      cy_node.addClass('selected')
+      var nodesToHide = cy.remove(cy.elements("node:unselected"));
+      ref.setState({removedBoxSelectElements: nodesToHide});
+    });
 
-          var kfId = evt.target.data().kfId;
-
-          let viewLink = Object.values(this.props.viewLinks).filter((link) => link.to === kfId)
-          if (viewLink !== undefined && viewLink.length) {
-              viewLink = viewLink[0];
-              const data = {x, y}
-              const newViewLink = { ...viewLink }
-              newViewLink.data = { ...newViewLink.data, ...data };
-              this.props.updateViewLink(newViewLink)
-          }
+    // run the spread layout for visibility + notify user how to restore the graph when a box selection is finished
+    cy.on('boxend', (evt) => {
+      addNotification({
+        title: 'Layout Tooltip',
+        type: 'default',
+        message: 'Use the "Original" layout on the sidebar button to restore the graph to its initial state.',
+        dismiss: {duration: 5000}
       })
+      if(ref.props.layout !== "spread") ref.props.updateParentLayoutProp({target: {value: "spread"}});
+      else{ ref.runLayout("spread"); }
+    });
 
-      //Update view link of image if position is changed
-      cy.on('cysupportimages.imagemoved', (evt, img) => {
-          let viewLink = this.props.viewLinks[img.linkId]
-          if (viewLink !== undefined) {
-              const data = {x: img.bounds.x, y: img.bounds.y}
-              const newViewLink = { ...viewLink }
-              newViewLink.data = { ...newViewLink.data, ...data };
-              this.props.updateViewLink(newViewLink)
-          }
-      })
+    // remove styling from boxselect on unselect
+    cy.on('unselect', 'node', (evt) => {
+      var cy_node = evt.target;
+      cy_node.removeClass('selected');
+    });
 
-      cy.on('cysupportimages.imageresized', (evt, img, b1, b2) => {
-          let viewLink = this.props.viewLinks[img.linkId]
-          if (viewLink !== undefined) {
-              const data = {width: img.bounds.width, height: img.bounds.height}
-              const newViewLink = { ...viewLink }
-              newViewLink.data = { ...newViewLink.data, ...data };
-              this.props.updateViewLink(newViewLink)
-          }
-      })
+    // update view link position if node is moved
+    cy.on('dragfree', 'node', (evt) => {
+        const {x, y} = evt.target.position();
+
+        var kfId = evt.target.data().kfId;
+
+        let viewLink = Object.values(this.props.viewLinks).filter((link) => link.to === kfId)
+        if (viewLink !== undefined && viewLink.length) {
+            viewLink = viewLink[0];
+            const data = {x, y}
+            const newViewLink = { ...viewLink }
+            newViewLink.data = { ...newViewLink.data, ...data };
+            this.props.updateViewLink(newViewLink)
+        }
+    })
+
+    // open image contribution when it is selected
+    cy.on('cysupportimages.imageselected', (evt, img) => {
+      // wait 100ms to see if it is just being moved
+      // if it is we do not open the contribution
+      window.setTimeout(function(){
+        if(!img._private.dragging){ ref.props.onNoteClick(img.kfId); }
+      }, 100);
+    })
+
+    //Update view link position of image if moved
+    cy.on('cysupportimages.imagemoved', (evt, img) => {
+        let viewLink = this.props.viewLinks[img.linkId]
+        if (viewLink !== undefined) {
+            const data = {x: img.bounds.x, y: img.bounds.y}
+            const newViewLink = { ...viewLink }
+            newViewLink.data = { ...newViewLink.data, ...data };
+            this.props.updateViewLink(newViewLink)
+        }
+    })
+
+    //Update view link of image if resized
+    cy.on('cysupportimages.imageresized', (evt, img, b1, b2) => {
+        let viewLink = this.props.viewLinks[img.linkId]
+        if (viewLink !== undefined) {
+            const data = {width: img.bounds.width, height: img.bounds.height}
+            const newViewLink = { ...viewLink }
+            newViewLink.data = { ...newViewLink.data, ...data };
+            this.props.updateViewLink(newViewLink)
+        }
+    })
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -589,7 +655,7 @@ class GraphView extends Component {
 
       var forceRender = (cases.switchedToEmptyView || cases.currViewLinkUpdated);
 
-      if(cases.layoutChanged){ this.updateLayout(); }
+      if(cases.layoutChanged){ this.runLayout(this.props.layout); }
       if(cases.searchTriggered){ this.filterNodes(); }
       if(cases.viewSettingsChanged){ this.updateViewSettings(); }
       if(cases.updateReadLinks){ this.updateReadLinks(); }
@@ -607,6 +673,7 @@ class GraphView extends Component {
               selector: 'node',
               style: {
                 'label': "data(name)",
+                'min-zoomed-font-size': MIN_ZOOMED_FONT_SIZE,
                 'font-size': '11px',
                 'text-halign': 'right',
                 'text-valign': 'center',
@@ -614,8 +681,10 @@ class GraphView extends Component {
                 'padding': '0',
                 'background-opacity': '0',
                 'background-clip': 'none',
+                'background-repeat': 'no-repeat',
                 'background-width': '15px',
                 'background-height': '15px',
+                'shape': 'round-rectangle',
               }
             },
             {
@@ -646,10 +715,19 @@ class GraphView extends Component {
                 'border-color': 'red',
               }
             },
+            {
+              selector: '.selected',
+              style: {
+                'background-opacity': '0.25',
+                'background-color': 'black'
+              }
+            }
           ] }
           layout={ {name: 'preset'} }
-          hideEdgesonViewport={ false }
+          hideEdgesonViewport={ true }
+          textureOnViewPort={ true }
           autolock={ false }
+          selectable={ true }
           wheelSensitivity={ 0.15 }
           minZoom={ MINZOOM }
           maxZoom={ MAXZOOM }
@@ -663,12 +741,9 @@ const mapStateToProps = (state, ownProps) => {
         token: state.globals.token,
         server: state.globals.currentServer,
         community: state.globals.community,
-        viewId: state.globals.viewId,
         author: state.globals.author,
         authors: state.users,
         viewNotes: state.notes.viewNotes,
-        viewLinks: state.notes.viewLinks,
-        readLinks: state.notes.readLinks,
         buildsOn: state.notes.buildsOn,
         references: state.notes.references,
         supports: state.notes.supports,

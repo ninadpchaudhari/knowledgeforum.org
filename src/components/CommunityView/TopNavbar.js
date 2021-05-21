@@ -21,11 +21,15 @@ class TopNavbar extends Component {
   handleFilter = (e) => {
       let value = e.target.value;
       var query;
+      // set defaults for scaffold, author, and time search
       if(value === "scaffold"){
+        // default scaffold is the first scaffold and its first support
         query = this.props.scaffolds[0].supports[0].to;
       } else if(value === "author"){
+        // default author is the current user
         query = this.props.user.firstName + " " + this.props.user.lastName;
       } else if(value === "time"){
+        // default time is today
         query = "today";
       } else {
         query = '';
@@ -39,7 +43,7 @@ class TopNavbar extends Component {
       const query = event.target.value
       this.setState({query: query});
       if(query === '' || this.props.filter === 'scaffold' || this.props.filter === "author" || this.props.filter === "time") this.props.setSearchQuery(query);
-  };
+  }
 
   handleSearchSubmit = (e) => {
     this.props.setSearchQuery(this.state.query);

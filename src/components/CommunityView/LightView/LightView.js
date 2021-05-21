@@ -113,6 +113,23 @@ class LightView extends Component {
                     filteredResults = notes.filter(note => noteIds.includes(note._id))
                     break;
 
+                case "time":
+                    var curr_date = new Date();
+                    filteredResults = notes.filter((note) => {
+                      const note_date = new Date(note.created);
+                      if(note_date !== "Invalid Date"){
+                        var diff = curr_date - note_date;
+                        var secondsDiff = diff/1000;
+
+                        if((query === "today" && secondsDiff <= 86400) ||
+                           (query === "week" && secondsDiff <= 604800) ||
+                           (query === "month" && secondsDiff <= 2592000) ||
+                           (query === "year" && secondsDiff <= 31556952)){ return note; }
+                      }
+                      return null;
+                    });
+                    break;
+
                 default:
                     break;
             }

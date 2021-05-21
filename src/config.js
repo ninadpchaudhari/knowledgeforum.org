@@ -12,6 +12,7 @@ export const SERVERS = [
 ];
 
 // ZOOM VALUES FOR CYTOSCAPE GRAPH
+export const MIN_ZOOMED_FONT_SIZE = '6px';
 export const MINZOOM = 0.25;
 export const MAXZOOM = 10;
 
