@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import ReactNotification from 'react-notifications-component';
+//import ReactNotification from 'react-notifications-component';
 import Login from './components/Login/Login.jsx';
 import Dashboard from './components/Dashboard/Dashboard.jsx';
 import View from './components/CommunityView/View.js'
@@ -25,7 +25,7 @@ function App() {
 
     return (
         <div id="sub-root">
-            <ReactNotification />
+            {/* <ReactNotification /> */}
             <Router>
                 <Switch>
                     <Route exact path="/" component={Login}/>
