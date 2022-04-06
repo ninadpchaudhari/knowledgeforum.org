@@ -1,6 +1,7 @@
 import React from 'react'
 import { Editor } from '@tinymce/tinymce-react'
 import Mark from '../../../node_modules/mark.js/dist/mark.min'
+import tinymce from 'tinymce'
 /* import './editor.css' */
 
 class MCEditor extends React.Component {
@@ -9,11 +10,13 @@ class MCEditor extends React.Component {
   }
   componentDidUpdate() {
     const iframe = document.querySelector('iframe')
-    const innerDoc = iframe.contentDocument || iframe.contentWindow.document
-    const context = innerDoc.querySelector('#tinymce')
-    const instance = new Mark(context)
-    console.log(instance)
-    this.highlightTest(instance, context)
+    if (iframe) {
+      const innerDoc = iframe.contentDocument || iframe.contentWindow.document
+      const context = innerDoc.querySelector('#tinymce')
+      const instance = new Mark(context)
+      console.log(tinymce.activeEditor)
+      this.highlightTest(instance, context)
+    }
   }
   highlightTest = (instance, context) => {
     const keywords = ['Thinking Fast and Slow', 'Self Organization', 'Emergence', 'Edge of chaos', 'Design Thinking', 'Knowledge Creation', 'Centralized Mindset',
@@ -23,7 +26,8 @@ class MCEditor extends React.Component {
     instance.unmark({
       done: () => {
         instance.mark(keywords)
-        context.focus()
+        tinymce.activeEditor.selection.select(tinymce.activeEditor.getBody(), true)
+        tinymce.activeEditor.selection.collapse(false)
       },
     })
   }
