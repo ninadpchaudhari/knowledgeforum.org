@@ -94,7 +94,7 @@ class GraphView extends Component {
                       si.addSupportImage(graph_results[i]);
                   }
               }
-
+              this.props.setNode(cy_elements.nodes)
               self.setState({
                 elements: cy_elements,
                 kfToCyMap: nodes,
