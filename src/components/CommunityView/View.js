@@ -275,7 +275,7 @@ class View extends Component {
             {viewToRender}
           </div>
           <div className='col-md' id='author-bar' style={{ maxWidth: '220px' }}>
-            <div className='author-header'>Authors</div>
+            <div className='author-header'>Authors Note Count</div>
             <div className='author-container'>
               {Object.keys(result).map(key => (
                 <div key={key}>
