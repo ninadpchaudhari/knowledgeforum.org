@@ -274,15 +274,21 @@ class View extends Component {
           <div className='col-md' id='main-canvas' style={{ maxWidth: 'calc(100% - 220px)' }}>
             {viewToRender}
           </div>
-          <div className='col-md' id='author-bar' style={{ maxWidth: '220px' }}>
-            <div className='author-header'>Authors Note Count</div>
-            <div className='author-container'>
-              {Object.keys(result).map(key => (
-                <div key={key}>
-                  {key} -- {result[key]}
-                </div>
-              ))}
-            </div>
+          <div className='col-md' id='author-bar' style={{ maxWidth: '220px', zIndex: 500, float: 'right' }}>
+            <DropdownButton align="end"
+              max
+              style={{ 'width': '100%', 'maxWidth': '220px' }}
+              title={"Authors Note Count"}
+              id="dropdown-menu-align-end">
+              {
+                Object.keys(result).length == 0 ?
+                  <Dropdown.Item eventKey={'loading'}>{"Loading..."}</Dropdown.Item>
+                  :
+                  Object.keys(result).map((key, index) => (
+                    <Dropdown.Item eventKey={index}>{key + " " + result[key]}</Dropdown.Item>
+                  ))
+              }
+            </DropdownButton>
           </div>
           {/* END MAIN CANVAS */}
         </div>
