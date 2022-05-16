@@ -34,7 +34,8 @@ export const setRiseAboveNotes = createAction('SET_RISEABOVE_NOTES')
 export const setReadLinks = createAction('SET_READ_LINKS')
 export const removeViewLink = createAction('REMOVE_READ_LINKS')
 export const removeViewNote = createAction('REMOVE_VIEW_NOTE')
-const initState = {attachments: {}, viewNotes: {}, checkedNotes: [], viewLinks: {}, buildsOn: [], supports: [], riseAboveNotes: {}, riseAboveViewNotes: {}, readLinks: [], raViews: {}}
+export const setContributionData = createAction('SET_CONTRIBUTION_DATA')
+const initState = {attachments: {}, viewNotes: {}, checkedNotes: [], viewLinks: {}, buildsOn: [], supports: [], riseAboveNotes: {}, riseAboveViewNotes: {}, readLinks: [], raViews: {}, contributionData: []}
 
 export const noteReducer = createReducer(initState, {
     [addNote]: (notes, action) => {
@@ -152,6 +153,9 @@ export const noteReducer = createReducer(initState, {
     },
     [setReadLinks]: (state, action) =>{
         state.readLinks = action.payload
+    },
+    [setContributionData]: (state, action) => {
+        state.contributionData = action.payload
     },
     [addRAView]: (state, action) => {
         if (!state.raViews[action.payload])
@@ -313,7 +317,7 @@ export const postContribution = (contrib, dialogId) => async (dispatch, getState
     contrib = Object.assign({}, contrib)
     contrib.data = Object.assign({}, contrib.data)
     if (!contrib.title) {
-        addNotification({ title: 'Error Saving Note!', type: 'danger', message: 'Title is required' })
+        //addNotification({ title: 'Error Saving Note!', type: 'danger', message: 'Title is required' })
         return
     }
     //TODO sync checking?
@@ -537,4 +541,10 @@ export const deleteAttachment = (contribId, attId) => async (dispatch, getState)
 export const fetchReadLinks = (communityId, viewId) => async (dispatch) =>{
     const readLinks = await api.getApiLinksReadStatus(communityId, viewId)
     dispatch(setReadLinks(readLinks))
+}
+
+export const fetchContribution = (viewId) => async (dispatch) =>{
+     
+    const data = await api.fetchContribution(viewId)
+    dispatch(setContributionData(data))
 }

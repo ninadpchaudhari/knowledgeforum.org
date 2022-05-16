@@ -2,7 +2,7 @@ import { createAction, createReducer } from '@reduxjs/toolkit'
 import { getObject, getCommunity, getGroups, getUser, getAuthor, getCommunityViews, getCommunities, getUserCommunities } from './api.js'
 import { fetchAuthors } from './userReducer.js';
 import { fetchScaffolds } from './scaffoldReducer.js'
-import { fetchViewNotes, fetchBuildsOn, fetchReferences, setCheckedNotes, fetchSupports, fetchReadLinks } from './noteReducer.js'
+import { fetchViewNotes, fetchBuildsOn, fetchReferences, setCheckedNotes, fetchSupports, fetchReadLinks , fetchContribution} from './noteReducer.js'
 export const setDemoStatus = createAction('SET_DEMO_STATUS')
 export const setGlobalToken = createAction('SET_TOKEN')
 export const setCurrentLoginForm = createAction('SET_CURRENT_LOGIN_FORM')
@@ -262,6 +262,10 @@ export const fetchViewCommunityData = (viewId) => async (dispatch) => {
     dispatch(fetchReadLinks(commId, view._id))
     dispatch(fetchScaffolds(commId, community.rootContextId))
     dispatch(fetchSupports(commId))
+}
+
+export const getContribution = (viewId) => async (dispatch) => {
+    dispatch(fetchContribution(viewId))
 }
 
 // A COMPACT VERSION OF fetchViewCommunityData - only retrieves what will be different between views within a community

@@ -659,7 +659,7 @@ class GraphView extends Component {
       if(cases.searchTriggered){ this.filterNodes(); }
       if(cases.viewSettingsChanged){ this.updateViewSettings(); }
       if(cases.updateReadLinks){ this.updateReadLinks(); }
-      if(cases.anyPropUpdated){ this.loadElements(Object.keys(prevProps.viewLinks).length, forceRender); }
+      if(cases.anyPropUpdated){ this.loadElements(Object.keys(prevProps.viewLinks).length, forceRender);}
   }
 
   render() {

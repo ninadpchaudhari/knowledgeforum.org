@@ -19,10 +19,9 @@ class MCEditor extends React.Component {
     }
   }
   highlightTest = (instance, context) => {
-    const keywords = ['Thinking Fast and Slow', 'Self Organization', 'Emergence', 'Edge of chaos', 'Design Thinking', 'Knowledge Creation', 'Centralized Mindset',
-    'Explanatory Coherence', 'Real Ideas, Authentic Problems', 'Improvable Ideas', 'Idea Diversity', 'Rise Above', 'Epistemic Agency',
-    'Collective Responsibility for Community Knowledge', 'Democratizing Knowledge', 'Symmetric Knowledge Advancement', 'Pervasive Knowledge Building',
-    'Constructive Uses of Authoritative Sources', 'Knowledge Building Discourse', 'Embedded, Concurrent and Transformative Assessment', 'Knowledge society']
+    const keywords = ['Thinking', 'Self Organization', 'Emergence', 'chaos', 'Design', 'Knowledge Creation',
+    'Explanatory', 'Real, Authentic', 'Improvable Ideas', 'Idea Diversity', 
+    'Epistemic Agency', 'Democratizing Knowledge']
     instance.unmark({
       done: () => {
         instance.mark(keywords)
